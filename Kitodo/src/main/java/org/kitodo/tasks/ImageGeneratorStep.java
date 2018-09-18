@@ -42,13 +42,13 @@ import org.kitodo.serviceloader.KitodoServiceLoader;
 /**
  * Enumerates the steps to go to generate images.
  */
-public enum ImageGeneratorStep implements Consumer<ImageGeneratorTask> {
+public enum ImageGeneratorStep implements Consumer<ImageGenerator> {
     /**
      * First step, get the list of images in the folder of source images.
      */
     LIST_SOURCE_FOLDER {
         @Override
-        public void accept(ImageGeneratorTask generatorTask) {
+        public void accept(ImageGenerator generatorTask) {
             try {
                 generatorTask.setWorkDetail(Helper.getTranslation("listSourceFolder"));
                 generatorTask.sources = new ContentFolder(generatorTask.sourceFolder)
@@ -71,7 +71,7 @@ public enum ImageGeneratorStep implements Consumer<ImageGeneratorTask> {
      */
     DETERMINE_WHICH_IMAGES_NEED_TO_BE_GENERATED {
         @Override
-        public void accept(ImageGeneratorTask generatorTask) {
+        public void accept(ImageGenerator generatorTask) {
             Pair<String, URI> source = generatorTask.sources.get(generatorTask.position);
             if (!generatorTask.variant.equals(ALL_IMAGES)) {
                 generatorTask.setWorkDetail(
@@ -86,10 +86,10 @@ public enum ImageGeneratorStep implements Consumer<ImageGeneratorTask> {
              * could be parallelized after the underlying problem has been
              * resolved.
              */
-            List<Folder> generations = new ArrayList<Folder>(generatorTask.contentFolders.size());
+            List<Folder> generations = new ArrayList<Folder>(generatorTask.outputs.size());
             Predicate<? super Folder> requiresGeneration = generatorTask.variant.getFilter(generatorTask.vars,
                 source.getKey());
-            for (Folder folder : generatorTask.contentFolders) {
+            for (Folder folder : generatorTask.outputs) {
                 if (requiresGeneration.test(folder)) {
                     generations.add(folder);
                 }
@@ -111,7 +111,7 @@ public enum ImageGeneratorStep implements Consumer<ImageGeneratorTask> {
      */
     GENERATE_IMAGES {
         @Override
-        public void accept(ImageGeneratorTask generatorTask) {
+        public void accept(ImageGenerator generatorTask) {
             try {
                 Pair<Pair<String, URI>, List<Folder>> generation = generatorTask.toBeGenerated
                         .get(generatorTask.position);

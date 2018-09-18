@@ -27,10 +27,17 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitodo.data.database.beans.Folder;
-import org.kitodo.helper.Helper;
 import org.kitodo.helper.tasks.EmptyTask;
+import org.kitodo.production.thread.ImageGeneratorTask;
+import org.kitodo.production.thread.TaskScriptThread;
 
-public class ImageGeneratorTask extends EmptyTask {
+/**
+ * A program that generates images using the image management interface. This
+ * program is run by the {@link ImageGeneratorTask} when the user manually
+ * initiates the creation of the images. If the images are generated when the
+ * task is completed, this is done by the {@link TaskScriptThread}.
+ */
+public class ImageGenerator implements Runnable {
     private static final Logger logger = LogManager.getLogger(ImageGeneratorTask.class);
 
     /**
@@ -56,7 +63,7 @@ public class ImageGeneratorTask extends EmptyTask {
     /**
      * Output folders.
      */
-    List<Folder> contentFolders;
+    List<Folder> outputs;
 
     /**
      * Current position in list.
@@ -73,6 +80,8 @@ public class ImageGeneratorTask extends EmptyTask {
      */
     Map<String, String> vars;
 
+    EmptyTask worker;
+
     /**
      * Creates a new process title.
      *
@@ -82,48 +91,19 @@ public class ImageGeneratorTask extends EmptyTask {
      *            image source folder
      * @param variant
      *            variant of image generation
-     * @param contentFolders
+     * @param outputs
      *            output folders to generate to
      */
-    public ImageGeneratorTask(String processtitle, Folder sourceFolder, ImageGeneratorTaskVariant variant,
-            List<Folder> contentFolders) {
-        super(processtitle);
+    public ImageGenerator(String processtitle, Folder sourceFolder, ImageGeneratorTaskVariant variant,
+            List<Folder> outputs) {
         this.sourceFolder = sourceFolder;
         this.variant = variant;
-        this.contentFolders = contentFolders;
+        this.outputs = outputs;
         this.state = LIST_SOURCE_FOLDER;
         this.sources = Collections.emptyList();
         this.toBeGenerated = new LinkedList<>();
         this.vars = new HashMap<>();
         vars.put("processtitle", processtitle);
-    }
-
-    /**
-     * Creates a copy of this thread, to continue it after it was terminated.
-     *
-     * @param master
-     *            stopped thread
-     */
-    public ImageGeneratorTask(ImageGeneratorTask master) {
-        super(master);
-        this.sourceFolder = master.sourceFolder;
-        this.variant = master.variant;
-        this.contentFolders = master.contentFolders;
-        this.state = master.state;
-        this.position = master.position;
-        this.sources = master.sources;
-        this.toBeGenerated = master.toBeGenerated;
-        this.vars = master.vars;
-    }
-
-    /**
-     * Returns the display name of the task to show to the user.
-     *
-     * @see de.sub.goobi.helper.tasks.INameableTask#getDisplayName()
-     */
-    @Override
-    public String getDisplayName() {
-        return Helper.getTranslation("ImageGeneratorTask");
     }
 
     /**
@@ -135,20 +115,15 @@ public class ImageGeneratorTask extends EmptyTask {
      */
     @Override
     public void run() {
-        try {
-            do {
-                state.accept(this);
-                position++;
-                setProgress();
-                if (isInterrupted()) {
-                    return;
-                }
-            } while (!(state.equals(GENERATE_IMAGES) && position == toBeGenerated.size()));
-            logger.info("Completed");
-        } catch (RuntimeException e) {
-            logger.error(e.getMessage(), e);
-            setException(e);
-        }
+        do {
+            state.accept(this);
+            position++;
+            setProgress();
+            if (worker.isInterrupted()) {
+                return;
+            }
+        } while (!(state.equals(GENERATE_IMAGES) && position == toBeGenerated.size()));
+        logger.info("Completed");
     }
 
     private void setProgress() {
@@ -156,19 +131,24 @@ public class ImageGeneratorTask extends EmptyTask {
                 + (variant.equals(ALL_IMAGES) && state.equals(DETERMINE_WHICH_IMAGES_NEED_TO_BE_GENERATED) ? 0
                         : position);
         int all = sources.size() + (variant.equals(ALL_IMAGES) ? 1 : toBeGenerated.size()) + 1;
-        super.setProgress(100d * (before + 1) / all);
+        if (worker != null) {
+            worker.setProgress(100d * (before + 1) / all);
+        }
     }
 
-    /**
-     * Calls the clone constructor to create a not yet executed instance of this
-     * thread object. This is necessary for threads that have terminated in
-     * order to render possible to restart them.
-     *
-     * @return a not-yet-executed replacement of this thread
-     * @see de.sub.goobi.helper.tasks.EmptyTask#replace()
-     */
-    @Override
-    public ImageGeneratorTask replace() {
-        return new ImageGeneratorTask(this);
+    public void setWorker(EmptyTask worker) {
+        this.worker = worker;
+    }
+
+    public void setWorkDetail(String translation) {
+        if (worker != null) {
+            worker.setWorkDetail(translation);
+        }
+    }
+
+    public void setProgress(int i) {
+        if (worker != null) {
+            worker.setProgress(i);
+        }
     }
 }

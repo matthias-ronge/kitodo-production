@@ -56,7 +56,7 @@ import org.kitodo.helper.WebDav;
 import org.kitodo.helper.batch.BatchTaskHelper;
 import org.kitodo.helper.tasks.TaskManager;
 import org.kitodo.model.LazyDTOModel;
-import org.kitodo.tasks.ImageGeneratorTask;
+import org.kitodo.production.thread.ImageGeneratorTask;
 import org.kitodo.tasks.ImageGeneratorTaskVariant;
 import org.kitodo.workflow.Problem;
 import org.kitodo.workflow.Solution;
