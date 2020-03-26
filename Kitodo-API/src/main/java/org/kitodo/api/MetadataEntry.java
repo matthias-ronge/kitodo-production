@@ -74,6 +74,9 @@ public class MetadataEntry extends Metadata {
      * @return The value of the metadata.
      */
     public String getValue() {
+        if (Objects.isNull(value)) {
+            throw new NullPointerException("Trying to get metadata value that was never set");
+        }
         return value;
     }
 
@@ -84,6 +87,9 @@ public class MetadataEntry extends Metadata {
      *            The value of the metadata entry.
      */
     public void setValue(String value) {
+        if (Objects.isNull(value)) {
+            throw new NullPointerException("Metadata value must not be null");
+        }
         this.value = value;
     }
 }
