@@ -27,7 +27,7 @@ public class ProcessType extends BaseType<Process> {
 
     @Override
     Map<String, Object> getJsonObject(Process process) {
-        String processBaseUri = process.getProcessBaseUri() != null ? process.getProcessBaseUri().getRawPath() : "";
+        String processBaseUri = process.getProcessBaseUri() != null ? process.getProcessBaseUri() : "";
         boolean projectActive = process.getProject() != null && process.getProject().isActive();
         int projectClientId = process.getProject() != null ? getId(process.getProject().getClient()) : 0;
         int processParentId = Objects.nonNull(process.getParent()) ? process.getParent().getId() : 0;

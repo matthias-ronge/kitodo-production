@@ -62,6 +62,7 @@ import org.kitodo.production.metadata.comparator.MetadataImageComparator;
 import org.kitodo.production.model.Subfolder;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.command.CommandService;
+import org.kitodo.production.services.data.ProcessService;
 import org.kitodo.production.services.data.RulesetService;
 import org.kitodo.serviceloader.KitodoServiceLoader;
 
@@ -826,11 +827,13 @@ public class FileService {
      * @return the URI.
      */
     public URI getProcessBaseUriForExistingProcess(Process process) {
-        URI processBaseUri = process.getProcessBaseUri();
+        final ProcessService processService = ServiceManager.getProcessService();
+        URI processBaseUri = processService.getProcessBaseUri(process);
         if (Objects.isNull(processBaseUri) && Objects.nonNull(process.getId())) {
-            process.setProcessBaseUri(fileManagementModule.createUriForExistingProcess(process.getId().toString()));
+            processService.setProcessBaseUri(process,
+                fileManagementModule.createUriForExistingProcess(process.getId().toString()));
         }
-        return process.getProcessBaseUri();
+        return processService.getProcessBaseUri(process);
     }
 
     /**
@@ -1007,7 +1010,7 @@ public class FileService {
             }
         }
         List<String> canonicals = getCanonicalFileNamePartsAndSanitizeAbsoluteURIs(workpiece, subfolders,
-            process.getProcessBaseUri());
+            ServiceManager.getProcessService().getProcessBaseUri(process));
         addNewURIsToExistingMediaUnits(mediaToAdd, workpiece.getAllMediaUnitsSorted(), canonicals);
         mediaToAdd.keySet().removeAll(canonicals);
         addNewMediaToWorkpiece(canonicals, mediaToAdd, workpiece);

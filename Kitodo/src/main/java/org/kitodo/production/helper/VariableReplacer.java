@@ -102,7 +102,7 @@ public class VariableReplacer {
         try {
 
             String tifPath = replaceSlashAndSeparator(processService.getImagesTifDirectory(false, this.process.getId(),
-                    this.process.getTitle(), this.process.getProcessBaseUri()));
+                this.process.getTitle(), ProcessService.getProcessBaseUri(this.process)));
             inString = replaceStringAccordingToOS(inString, "(tifurl)", tifPath);
             inString = replaceString(inString, "(tifpath)", tifPath);
 

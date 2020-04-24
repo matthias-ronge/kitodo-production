@@ -334,7 +334,7 @@ public class ExportDms extends ExportMets {
             throws IOException {
         // determine the source folder
         URI tifOrdner = ServiceManager.getProcessService().getImagesTifDirectory(true, process.getId(),
-            process.getTitle(), process.getProcessBaseUri());
+            process.getTitle(), ServiceManager.getProcessService().getProcessBaseUri(process));
 
         // copy the source folder to the destination folder
         if (fileService.fileExist(tifOrdner) && !fileService.getSubUris(tifOrdner).isEmpty()) {

@@ -11,7 +11,6 @@
 
 package org.kitodo.data.database.beans;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +59,7 @@ public class Process extends BaseTemplateBean {
     private String wikiField = "";
 
     @Column(name = "processBaseUri")
-    private URI processBaseUri;
+    private String processBaseUri;
 
     @Column(name = "ordering")
     private Integer ordering;
@@ -230,7 +229,7 @@ public class Process extends BaseTemplateBean {
     /**
      * Gets the process base URI.
      */
-    public URI getProcessBaseUri() {
+    public String getProcessBaseUri() {
         return processBaseUri;
     }
 
@@ -240,7 +239,7 @@ public class Process extends BaseTemplateBean {
      * @param processBaseUri
      *            the given process base URI
      */
-    public void setProcessBaseUri(URI processBaseUri) {
+    public void setProcessBaseUri(String processBaseUri) {
         this.processBaseUri = processBaseUri;
     }
 

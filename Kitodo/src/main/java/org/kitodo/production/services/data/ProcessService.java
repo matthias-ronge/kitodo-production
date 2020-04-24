@@ -1036,7 +1036,7 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
 
             return origDirectory;
         } else {
-            return getImagesTifDirectory(useFallBack, process.getId(), process.getTitle(), process.getProcessBaseUri());
+            return getImagesTifDirectory(useFallBack, process.getId(), process.getTitle(), getProcessBaseUri(process));
         }
     }
 
@@ -1090,7 +1090,7 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
      */
     public URI getProcessDataDirectory(Process process, boolean forIndexingAll) {
         if (Objects.isNull(process.getProcessBaseUri())) {
-            process.setProcessBaseUri(fileService.getProcessBaseUriForExistingProcess(process));
+            setProcessBaseUri(process, fileService.getProcessBaseUriForExistingProcess(process));
             if (!forIndexingAll) {
                 try {
                     saveToDatabase(process);
@@ -1100,7 +1100,7 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
                 }
             }
         }
-        return process.getProcessBaseUri();
+        return getProcessBaseUri(process);
     }
 
     /**
@@ -1927,7 +1927,7 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
 
         // determine the output path
         URI tifDirectory = getImagesTifDirectory(true, process.getId(), process.getTitle(),
-            process.getProcessBaseUri());
+            getProcessBaseUri(process));
 
         // copy the source folder to the destination folder
         if (fileService.fileExist(tifDirectory) && !fileService.getSubUris(tifDirectory).isEmpty()) {
@@ -2025,7 +2025,7 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
     public List<URI> getDataFiles(Process process) throws InvalidImagesException {
         URI dir;
         try {
-            dir = getImagesTifDirectory(true, process.getId(), process.getTitle(), process.getProcessBaseUri());
+            dir = getImagesTifDirectory(true, process.getId(), process.getTitle(), getProcessBaseUri(process));
         } catch (RuntimeException e) {
             throw new InvalidImagesException(e);
         }
@@ -2200,11 +2200,35 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
     }
 
     /**
+     * Returns the process base URI.
+     *
+     * @param process
+     *            process
+     * @return the process base URI
+     */
+    public static URI getProcessBaseUri(Process process) {
+        return URI.create(process.getProcessBaseUri());
+    }
+
+    /**
+     * Sets the process base URI.
+     *
+     * @param process
+     *            process
+     * @param uri
+     *            URI to set
+     */
+    public static void setProcessBaseUri(Process process, URI uri) {
+        process.setProcessBaseUri(uri.toASCIIString());
+    }
+
+    /**
      * Retrieve and return process property value of property with given name
      * 'propertyName' from given ProcessDTO 'process'.
      *
      * @param process
-     *            the ProcessDTO object from which the property value is retrieved
+     *            the ProcessDTO object from which the property value is
+     *            retrieved
      * @param propertyName
      *            name of the property for the property value is retrieved
      * @return property value if process has property with name 'propertyName',

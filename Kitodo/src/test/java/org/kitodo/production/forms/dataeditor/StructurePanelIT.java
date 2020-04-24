@@ -12,7 +12,6 @@
 package org.kitodo.production.forms.dataeditor;
 
 import java.lang.reflect.Method;
-import java.net.URI;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,7 +26,7 @@ public class StructurePanelIT {
         final StructurePanel underTest = new StructurePanel(dummyDataEditorForm);
 
         Process parent = new Process();
-        parent.setProcessBaseUri(URI.create("2"));
+        parent.setProcessBaseUri("2");
         Process child = new Process();
         child.setId(42);
         child.setParent(parent);

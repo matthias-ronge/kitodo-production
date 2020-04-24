@@ -503,7 +503,7 @@ public class CreateProcessForm extends BaseForm implements RulesetSetupInterface
             }
             try {
                 URI processBaseUri = ServiceManager.getFileService().createProcessLocation(tempProcess.getProcess());
-                tempProcess.getProcess().setProcessBaseUri(processBaseUri);
+                ServiceManager.getProcessService().setProcessBaseUri(tempProcess.getProcess(), processBaseUri);
             } catch (IOException | CommandException e) {
                 Helper.setErrorMessage(e.getLocalizedMessage(), logger, e);
                 try {

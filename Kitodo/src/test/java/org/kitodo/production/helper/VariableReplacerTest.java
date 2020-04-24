@@ -11,8 +11,6 @@
 
 package org.kitodo.production.helper;
 
-import java.net.URI;
-
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -59,7 +57,7 @@ public class VariableReplacerTest {
         ruleset.setId(1);
         ruleset.setFile("ruleset_test.xml");
         process.setRuleset(ruleset);
-        process.setProcessBaseUri(URI.create("2"));
+        process.setProcessBaseUri("2");
 
         return process;
     }
