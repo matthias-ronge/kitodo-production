@@ -33,7 +33,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitodo.api.MetadataEntry;
 import org.kitodo.api.dataformat.IncludedStructuralElement;
-import org.kitodo.api.dataformat.Parent;
+import org.kitodo.api.dataformat.Division;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.dataformat.mets.MetsXmlElementAccessInterface;
 import org.kitodo.production.services.ServiceManager;
@@ -156,7 +156,7 @@ public class MetsService {
      * @return the number of tags
      */
     public static long countLogicalMetadata(Workpiece workpiece) {
-        return treeStream(workpiece.getLogicalStructureRoot(), Parent::getChildren)
+        return treeStream(workpiece.getLogicalStructureRoot(), Division::getChildren)
                 .flatMap(includedStructuralElement -> includedStructuralElement.getMetadata().parallelStream())
                 .filter(metadata -> !(metadata instanceof MetadataEntry)
                         || Objects.nonNull(((MetadataEntry) metadata).getValue())
