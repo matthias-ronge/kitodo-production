@@ -362,13 +362,13 @@ public class ImportService {
 
         // Workaround for classifying MultiVolumeWorks with insufficient information
         if (!allProcesses.isEmpty()) {
-            String childDocType = allProcesses.getLast().getWorkpiece().getRootElement().getType();
+            String childDocType = allProcesses.getLast().getWorkpiece().getLogicalStructureRoot().getType();
             Workpiece workpiece = tempProcess.getWorkpiece();
-            if (Objects.nonNull(workpiece) && Objects.nonNull(workpiece.getRootElement())) {
-                String docType = workpiece.getRootElement().getType();
+            if (Objects.nonNull(workpiece) && Objects.nonNull(workpiece.getLogicalStructureRoot())) {
+                String docType = workpiece.getLogicalStructureRoot().getType();
                 if ((MONOGRAPH.equals(childDocType) || VOLUME.equals(childDocType)) && MONOGRAPH.equals(docType)) {
-                    tempProcess.getWorkpiece().getRootElement().setType(MULTI_VOLUME_WORK);
-                    allProcesses.getFirst().getWorkpiece().getRootElement().setType(VOLUME);
+                    tempProcess.getWorkpiece().getLogicalStructureRoot().setType(MULTI_VOLUME_WORK);
+                    allProcesses.getFirst().getWorkpiece().getLogicalStructureRoot().setType(VOLUME);
                 }
             }
         }
@@ -834,7 +834,7 @@ public class ImportService {
                                                          String acquisitionStage,
                                                          List<Locale.LanguageRange> priorityList)
             throws InvalidMetadataValueException, NoSuchMetadataFieldException {
-        ProcessFieldedMetadata metadata = initializeProcessDetails(tempProcess.getWorkpiece().getRootElement(),
+        ProcessFieldedMetadata metadata = initializeProcessDetails(tempProcess.getWorkpiece().getLogicalStructureRoot(),
                 managementInterface, acquisitionStage, priorityList);
         metadata.setMetadata(ImportService.importMetadata(tempProcess.getMetadataNodes(), MdSec.DMD_SEC));
         metadata.preserve();
@@ -856,7 +856,7 @@ public class ImportService {
                                             String acquisitionStage, List<Locale.LanguageRange> priorityList,
                                             List<ProcessDetail> processDetails)
             throws ProcessGenerationException {
-        String docType = tempProcess.getWorkpiece().getRootElement().getType();
+        String docType = tempProcess.getWorkpiece().getLogicalStructureRoot().getType();
         StructuralElementViewInterface docTypeView = rulesetManagementInterface
                 .getStructuralElementView(docType, acquisitionStage, priorityList);
         String processTitle = docTypeView.getProcessTitle().orElse("");
@@ -901,7 +901,7 @@ public class ImportService {
                 //  yet been saved to disk and contains the workpiece directly, instead!
                 URI metadataFileUri = ServiceManager.getProcessService().getMetadataFileUri(process);
                 Workpiece workpiece = ServiceManager.getMetsService().loadWorkpiece(metadataFileUri);
-                Collection<Metadata> metadata = workpiece.getRootElement().getMetadata();
+                Collection<Metadata> metadata = workpiece.getLogicalStructureRoot().getMetadata();
                 String processTitle = "[" + Helper.getTranslation("process") + " " + process.getId() + "]";
                 for (Metadata metadatum : metadata) {
                     if (CATALOG_IDENTIFIER.equals(metadatum.getKey())) {
@@ -1034,7 +1034,7 @@ public class ImportService {
             RulesetNotFoundException {
         List<ProcessDetail> processDetails = transformToProcessDetails(tempProcess, managementInterface,
                 acquisitionStage, priorityList);
-        String docType = tempProcess.getWorkpiece().getRootElement().getType();
+        String docType = tempProcess.getWorkpiece().getLogicalStructureRoot().getType();
         createProcessTitle(tempProcess, managementInterface, acquisitionStage, priorityList, processDetails);
         Process process = tempProcess.getProcess();
         addProperties(tempProcess.getProcess(), template, processDetails, docType, tempProcess.getProcess().getTitle());

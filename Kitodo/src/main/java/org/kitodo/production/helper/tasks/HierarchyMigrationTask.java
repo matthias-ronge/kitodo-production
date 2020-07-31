@@ -209,7 +209,7 @@ public class HierarchyMigrationTask extends EmptyTask {
         URI metadataFilePath = fileService.getMetadataFilePath(process);
         URI anchorFilePath = fileService.createAnchorFile(metadataFilePath);
         Workpiece anchorWorkpiece = metsService.loadWorkpiece(anchorFilePath);
-        Optional<String> parentRecordId = anchorWorkpiece.getRootElement().getMetadata().parallelStream()
+        Optional<String> parentRecordId = anchorWorkpiece.getLogicalStructureRoot().getMetadata().parallelStream()
                 .filter(metadata -> metadata.getKey().equals("CatalogIDDigital"))
                 .filter(MetadataEntry.class::isInstance).map(MetadataEntry.class::cast).map(MetadataEntry::getValue)
                 .findFirst();
@@ -271,7 +271,7 @@ public class HierarchyMigrationTask extends EmptyTask {
         URI metadataFileUri = fileService.getMetadataFilePath(process);
         URI anchorFileUri = fileService.createAnchorFile(metadataFileUri);
         Workpiece workpiece = metsService.loadWorkpiece(anchorFileUri);
-        LinkedMetsResource link = workpiece.getRootElement().getChildren().get(0).getLink();
+        LinkedMetsResource link = workpiece.getLogicalStructureRoot().getChildren().get(0).getLink();
         link.setLoctype("Kitodo.Production");
         link.setUri(processService.getProcessURI(process));
         URI parentMetadataFileUri = fileService.getMetadataFilePath(processGenerator.getGeneratedProcess(), false,
@@ -288,8 +288,8 @@ public class HierarchyMigrationTask extends EmptyTask {
      */
     private static Integer convertChildMetsFile(URI metadataFilePath) throws IOException {
         Workpiece workpiece = metsService.loadWorkpiece(metadataFilePath);
-        IncludedStructuralElement childStructureRoot = workpiece.getRootElement().getChildren().get(0);
-        workpiece.setRootElement(childStructureRoot);
+        IncludedStructuralElement childStructureRoot = workpiece.getLogicalStructureRoot().getChildren().get(0);
+        workpiece.setLogicalStructureRoot(childStructureRoot);
         metsService.saveWorkpiece(workpiece, metadataFilePath);
         return getCurrentNo(childStructureRoot);
     }

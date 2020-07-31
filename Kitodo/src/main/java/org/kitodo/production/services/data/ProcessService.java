@@ -1600,8 +1600,8 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
     }
 
     /**
-     * Returns the type of the top element of the root element, and thus the
-     * type of the workpiece of the process.
+     * Returns the type of the top element of the logical structure, and thus
+     * the type of the workpiece of the process.
      *
      * @param process
      *            process whose root type is to be determined
@@ -1618,15 +1618,16 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
     }
 
     /**
-     * Returns the type of the top element of the root element, and thus the
-     * type of the workpiece of the process.
+     * Returns the type of the top element of the logical structure, and thus
+     * the type of the workpiece of the process.
      *
      * @param processId
-     *          id of the process whose root type is to be determined
-     * @return the type of root element of the root element of the workpiece
+     *            id of the process whose root type is to be determined
+     * @return the type of the root element of the logical structure of the
+     *         workpiece
      * @throws DataException
-     *          if the type cannot be found in the index (e.g. because the process
-     *          cannot be found in the index)
+     *             if the type cannot be found in the index (e.g. because the
+     *             process cannot be found in the index)
      */
     public String getBaseType(int processId) throws DataException {
         ProcessDTO processDTO = findById(processId);
@@ -2128,31 +2129,31 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
     }
 
     /**
-     * Updates the linked child processes to the level specified in the root
-     * element. Processes linked in the root element are linked in the database.
-     * For processes that are not linked in the root element, the link in the
-     * database is removed.
+     * Updates the linked child processes in the database to the state in the
+     * logical structure. Processes linked in the logical structure are linked
+     * in the database. For processes that are not linked in the logical
+     * structure, the link in the database is removed.
      *
      * @param process
      *            parent process
-     * @param rootElement
-     *            the current state of the root element
+     * @param logicalStructureRoot
+     *            the current state of the logical structure
      * @throws DAOException
      *             if a process is referenced with a URI whose ID does not
      *             appear in the database
      * @throws DataException
      *             if the process cannot be saved
      */
-    public void updateChildrenFromRootElement(Process process, IncludedStructuralElement rootElement)
+    public void updateChildrenFromLogicalStructure(Process process, IncludedStructuralElement logicalStructureRoot)
             throws DAOException, DataException {
-        removeLinksFromNoLongerLinkedProcesses(process, rootElement);
-        addNewLinks(process, rootElement);
+        removeLinksFromNoLongerLinkedProcesses(process, logicalStructureRoot);
+        addNewLinks(process, logicalStructureRoot);
     }
 
-    private void removeLinksFromNoLongerLinkedProcesses(Process process, IncludedStructuralElement rootElement)
+    private void removeLinksFromNoLongerLinkedProcesses(Process process, IncludedStructuralElement logicalStructureRoot)
             throws DAOException, DataException {
         ArrayList<Process> childrenToRemove = new ArrayList<>(process.getChildren());
-        childrenToRemove.removeAll(getProcessesLinkedInIncludedStructuralElement(rootElement));
+        childrenToRemove.removeAll(getProcessesLinkedInIncludedStructuralElement(logicalStructureRoot));
         for (Process childToRemove : childrenToRemove) {
             childToRemove.setParent(null);
             process.getChildren().remove(childToRemove);
@@ -2163,9 +2164,9 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
         }
     }
 
-    private void addNewLinks(Process process, IncludedStructuralElement rootElement)
+    private void addNewLinks(Process process, IncludedStructuralElement logicalStructureRoot)
             throws DAOException, DataException {
-        HashSet<Process> childrenToAdd = getProcessesLinkedInIncludedStructuralElement(rootElement);
+        HashSet<Process> childrenToAdd = getProcessesLinkedInIncludedStructuralElement(logicalStructureRoot);
         childrenToAdd.removeAll(process.getChildren());
         for (Process childToAdd : childrenToAdd) {
             childToAdd.setParent(process);

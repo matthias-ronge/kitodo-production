@@ -413,7 +413,7 @@ public class GalleryPanel {
             }
         }
 
-        addStripesRecursive(dataEditor.getWorkpiece().getRootElement());
+        addStripesRecursive(dataEditor.getWorkpiece().getLogicalStructureRoot());
         int imagesInStructuredView = stripes.parallelStream().mapToInt(stripe -> stripe.getMedias().size()).sum();
         if (imagesInStructuredView > 200) {
             logger.warn("Number of images in structured view: {}", imagesInStructuredView);
@@ -422,7 +422,7 @@ public class GalleryPanel {
 
     void updateStripes() {
         stripes = new ArrayList<>();
-        addStripesRecursive(dataEditor.getWorkpiece().getRootElement());
+        addStripesRecursive(dataEditor.getWorkpiece().getLogicalStructureRoot());
     }
 
     private static MediaVariant getMediaVariant(Folder folderSettings, List<MediaUnit> mediaUnits) {

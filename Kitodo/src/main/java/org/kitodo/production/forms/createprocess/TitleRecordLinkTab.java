@@ -156,7 +156,7 @@ public class TitleRecordLinkTab {
 
         selectableInsertionPositions = new LinkedList<>();
         rootElement = new DefaultTreeNode();
-        createInsertionPositionSelectionTreeRecursive("", workpiece.getRootElement(), rootElement, ruleset,
+        createInsertionPositionSelectionTreeRecursive("", workpiece.getLogicalStructureRoot(), rootElement, ruleset,
             priorityList);
         rootElement.setExpanded(true);
 
@@ -251,7 +251,7 @@ public class TitleRecordLinkTab {
         if (!summaryKeys.isEmpty()) {
 
             Workpiece workpiece = metsService.loadWorkpiece(processService.getMetadataFileUri(linkedProcess));
-            IncludedStructuralElement rootElement = workpiece.getRootElement();
+            IncludedStructuralElement rootElement = workpiece.getLogicalStructureRoot();
 
             final String metadataLanguage = ServiceManager.getUserService().getCurrentUser().getMetadataLanguage();
             List<LanguageRange> priorityList = Locale.LanguageRange.parse(metadataLanguage);

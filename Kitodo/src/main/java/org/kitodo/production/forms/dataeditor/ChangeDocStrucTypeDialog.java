@@ -128,8 +128,8 @@ public class ChangeDocStrucTypeDialog {
     private Map<String, String> getAllowedChildTypesFromIncludedStructuralParentElement(
             IncludedStructuralElement includedStructuralElement) throws IOException {
 
-        IncludedStructuralElement rootElement = dataEditor.getWorkpiece().getRootElement();
-        if (rootElement.equals(includedStructuralElement)) {
+        IncludedStructuralElement logicalStructureRoot = dataEditor.getWorkpiece().getLogicalStructureRoot();
+        if (logicalStructureRoot.equals(includedStructuralElement)) {
             if (Objects.isNull(dataEditor.getProcess().getParent())) {
                 return dataEditor.getRuleset().getStructuralElements(dataEditor.getPriorityList());
             } else {
@@ -137,7 +137,7 @@ public class ChangeDocStrucTypeDialog {
             }
         } else {
             LinkedList<IncludedStructuralElement> ancestors = MetadataEditor
-                    .getAncestorsOfStructure(includedStructuralElement, rootElement);
+                    .getAncestorsOfStructure(includedStructuralElement, logicalStructureRoot);
             String parentType = ancestors.getLast().getType();
             return getAllowedSubstructuralElements(parentType);
         }
@@ -146,10 +146,10 @@ public class ChangeDocStrucTypeDialog {
     private Map<String, String> getAllowedChildTypesFromParentalProcess() throws IOException {
         URI parentMetadataUri = ServiceManager.getProcessService()
                 .getMetadataFileUri(dataEditor.getProcess().getParent());
-        IncludedStructuralElement parentRootElement = ServiceManager.getMetsService().loadWorkpiece(parentMetadataUri)
-                .getRootElement();
+        IncludedStructuralElement logicalStructureRootOfParent = ServiceManager.getMetsService()
+                .loadWorkpiece(parentMetadataUri).getLogicalStructureRoot();
         List<IncludedStructuralElement> parentHierarchyPath = MetadataEditor
-                .determineIncludedStructuralElementPathToChild(parentRootElement,
+                .determineIncludedStructuralElementPathToChild(logicalStructureRootOfParent,
                     dataEditor.getProcess().getId());
         if (parentHierarchyPath.isEmpty()) {
             throw new IllegalStateException("proces is not linked in parent process");

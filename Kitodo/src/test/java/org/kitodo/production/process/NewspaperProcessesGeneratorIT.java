@@ -137,7 +137,7 @@ public class NewspaperProcessesGeneratorIT {
         Process seasonProcess = ServiceManager.getProcessService().getById(10);
         URI seasonUri = processService.getMetadataFileUri(seasonProcess);
         Workpiece seasonMets = metsService.loadWorkpiece(seasonUri);
-        seasonMets.getRootElement().setType("Season");
+        seasonMets.getLogicalStructureRoot().setType("Season");
         metsService.saveWorkpiece(seasonMets, seasonUri);
 
         Course course = NewspaperCourse.getCourse();
@@ -161,7 +161,7 @@ public class NewspaperProcessesGeneratorIT {
                  * Year identifier must be two consecutive integer years
                  * separated by '/'.
                  */
-                String twoYears = workpiece.getRootElement().getOrderlabel();
+                String twoYears = workpiece.getLogicalStructureRoot().getOrderlabel();
                 List<String> years = Arrays.asList(twoYears.split("/", 2));
                 Assert.assertTrue("Bad season-year in " + seasonProcess + ": " + twoYears,
                     Integer.parseInt(years.get(0)) + 1 == Integer.parseInt(years.get(1)));
@@ -180,7 +180,7 @@ public class NewspaperProcessesGeneratorIT {
 
     private void dayChecksOfShouldGenerateSeasonProcesses(Process seasonProcess, Workpiece seasonYearWorkpiece) {
         // all days must be inside their month
-        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getRootElement()
+        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getLogicalStructureRoot()
                 .getChildren()) {
             String monthValue = monthIncludedStructuralElement.getOrderlabel();
             for (IncludedStructuralElement dayIncludedStructuralElement : monthIncludedStructuralElement
@@ -193,7 +193,7 @@ public class NewspaperProcessesGeneratorIT {
         }
 
         // days must be ordered ascending
-        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getRootElement()
+        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getLogicalStructureRoot()
                 .getChildren()) {
             String previousDayValue = null;
             for (IncludedStructuralElement dayIncludedStructuralElement : monthIncludedStructuralElement
@@ -212,7 +212,7 @@ public class NewspaperProcessesGeneratorIT {
     private void monthChecksOfShouldGenerateSeasonProcesses(Process seasonProcess, Workpiece seasonYearWorkpiece,
             String twoYears, List<String> years) {
         // all months must be in the timespan
-        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getRootElement()
+        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getLogicalStructureRoot()
                 .getChildren()) {
             String monthValue = monthIncludedStructuralElement.getOrderlabel();
             List<String> monthValueFields = Arrays.asList(monthValue.split("-", 2));
@@ -233,7 +233,7 @@ public class NewspaperProcessesGeneratorIT {
 
         // months must be ordered ascending
         String previousMonthValue = null;
-        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getRootElement()
+        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getLogicalStructureRoot()
                 .getChildren()) {
             String monthValue = monthIncludedStructuralElement.getOrderlabel();
             if (Objects.nonNull(previousMonthValue)) {

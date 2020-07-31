@@ -235,7 +235,7 @@ public class ImportDialog implements Serializable {
                 if (!processes.isEmpty() && processes.getFirst().getMetadataNodes().getLength() > 0) {
                     TempProcess firstProcess = processes.getFirst();
                     this.createProcessForm.getProcessDataTab().setDocType(
-                            firstProcess.getWorkpiece().getRootElement().getType());
+                            firstProcess.getWorkpiece().getLogicalStructureRoot().getType());
                     Collection<Metadata> metadata = ImportService.importMetadata(firstProcess.getMetadataNodes(),
                             MdSec.DMD_SEC);
                     createProcessForm.getProcessMetadataTab().getProcessDetails().setMetadata(metadata);

@@ -79,7 +79,7 @@ public class MetadataEditor {
         URI metadataFileUri = ServiceManager.getProcessService().getMetadataFileUri(process);
         Workpiece workpiece = ServiceManager.getMetsService().loadWorkpiece(metadataFileUri);
         List<String> indices = Arrays.asList(insertionPosition.split(Pattern.quote(INSERTION_POSITION_SEPARATOR)));
-        IncludedStructuralElement includedStructuralElement = workpiece.getRootElement();
+        IncludedStructuralElement includedStructuralElement = workpiece.getLogicalStructureRoot();
         for (int index = 0; index < indices.size(); index++) {
             if (index < indices.size() - 1) {
                 includedStructuralElement = includedStructuralElement.getChildren()
@@ -136,7 +136,7 @@ public class MetadataEditor {
     public static void removeLink(Process parentProcess, int childProcessId) throws IOException {
         URI metadataFileUri = ServiceManager.getProcessService().getMetadataFileUri(parentProcess);
         Workpiece workpiece = ServiceManager.getMetsService().loadWorkpiece(metadataFileUri);
-        if (removeLinkRecursive(workpiece.getRootElement(), childProcessId)) {
+        if (removeLinkRecursive(workpiece.getLogicalStructureRoot(), childProcessId)) {
             ServiceManager.getFileService().createBackupFile(parentProcess);
             ServiceManager.getMetsService().saveWorkpiece(workpiece, metadataFileUri);
         } else {
@@ -225,7 +225,7 @@ public class MetadataEditor {
      */
     public static IncludedStructuralElement addStructure(String type, Workpiece workpiece, IncludedStructuralElement structure,
             InsertionPosition position, List<View> viewsToAdd) {
-        LinkedList<IncludedStructuralElement> parents = getAncestorsOfStructure(structure, workpiece.getRootElement());
+        LinkedList<IncludedStructuralElement> parents = getAncestorsOfStructure(structure, workpiece.getLogicalStructureRoot());
         List<IncludedStructuralElement> siblings = new LinkedList<>();
         if (parents.isEmpty()) {
             if (position.equals(InsertionPosition.AFTER_CURRENT_ELEMENT)
@@ -259,7 +259,7 @@ public class MetadataEditor {
                 structuresToAddViews.removeLast();
                 newStructure.getChildren().add(structure);
                 if (parents.isEmpty()) {
-                    workpiece.setRootElement(newStructure);
+                    workpiece.setLogicalStructureRoot(newStructure);
                 } else {
                     siblings.set(siblings.indexOf(structure), newStructure);
                 }
@@ -359,8 +359,8 @@ public class MetadataEditor {
 
     /**
      * Determines the path to the included structural element of the child. For
-     * each level of the root element, the recursion is run through once, that
-     * is for a newspaper year process tree times (year, month, day).
+     * each level of the logical structure, the recursion is run through once,
+     * that is for a newspaper year process tree times (year, month, day).
      *
      * @param includedStructuralElement
      *            included structural element of the level stage of recursion

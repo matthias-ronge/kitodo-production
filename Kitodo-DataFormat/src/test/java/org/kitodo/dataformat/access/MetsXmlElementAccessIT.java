@@ -57,13 +57,13 @@ public class MetsXmlElementAccessIT {
         assertEquals(183, workpiece.getMediaUnits().size());
 
         // METS file has 17 unstructured images
-        assertEquals(17, workpiece.getRootElement().getViews().size());
+        assertEquals(17, workpiece.getLogicalStructureRoot().getViews().size());
 
         // root node has 16 children
-        assertEquals(16, workpiece.getRootElement().getChildren().size());
+        assertEquals(16, workpiece.getLogicalStructureRoot().getChildren().size());
 
         // root node has 11 metadata entries
-        assertEquals(11, workpiece.getRootElement().getMetadata().size());
+        assertEquals(11, workpiece.getLogicalStructureRoot().getMetadata().size());
 
         // file URIs can be read
         assertEquals(new URI("images/ThomPhar_644901748_media/00000001.tif"),
@@ -122,13 +122,13 @@ public class MetsXmlElementAccessIT {
         }
 
         // create document structure
-        workpiece.getRootElement().setType("leaflet");
-        workpiece.getRootElement().setLabel("The Leaflet");
+        workpiece.getLogicalStructureRoot().setType("leaflet");
+        workpiece.getLogicalStructureRoot().setLabel("The Leaflet");
         for (MediaUnit page : pages) {
             View view = new View();
             view.setMediaUnit(page);
-            workpiece.getRootElement().getViews().add(view);
-            page.getIncludedStructuralElements().add(workpiece.getRootElement());
+            workpiece.getLogicalStructureRoot().getViews().add(view);
+            page.getIncludedStructuralElements().add(workpiece.getLogicalStructureRoot());
         }
 
         IncludedStructuralElement frontCover = new IncludedStructuralElement();
@@ -138,7 +138,7 @@ public class MetsXmlElementAccessIT {
         view.setMediaUnit(pages.get(0));
         frontCover.getViews().add(view);
         view.getMediaUnit().getIncludedStructuralElements().add(frontCover);
-        workpiece.getRootElement().getChildren().add(frontCover);
+        workpiece.getLogicalStructureRoot().getChildren().add(frontCover);
 
         IncludedStructuralElement inside = new IncludedStructuralElement();
         inside.setType("inside");
@@ -151,7 +151,7 @@ public class MetsXmlElementAccessIT {
         view.setMediaUnit(pages.get(2));
         inside.getViews().add(view);
         view.getMediaUnit().getIncludedStructuralElements().add(inside);
-        workpiece.getRootElement().getChildren().add(inside);
+        workpiece.getLogicalStructureRoot().getChildren().add(inside);
 
         IncludedStructuralElement backCover = new IncludedStructuralElement();
         backCover.setType("backCover");
@@ -160,7 +160,7 @@ public class MetsXmlElementAccessIT {
         view.setMediaUnit(pages.get(3));
         backCover.getViews().add(view);
         view.getMediaUnit().getIncludedStructuralElements().add(backCover);
-        workpiece.getRootElement().getChildren().add(backCover);
+        workpiece.getLogicalStructureRoot().getChildren().add(backCover);
 
         // add metadata
         MetadataEntry title = new MetadataEntry();
@@ -185,7 +185,7 @@ public class MetsXmlElementAccessIT {
         imagesConverted.setKey("imageConversionHint");
         imagesConverted.setDomain(MdSec.DIGIPROV_MD);
         imagesConverted.setValue("Images have been converted from TIFF to JPEG.");
-        workpiece.getRootElement().getMetadata().add(imagesConverted);
+        workpiece.getLogicalStructureRoot().getMetadata().add(imagesConverted);
         frontCover.getMetadata().add(imagesConverted);
         inside.getMetadata().add(imagesConverted);
         backCover.getMetadata().add(imagesConverted);
@@ -237,7 +237,7 @@ public class MetsXmlElementAccessIT {
             MediaUnit mediaUnit = mediaUnits.get(i);
             assertEquals(2, mediaUnit.getMediaFiles().size());
         }
-        IncludedStructuralElement includedStructuralElementRoot = reread.getRootElement();
+        IncludedStructuralElement includedStructuralElementRoot = reread.getLogicalStructureRoot();
         assertEquals(1, includedStructuralElementRoot.getChildren().get(0).getViews().size());
         assertEquals(2, includedStructuralElementRoot.getChildren().get(1).getViews().size());
         assertEquals(1, includedStructuralElementRoot.getChildren().get(2).getViews().size());

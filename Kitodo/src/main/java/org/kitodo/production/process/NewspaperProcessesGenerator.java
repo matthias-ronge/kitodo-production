@@ -300,12 +300,12 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
         overallMetadataFileUri = processService.getMetadataFileUri(overallProcess);
         overallWorkpiece = metsService.loadWorkpiece(overallMetadataFileUri);
 
-        initializeRulesetFields(overallWorkpiece.getRootElement().getType());
+        initializeRulesetFields(overallWorkpiece.getLogicalStructureRoot().getType());
 
         ConfigProject configProject = new ConfigProject(overallProcess.getProject().getTitle());
 
         Collection<MetadataViewInterface> addableDivisions = rulesetService.openRuleset(overallProcess.getRuleset())
-                .getStructuralElementView(overallWorkpiece.getRootElement().getType(), acquisitionStage, ENGLISH)
+                .getStructuralElementView(overallWorkpiece.getLogicalStructureRoot().getType(), acquisitionStage, ENGLISH)
                 .getAddableMetadata(Collections.emptyMap(), Collections.emptyList());
 
         titleGenerator = initializeTitleGenerator(configProject, overallWorkpiece , addableDivisions);
@@ -375,18 +375,18 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
                                                            Collection<MetadataViewInterface> addableDivisions)
             throws DoctypeMissingException {
 
-        IncludedStructuralElement rootElement = workpiece.getRootElement();
+        IncludedStructuralElement logicalStructureRoot = workpiece.getLogicalStructureRoot();
         Map<String, Map<String, String>> metadata = new HashMap<>(4);
-        Map<String, String> topstruct = getMetadataEntries(rootElement.getMetadata());
+        Map<String, String> topstruct = getMetadataEntries(logicalStructureRoot.getMetadata());
         metadata.put("topstruct", topstruct);
-        List<IncludedStructuralElement> children = rootElement.getChildren();
+        List<IncludedStructuralElement> children = logicalStructureRoot.getChildren();
         metadata.put("firstchild",
             children.isEmpty() ? Collections.emptyMap() : getMetadataEntries(children.get(0).getMetadata()));
         metadata.put("physSequence", getMetadataEntries(workpiece.getMediaUnit().getMetadata()));
 
         String docType = null;
         for (ConfigOpacDoctype configOpacDoctype : ConfigOpac.getAllDoctypes()) {
-            if (configOpacDoctype.getRulesetType().equals(rootElement.getType())) {
+            if (configOpacDoctype.getRulesetType().equals(logicalStructureRoot.getType())) {
                 docType = configOpacDoctype.getTitle();
                 break;
             }
@@ -514,19 +514,19 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
     private void createMetadataFileForProcess(List<IndividualIssue> individualIssues)
             throws IOException, CommandException {
 
-        IncludedStructuralElement rootElement = new IncludedStructuralElement();
+        IncludedStructuralElement logicalStructureRoot = new IncludedStructuralElement();
         MetadataEntry dateMetadataEntry = new MetadataEntry();
         dateMetadataEntry.setKey(monthSimpleMetadataView.getId());
         dateMetadataEntry.setValue(dateMark(monthSimpleMetadataView.getScheme(), individualIssues.get(0).getDate()));
-        rootElement.getMetadata().add(dateMetadataEntry);
+        logicalStructureRoot.getMetadata().add(dateMetadataEntry);
 
         for (IndividualIssue individualIssue : individualIssues) {
 
             String monthMark = dateMark(monthSimpleMetadataView.getScheme(), individualIssue.getDate());
-            IncludedStructuralElement yearMonth = getOrCreateIncludedStructuralElement(yearWorkpiece.getRootElement(),
+            IncludedStructuralElement yearMonth = getOrCreateIncludedStructuralElement(yearWorkpiece.getLogicalStructureRoot(),
                 monthType, monthSimpleMetadataView, monthMark);
             String dayMark = dateMark(daySimpleMetadataView.getScheme(), individualIssue.getDate());
-            IncludedStructuralElement processDay = getOrCreateIncludedStructuralElement(rootElement, null,
+            IncludedStructuralElement processDay = getOrCreateIncludedStructuralElement(logicalStructureRoot, null,
                 daySimpleMetadataView, dayMark);
             final IncludedStructuralElement yearDay = getOrCreateIncludedStructuralElement(yearMonth, dayType,
                 daySimpleMetadataView, dayMark);
@@ -545,7 +545,7 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
         }
 
         Workpiece workpiece = new Workpiece();
-        workpiece.setRootElement(rootElement);
+        workpiece.setLogicalStructureRoot(logicalStructureRoot);
         fileService.createProcessLocation(getGeneratedProcess());
         final URI metadataFileUri = processService.getMetadataFileUri(getGeneratedProcess());
         metsService.saveWorkpiece(workpiece, metadataFileUri);
@@ -626,7 +626,7 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
         final long begin = System.nanoTime();
 
         metsService.saveWorkpiece(yearWorkpiece, yearMetadataFileUri);
-        ImportService.checkTasks(yearProcess, yearWorkpiece.getRootElement().getType());
+        ImportService.checkTasks(yearProcess, yearWorkpiece.getLogicalStructureRoot().getType());
         processService.save(yearProcess);
 
         this.yearProcess = null;
@@ -646,7 +646,7 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
         final long begin = System.nanoTime();
 
         boolean couldOpenExistingProcess = false;
-        for (IncludedStructuralElement firstLevelChild : overallWorkpiece.getRootElement().getChildren()) {
+        for (IncludedStructuralElement firstLevelChild : overallWorkpiece.getLogicalStructureRoot().getChildren()) {
             LinkedMetsResource firstLevelChildLink = firstLevelChild.getLink();
             if (Objects.isNull(firstLevelChildLink)) {
                 continue;
@@ -656,7 +656,7 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
             URI metadataFileUri = processService.getMetadataFileUri(linkedProcess);
             Workpiece workpiece = metsService.loadWorkpiece(metadataFileUri);
             MetadataEntry yearMetadataEntry = null;
-            for (Metadata metadata : workpiece.getRootElement().getMetadata()) {
+            for (Metadata metadata : workpiece.getLogicalStructureRoot().getMetadata()) {
                 if (metadata.getKey().equals(yearSimpleMetadataView.getId()) && metadata instanceof MetadataEntry) {
                     yearMetadataEntry = (MetadataEntry) metadata;
                     break;
@@ -703,13 +703,13 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
         link.setLoctype("Kitodo.Production");
         link.setUri(processService.getProcessURI(getGeneratedProcess()));
         newYearChild.setLink(link);
-        overallWorkpiece.getRootElement().getChildren().add(newYearChild);
+        overallWorkpiece.getLogicalStructureRoot().getChildren().add(newYearChild);
 
-        IncludedStructuralElement rootElement = new IncludedStructuralElement();
-        rootElement.setType(yearType);
-        MetadataEditor.writeMetadataEntry(rootElement, yearSimpleMetadataView, yearMark);
+        IncludedStructuralElement logicalStructureRoot = new IncludedStructuralElement();
+        logicalStructureRoot.setType(yearType);
+        MetadataEditor.writeMetadataEntry(logicalStructureRoot, yearSimpleMetadataView, yearMark);
         Workpiece workpiece = new Workpiece();
-        workpiece.setRootElement(rootElement);
+        workpiece.setLogicalStructureRoot(logicalStructureRoot);
 
         this.yearProcess = getGeneratedProcess();
         this.yearWorkpiece = workpiece;
@@ -745,7 +745,7 @@ public class NewspaperProcessesGenerator extends ProcessGenerator {
 
         saveAndCloseCurrentYearProcess();
         metsService.saveWorkpiece(overallWorkpiece, overallMetadataFileUri);
-        ImportService.checkTasks(overallProcess, overallWorkpiece.getRootElement().getType());
+        ImportService.checkTasks(overallProcess, overallWorkpiece.getLogicalStructureRoot().getType());
         processService.save(overallProcess);
 
         if (logger.isTraceEnabled()) {

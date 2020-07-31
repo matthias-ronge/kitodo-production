@@ -71,18 +71,19 @@ public class MetsService {
     }
 
     /**
-     * Returns the type of the top element of the root element, and thus the
-     * type of the workpiece.
+     * Returns the type of the root element of the logical structure, and thus
+     * the type of the workpiece.
      *
      * @param uri
      *            Address of the METS file of the workpiece
-     * @return the type of root element of the root element of the workpiece
+     * @return the type of the root element of the logical structure of the
+     *         workpiece
      * @throws IOException
      *             if the file cannot be read (for example, because the file was
      *             not found)
      */
     public String getBaseType(URI uri) throws IOException {
-        IncludedStructuralElement includedStructuralElement = loadWorkpiece(uri).getRootElement();
+        IncludedStructuralElement includedStructuralElement = loadWorkpiece(uri).getLogicalStructureRoot();
         String type = includedStructuralElement.getType();
         while (Objects.isNull(type) && !includedStructuralElement.getChildren().isEmpty()) {
             includedStructuralElement = includedStructuralElement.getChildren().get(0);
@@ -155,7 +156,7 @@ public class MetsService {
      * @return the number of tags
      */
     public static long countLogicalMetadata(Workpiece workpiece) {
-        return treeStream(workpiece.getRootElement(), Parent::getChildren)
+        return treeStream(workpiece.getLogicalStructureRoot(), Parent::getChildren)
                 .flatMap(includedStructuralElement -> includedStructuralElement.getMetadata().parallelStream())
                 .filter(metadata -> !(metadata instanceof MetadataEntry)
                         || Objects.nonNull(((MetadataEntry) metadata).getValue())

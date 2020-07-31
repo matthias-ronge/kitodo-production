@@ -402,7 +402,7 @@ public class AddDocStrucTypeDialog {
         Optional<IncludedStructuralElement> selectedStructure = dataEditor.getSelectedStructure();
         if (selectedStructure.isPresent()) {
             this.parents = MetadataEditor.getAncestorsOfStructure(selectedStructure.get(),
-                dataEditor.getWorkpiece().getRootElement());
+                dataEditor.getWorkpiece().getLogicalStructureRoot());
             prepareDocStructPositionSelectionItems(parents.isEmpty());
             prepareSelectAddableMetadataTypesItems(true);
         } else {
@@ -421,7 +421,7 @@ public class AddDocStrucTypeDialog {
         Optional<IncludedStructuralElement> selectedStructure = dataEditor.getSelectedStructure();
         if (selectedStructure.isPresent()) {
             this.parents = MetadataEditor.getAncestorsOfStructure(selectedStructure.get(),
-                    dataEditor.getWorkpiece().getRootElement());
+                    dataEditor.getWorkpiece().getLogicalStructureRoot());
             if (parents.isEmpty()) {
                 docStructAddTypeSelectionItemsForParent = Collections.emptyList();
             } else {

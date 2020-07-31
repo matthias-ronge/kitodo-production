@@ -54,7 +54,6 @@ import org.kitodo.data.database.beans.User;
 import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.production.dto.ProcessDTO;
-import org.kitodo.production.dto.PropertyDTO;
 import org.kitodo.production.helper.metadata.legacytypeimplementations.LegacyMetsModsDigitalDocumentHelper;
 import org.kitodo.production.helper.metadata.legacytypeimplementations.LegacyPrefsHelper;
 import org.kitodo.production.metadata.MetadataLock;
@@ -505,22 +504,22 @@ public class ProcessServiceIT {
     }
 
     @Test
-    public void shouldUpdateChildrenFromRootElement() throws Exception {
+    public void shouldUpdateChildrenFromLogicalStructure() throws Exception {
         LinkedMetsResource childToKeepLink = new LinkedMetsResource();
         childToKeepLink.setUri(processService.getProcessURI(processService.getById(5)));
         IncludedStructuralElement childToKeepIncludedStructuralElement = new IncludedStructuralElement();
         childToKeepIncludedStructuralElement.setLink(childToKeepLink);
-        IncludedStructuralElement rootElement = new IncludedStructuralElement();
-        rootElement.getChildren().add(childToKeepIncludedStructuralElement);
+        IncludedStructuralElement logicalStructureRoot = new IncludedStructuralElement();
+        logicalStructureRoot.getChildren().add(childToKeepIncludedStructuralElement);
         LinkedMetsResource childToAddLink = new LinkedMetsResource();
         childToAddLink.setUri(processService.getProcessURI(processService.getById(7)));
         IncludedStructuralElement childToAddIncludedStructuralElement = new IncludedStructuralElement();
         childToAddIncludedStructuralElement.setLink(childToAddLink);
-        rootElement.getChildren().add(childToAddIncludedStructuralElement);
+        logicalStructureRoot.getChildren().add(childToAddIncludedStructuralElement);
 
         Process process = processService.getById(4);
 
-        processService.updateChildrenFromRootElement(process, rootElement);
+        processService.updateChildrenFromLogicalStructure(process, logicalStructureRoot);
 
         for (Process child : process.getChildren()) {
             assertTrue("Process should have child to keep and child to add as only children",

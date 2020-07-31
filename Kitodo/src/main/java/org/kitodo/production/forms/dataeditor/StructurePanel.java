@@ -404,7 +404,7 @@ public class StructurePanel implements Serializable {
      * root element of the structure tree.
      */
     public void show() {
-        this.structure = dataEditor.getWorkpiece().getRootElement();
+        this.structure = dataEditor.getWorkpiece().getLogicalStructureRoot();
 
         this.previousExpansionStatesLogicalTree = getLogicalTreeNodeExpansionStates(this.logicalTree);
         this.logicalTree = buildStructureTree();
@@ -623,9 +623,10 @@ public class StructurePanel implements Serializable {
         addParentLinksRecursive(parent, tree);
         URI uri = ServiceManager.getProcessService().getMetadataFileUri(parent);
         try {
-            IncludedStructuralElement rootElement = ServiceManager.getMetsService().loadWorkpiece(uri).getRootElement();
-            List<IncludedStructuralElement> includedStructuralElementList
-                    = MetadataEditor.determineIncludedStructuralElementPathToChild(rootElement, child.getId());
+            IncludedStructuralElement logicalStructureRoot = ServiceManager.getMetsService().loadWorkpiece(uri)
+                    .getLogicalStructureRoot();
+            List<IncludedStructuralElement> includedStructuralElementList = MetadataEditor
+                    .determineIncludedStructuralElementPathToChild(logicalStructureRoot, child.getId());
             DefaultTreeNode parentNode = tree;
             if (includedStructuralElementList.isEmpty()) {
                 /*
@@ -1202,7 +1203,7 @@ public class StructurePanel implements Serializable {
         LinkedList<IncludedStructuralElement> dragParents;
         if (divisionView.getAllowedSubstructuralElements().containsKey(dragStructure.getType())) {
             dragParents = MetadataEditor.getAncestorsOfStructure(dragStructure,
-                    dataEditor.getWorkpiece().getRootElement());
+                    dataEditor.getWorkpiece().getLogicalStructureRoot());
             if (!dragParents.isEmpty()) {
                 IncludedStructuralElement parentStructure = dragParents.get(dragParents.size() - 1);
                 if (parentStructure.getChildren().contains(dragStructure)) {

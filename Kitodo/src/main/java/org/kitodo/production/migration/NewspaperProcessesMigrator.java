@@ -179,7 +179,7 @@ public class NewspaperProcessesMigrator {
 
     /**
      * The years of the course of appearance of the newspaper with their logical
-     * root elements.
+     * structure root elements.
      */
     private Map<String, IncludedStructuralElement> years = new TreeMap<>();
 
@@ -328,7 +328,7 @@ public class NewspaperProcessesMigrator {
 
         Workpiece workpiece = metsService.loadWorkpiece(metadataFilePath);
         workpiece.setId(process.getId().toString());
-        IncludedStructuralElement newspaperIncludedStructuralElement = workpiece.getRootElement();
+        IncludedStructuralElement newspaperIncludedStructuralElement = workpiece.getLogicalStructureRoot();
 
         if (Objects.isNull(title)) {
             initializeMigrator(process, newspaperIncludedStructuralElement.getType());
@@ -337,10 +337,10 @@ public class NewspaperProcessesMigrator {
         IncludedStructuralElement yearIncludedStructuralElement = cutOffTopLevel(newspaperIncludedStructuralElement);
         final String year = createLinkStructureAndCopyDates(process, yearFilePath, yearIncludedStructuralElement);
 
-        workpiece.setRootElement(cutOffTopLevel(yearIncludedStructuralElement));
+        workpiece.setLogicalStructureRoot(cutOffTopLevel(yearIncludedStructuralElement));
         metsService.saveWorkpiece(workpiece, metadataFilePath);
 
-        for (Metadata metadata : metsService.loadWorkpiece(anchorFilePath).getRootElement().getMetadata()) {
+        for (Metadata metadata : metsService.loadWorkpiece(anchorFilePath).getLogicalStructureRoot().getMetadata()) {
             if (!overallMetadata.contains(metadata)) {
                 logger.debug("Adding metadata to newspaper {}: {}", title, metadata);
                 overallMetadata.add(metadata);
@@ -403,7 +403,7 @@ public class NewspaperProcessesMigrator {
             throws IOException {
 
         IncludedStructuralElement yearFileYearIncludedStructuralElement = metsService.loadWorkpiece(yearMetadata)
-                .getRootElement().getChildren().get(0);
+                .getLogicalStructureRoot().getChildren().get(0);
         String year = MetadataEditor.getMetadataValue(yearFileYearIncludedStructuralElement, FIELD_TITLE_SORT);
         if (Objects.isNull(year) || !year.matches(YEAR_OR_DOUBLE_YEAR)) {
             logger.debug("\"{}\" is not a year number. Falling back to {}.", year, FIELD_TITLE);
@@ -556,11 +556,11 @@ public class NewspaperProcessesMigrator {
         processGenerator.generateProcess(templateId, projectId);
         overallProcess = processGenerator.getGeneratedProcess();
         overallProcess.setTitle(getTitle());
-        ImportService.checkTasks(overallProcess, overallWorkpiece.getRootElement().getType());
+        ImportService.checkTasks(overallProcess, overallWorkpiece.getLogicalStructureRoot().getType());
         processService.save(overallProcess);
         ServiceManager.getFileService().createProcessLocation(overallProcess);
         overallWorkpiece.setId(overallProcess.getId().toString());
-        overallWorkpiece.getRootElement().getMetadata().addAll(overallMetadata);
+        overallWorkpiece.getLogicalStructureRoot().getMetadata().addAll(overallMetadata);
         addToBatch(overallProcess);
 
         logger.info("Process {} (ID {}) successfully created.", overallProcess.getTitle(), overallProcess.getId());
@@ -595,7 +595,7 @@ public class NewspaperProcessesMigrator {
         ImportService.checkTasks(yearProcess, yearToCreate.getValue().getType());
         processService.save(yearProcess);
 
-        MetadataEditor.addLink(overallWorkpiece.getRootElement(), yearProcess.getId());
+        MetadataEditor.addLink(overallWorkpiece.getLogicalStructureRoot(), yearProcess.getId());
         if (!yearsIterator.hasNext()) {
             metsService.saveWorkpiece(overallWorkpiece, fileService.getMetadataFilePath(overallProcess, false, false));
         }
@@ -608,7 +608,7 @@ public class NewspaperProcessesMigrator {
 
         Workpiece yearWorkpiece = new Workpiece();
         yearWorkpiece.setId(yearProcess.getId().toString());
-        yearWorkpiece.setRootElement(yearToCreate.getValue());
+        yearWorkpiece.setLogicalStructureRoot(yearToCreate.getValue());
         metsService.saveWorkpiece(yearWorkpiece, fileService.getMetadataFilePath(yearProcess, false, false));
 
         Collection<Integer> childIds = yearsChildren.get(yearToCreate.getKey());

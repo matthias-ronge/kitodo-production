@@ -82,14 +82,14 @@ public class SchemaService {
         set(workpiece, MdSec.TECH_MD, "purlUrl", vp.replace(process.getProject().getMetsPurl()));
         set(workpiece, MdSec.TECH_MD, "contentIDs", vp.replace(process.getProject().getMetsContentIDs()));
 
-        convertChildrenLinksForExportRecursive(workpiece, workpiece.getRootElement(), prefs);
+        convertChildrenLinksForExportRecursive(workpiece, workpiece.getLogicalStructureRoot(), prefs);
         Process parentProcess = process.getParent();
         while (Objects.nonNull(parentProcess)) {
             addParentLinkForExport(prefs, workpiece, parentProcess);
             parentProcess = parentProcess.getParent();
         }
 
-        assignViewsFromChildrenRecursive(workpiece.getRootElement());
+        assignViewsFromChildrenRecursive(workpiece.getLogicalStructureRoot());
     }
 
     /**
@@ -117,7 +117,7 @@ public class SchemaService {
         entry.setKey(key);
         entry.setDomain(domain);
         entry.setValue(value);
-        workpiece.getRootElement().getMetadata().add(entry);
+        workpiece.getLogicalStructureRoot().getMetadata().add(entry);
     }
 
     private void addVirtualFileGroupsToMetsMods(MediaUnit mediaUnit, Process process) {
@@ -246,8 +246,8 @@ public class SchemaService {
         IncludedStructuralElement linkHolder = new IncludedStructuralElement();
         linkHolder.setLink(new LinkedMetsResource());
         setLinkForExport(linkHolder, parent, prefs, workpiece);
-        linkHolder.getChildren().add(workpiece.getRootElement());
-        workpiece.setRootElement(linkHolder);
+        linkHolder.getChildren().add(workpiece.getLogicalStructureRoot());
+        workpiece.setLogicalStructureRoot(linkHolder);
     }
 
     private void setLinkForExport(IncludedStructuralElement structure, Process process, LegacyPrefsHelper prefs,

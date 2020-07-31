@@ -44,15 +44,15 @@ public class Workpiece {
     private String id;
 
     /**
+     * The root element of the logical structure.
+     */
+    private IncludedStructuralElement logicalStructureRoot = new IncludedStructuralElement();
+
+    /**
      * The media unit that belongs to this workpiece. The media unit can have
      * children, such as a bound book that can have pages.
      */
     private MediaUnit mediaUnit = new MediaUnit();
-
-    /**
-     * The logical included structural element.
-     */
-    private IncludedStructuralElement rootElement = new IncludedStructuralElement();
 
     /**
      * Returns the creation date of the workpiece.
@@ -102,6 +102,25 @@ public class Workpiece {
     }
 
     /**
+     * Returns the root element of the logical structure.
+     *
+     * @return root element of the logical structure
+     */
+    public IncludedStructuralElement getLogicalStructureRoot() {
+        return logicalStructureRoot;
+    }
+
+    /**
+     * Sets the root element of the logical structure of the workpiece.
+     *
+     * @param logicalStructureRoot
+     *            included structural element to set
+     */
+    public void setLogicalStructureRoot(IncludedStructuralElement logicalStructureRoot) {
+        this.logicalStructureRoot = logicalStructureRoot;
+    }
+
+    /**
      * Returns the media unit of this workpiece.
      *
      * @return the media units
@@ -122,15 +141,6 @@ public class Workpiece {
     }
 
     /**
-     * Returns the root element of the included structural element.
-     *
-     * @return root element of the included structural element
-     */
-    public IncludedStructuralElement getRootElement() {
-        return rootElement;
-    }
-
-    /**
      * Sets the media unit of the workpiece.
      *
      * @param mediaUnit
@@ -140,19 +150,9 @@ public class Workpiece {
         this.mediaUnit = mediaUnit;
     }
 
-    /**
-     * Sets the included structural element of the workpiece.
-     *
-     * @param rootElement
-     *            included structural element to set
-     */
-    public void setRootElement(IncludedStructuralElement rootElement) {
-        this.rootElement = rootElement;
-    }
-
     @Override
     public String toString() {
-        return id + ", " + rootElement;
+        return id + ", " + logicalStructureRoot;
     }
 
     @Override
@@ -176,7 +176,7 @@ public class Workpiece {
                 && Objects.equals(editHistory, workpiece.editHistory)
                 && Objects.equals(id, workpiece.id)
                 && Objects.equals(mediaUnit, workpiece.mediaUnit)
-                && Objects.equals(rootElement, workpiece.rootElement);
+                && Objects.equals(logicalStructureRoot, workpiece.logicalStructureRoot);
     }
 
     /**
@@ -186,8 +186,8 @@ public class Workpiece {
      */
     public List<IncludedStructuralElement> getAllIncludedStructuralElements() {
         List<IncludedStructuralElement> includedStructuralElements = new LinkedList<>();
-        includedStructuralElements.add(rootElement);
-        includedStructuralElements.addAll(getAllIncludedStructuralElementsRecursive(rootElement));
+        includedStructuralElements.add(logicalStructureRoot);
+        includedStructuralElements.addAll(getAllIncludedStructuralElementsRecursive(logicalStructureRoot));
         return includedStructuralElements;
     }
 
