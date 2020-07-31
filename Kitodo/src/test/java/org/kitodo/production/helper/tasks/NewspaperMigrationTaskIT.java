@@ -24,7 +24,7 @@ import org.kitodo.ExecutionPermission;
 import org.kitodo.MockDatabase;
 import org.kitodo.SecurityTestUtils;
 import org.kitodo.TreeDeleter;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.config.ConfigCore;
 import org.kitodo.config.enums.ParameterCore;
@@ -111,7 +111,7 @@ public class NewspaperMigrationTaskIT {
 
         Workpiece workpiece = ServiceManager.getMetsService()
                 .loadWorkpiece(processService.getMetadataFileUri(issueOne));
-        IncludedStructuralElement logicalStructureRoot = workpiece.getLogicalStructureRoot();
+        LogicalStructure logicalStructureRoot = workpiece.getLogicalStructureRoot();
         Assert.assertEquals("should have modified METS file", "NewspaperMonth", logicalStructureRoot.getType());
         Assert.assertEquals("should have added date for month", "1850-03", logicalStructureRoot.getOrderlabel());
         Assert.assertEquals("should have added date for day", "1850-03-12",

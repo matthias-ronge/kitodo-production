@@ -17,7 +17,7 @@ import java.util.Objects;
 
 import org.kitodo.api.dataeditor.rulesetmanagement.MetadataViewInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.SimpleMetadataViewInterface;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.exceptions.NoSuchMetadataFieldException;
 
 abstract class ProcessSimpleMetadata extends ProcessDetail implements Serializable {
@@ -48,7 +48,7 @@ abstract class ProcessSimpleMetadata extends ProcessDetail implements Serializab
 
     protected Method getStructureFieldSetter(MetadataViewInterface field) throws NoSuchMetadataFieldException {
         String key = field.getId();
-        for (Method method : IncludedStructuralElement.class.getDeclaredMethods()) {
+        for (Method method : LogicalStructure.class.getDeclaredMethods()) {
             if (method.getName().startsWith("set") && method.getParameterTypes().length == 1
                     && method.getName().substring(3).equalsIgnoreCase(key)) {
                 return method;

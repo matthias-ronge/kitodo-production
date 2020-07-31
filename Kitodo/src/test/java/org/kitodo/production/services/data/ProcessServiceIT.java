@@ -43,7 +43,7 @@ import org.kitodo.ExecutionPermission;
 import org.kitodo.FileLoader;
 import org.kitodo.MockDatabase;
 import org.kitodo.SecurityTestUtils;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.dataformat.mets.LinkedMetsResource;
 import org.kitodo.config.ConfigCore;
@@ -507,15 +507,15 @@ public class ProcessServiceIT {
     public void shouldUpdateChildrenFromLogicalStructure() throws Exception {
         LinkedMetsResource childToKeepLink = new LinkedMetsResource();
         childToKeepLink.setUri(processService.getProcessURI(processService.getById(5)));
-        IncludedStructuralElement childToKeepIncludedStructuralElement = new IncludedStructuralElement();
-        childToKeepIncludedStructuralElement.setLink(childToKeepLink);
-        IncludedStructuralElement logicalStructureRoot = new IncludedStructuralElement();
-        logicalStructureRoot.getChildren().add(childToKeepIncludedStructuralElement);
+        LogicalStructure childToKeepLogicalStructure = new LogicalStructure();
+        childToKeepLogicalStructure.setLink(childToKeepLink);
+        LogicalStructure logicalStructureRoot = new LogicalStructure();
+        logicalStructureRoot.getChildren().add(childToKeepLogicalStructure);
         LinkedMetsResource childToAddLink = new LinkedMetsResource();
         childToAddLink.setUri(processService.getProcessURI(processService.getById(7)));
-        IncludedStructuralElement childToAddIncludedStructuralElement = new IncludedStructuralElement();
-        childToAddIncludedStructuralElement.setLink(childToAddLink);
-        logicalStructureRoot.getChildren().add(childToAddIncludedStructuralElement);
+        LogicalStructure childToAddLogicalStructure = new LogicalStructure();
+        childToAddLogicalStructure.setLink(childToAddLink);
+        logicalStructureRoot.getChildren().add(childToAddLogicalStructure);
 
         Process process = processService.getById(4);
 

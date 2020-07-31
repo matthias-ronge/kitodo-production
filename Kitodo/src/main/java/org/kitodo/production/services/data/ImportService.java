@@ -47,7 +47,7 @@ import org.kitodo.api.MetadataEntry;
 import org.kitodo.api.MetadataGroup;
 import org.kitodo.api.dataeditor.rulesetmanagement.RulesetManagementInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.externaldatamanagement.ExternalDataImportInterface;
 import org.kitodo.api.externaldatamanagement.SearchResult;
@@ -865,17 +865,17 @@ public class ImportService {
     }
 
     /**
-     * Create and return an instance of 'ProcessFieldedMetadata' for the given IncludedStructuralElement 'structure',
+     * Create and return an instance of 'ProcessFieldedMetadata' for the given LogicalStructure 'structure',
      * RulesetManagementInterface 'managementInterface', acquisition stage String 'stage' and List of LanguageRange
      * 'priorityList'.
      *
-     * @param structure IncludedStructuralElement for which to create a ProcessFieldedMetadata
+     * @param structure LogicalStructure for which to create a ProcessFieldedMetadata
      * @param managementInterface RulesetManagementInterface used to create ProcessFieldedMetadata
      * @param stage String containing acquisition stage used to create ProcessFieldedMetadata
      * @param priorityList List of LanguageRange objects used to create ProcessFieldedMetadata
      * @return the created ProcessFieldedMetadata
      */
-    public static ProcessFieldedMetadata initializeProcessDetails(IncludedStructuralElement structure,
+    public static ProcessFieldedMetadata initializeProcessDetails(LogicalStructure structure,
                                                                   RulesetManagementInterface managementInterface,
                                                                   String stage,
                                                                   List<Locale.LanguageRange> priorityList) {

@@ -35,15 +35,15 @@ public class MediaUnit extends Division<MediaUnit> {
     private String metsDivReferrerId;
 
     /**
-     * List of IncludedStructuralElements this view is assigned to.
+     * List of LogicalStructures this view is assigned to.
      */
-    private List<IncludedStructuralElement> includedStructuralElements;
+    private List<LogicalStructure> logicalStructures;
 
     /**
      * Creates a new MediaUnit.
      */
     public MediaUnit() {
-        includedStructuralElements = new LinkedList<>();
+        logicalStructures = new LinkedList<>();
     }
 
     /**
@@ -79,12 +79,12 @@ public class MediaUnit extends Division<MediaUnit> {
     }
 
     /**
-     * Get includedStructuralElements.
+     * Get logicalStructures.
      *
-     * @return value of includedStructuralElements
+     * @return value of logicalStructures
      */
-    public List<IncludedStructuralElement> getIncludedStructuralElements() {
-        return includedStructuralElements;
+    public List<LogicalStructure> getLogicalStructures() {
+        return logicalStructures;
     }
 
     @Override

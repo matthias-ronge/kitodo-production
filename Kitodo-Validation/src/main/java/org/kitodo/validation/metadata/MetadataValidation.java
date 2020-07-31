@@ -45,7 +45,7 @@ import org.kitodo.api.dataeditor.rulesetmanagement.MetadataViewWithValuesInterfa
 import org.kitodo.api.dataeditor.rulesetmanagement.RulesetManagementInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.SimpleMetadataViewInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.MediaUnit;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.api.dataformat.Workpiece;
@@ -121,11 +121,11 @@ public class MetadataValidation implements MetadataValidationInterface {
         results.add(checkForStructuresWithoutMedia(workpiece, translations));
         results.add(checkForUnlinkedMedia(workpiece, translations));
 
-        for (IncludedStructuralElement includedStructuralElement : treeStream(workpiece.getLogicalStructureRoot(),
-            IncludedStructuralElement::getChildren)
+        for (LogicalStructure logicalStructure : treeStream(workpiece.getLogicalStructureRoot(),
+            LogicalStructure::getChildren)
                 .collect(Collectors.toList())) {
-            results.addAll(checkMetadataRules(includedStructuralElement.toString(), includedStructuralElement.getType(),
-                getMetadata(includedStructuralElement), ruleset, metadataLanguage, translations));
+            results.addAll(checkMetadataRules(logicalStructure.toString(), logicalStructure.getType(),
+                getMetadata(logicalStructure), ruleset, metadataLanguage, translations));
         }
 
         for (MediaUnit mediaUnit : treeStream(workpiece.getPhysicalStructureRoot(), MediaUnit::getChildren)
@@ -137,18 +137,18 @@ public class MetadataValidation implements MetadataValidationInterface {
         return merge(results);
     }
 
-    private static Collection<Metadata> getMetadata(IncludedStructuralElement includedStructuralElement) {
-        Collection<Metadata> metadata = new ArrayList<>(includedStructuralElement.getMetadata());
-        if (Objects.nonNull(includedStructuralElement.getLabel())) {
+    private static Collection<Metadata> getMetadata(LogicalStructure logicalStructure) {
+        Collection<Metadata> metadata = new ArrayList<>(logicalStructure.getMetadata());
+        if (Objects.nonNull(logicalStructure.getLabel())) {
             MetadataEntry labelEntry = new MetadataEntry();
             labelEntry.setKey("LABEL");
-            labelEntry.setValue(includedStructuralElement.getLabel());
+            labelEntry.setValue(logicalStructure.getLabel());
             metadata.add(labelEntry);
         }
-        if (Objects.nonNull(includedStructuralElement.getOrderlabel())) {
+        if (Objects.nonNull(logicalStructure.getOrderlabel())) {
             MetadataEntry orderlabelEntry = new MetadataEntry();
             orderlabelEntry.setKey("ORDERLABEL");
-            orderlabelEntry.setValue(includedStructuralElement.getOrderlabel());
+            orderlabelEntry.setValue(logicalStructure.getOrderlabel());
             metadata.add(orderlabelEntry);
         }
         return metadata;
@@ -198,7 +198,7 @@ public class MetadataValidation implements MetadataValidationInterface {
         boolean warning = false;
         Collection<String> messages = new HashSet<>();
 
-        Collection<String> structuresWithoutMedia = treeStream(workpiece.getLogicalStructureRoot(), IncludedStructuralElement::getChildren)
+        Collection<String> structuresWithoutMedia = treeStream(workpiece.getLogicalStructureRoot(), LogicalStructure::getChildren)
                 .filter(struc -> Objects.nonNull(struc.getType()) && struc.getViews().isEmpty() && struc.getChildren().isEmpty())
                     .map(structure -> translations.get(MESSAGE_STRUCTURE_WITHOUT_MEDIA) + ' ' + structure)
                     .collect(Collectors.toSet());
@@ -207,7 +207,7 @@ public class MetadataValidation implements MetadataValidationInterface {
             warning = true;
         }
 
-        if (!treeStream(workpiece.getLogicalStructureRoot(), IncludedStructuralElement::getChildren)
+        if (!treeStream(workpiece.getLogicalStructureRoot(), LogicalStructure::getChildren)
                 .flatMap(structure -> structure.getViews().stream()).map(View::getMediaUnit)
                 .allMatch(workpiece.getMediaUnits()::contains)) {
             messages.add(translations.get(MESSAGE_MEDIA_MISSING));
@@ -232,7 +232,7 @@ public class MetadataValidation implements MetadataValidationInterface {
 
         KeySetView<MediaUnit, ?> unassignedMediaUnits = ConcurrentHashMap.newKeySet();
         unassignedMediaUnits.addAll(workpiece.getMediaUnits());
-        treeStream(workpiece.getLogicalStructureRoot(), IncludedStructuralElement::getChildren).flatMap(structure -> structure.getViews().stream())
+        treeStream(workpiece.getLogicalStructureRoot(), LogicalStructure::getChildren).flatMap(structure -> structure.getViews().stream())
                 .map(View::getMediaUnit)
                 .forEach(unassignedMediaUnits::remove);
         if (!unassignedMediaUnits.isEmpty()) {

@@ -39,7 +39,7 @@ import org.kitodo.api.dataeditor.rulesetmanagement.MetadataViewInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.MetadataViewWithValuesInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.SimpleMetadataViewInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.Division;
 import org.kitodo.exceptions.InvalidMetadataValueException;
 import org.kitodo.exceptions.NoSuchMetadataFieldException;
@@ -214,18 +214,18 @@ public class ProcessFieldedMetadata extends ProcessDetail implements Serializabl
      */
     private Collection<Metadata> addLabels(Collection<Metadata> metadata) {
         Collection<Metadata> displayMetadata = metadata;
-        if (Objects.nonNull(division) && division instanceof IncludedStructuralElement) {
+        if (Objects.nonNull(division) && division instanceof LogicalStructure) {
             displayMetadata = new ArrayList<>(metadata);
-            if (Objects.nonNull(((IncludedStructuralElement) division).getLabel())) {
+            if (Objects.nonNull(((LogicalStructure) division).getLabel())) {
                 MetadataEntry label = new MetadataEntry();
                 label.setKey("LABEL");
-                label.setValue(((IncludedStructuralElement) division).getLabel());
+                label.setValue(((LogicalStructure) division).getLabel());
                 displayMetadata.add(label);
             }
-            if (Objects.nonNull(((IncludedStructuralElement) division).getOrderlabel())) {
+            if (Objects.nonNull(((LogicalStructure) division).getOrderlabel())) {
                 MetadataEntry label = new MetadataEntry();
                 label.setKey("ORDERLABEL");
-                label.setValue(((IncludedStructuralElement) division).getOrderlabel());
+                label.setValue(((LogicalStructure) division).getOrderlabel());
                 displayMetadata.add(label);
             }
         }

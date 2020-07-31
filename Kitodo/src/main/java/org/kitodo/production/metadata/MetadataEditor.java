@@ -33,7 +33,7 @@ import org.kitodo.api.MetadataEntry;
 import org.kitodo.api.dataeditor.rulesetmanagement.Domain;
 import org.kitodo.api.dataeditor.rulesetmanagement.SimpleMetadataViewInterface;
 import org.kitodo.api.dataformat.Division;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.MediaUnit;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.api.dataformat.Workpiece;
@@ -61,10 +61,10 @@ public class MetadataEditor {
 
     /**
      * Connects two processes by means of a link. The link is sorted as a linked
-     * included structural element in a included structural element of the
-     * parent process. The order is based on the order number specified by the
-     * user. This method does not create a link between the two processes in the
-     * database, this must and can only happen when saving.
+     * logical structure in a logical structure of the parent process. The order
+     * is based on the order number specified by the user. This method does not
+     * create a link between the two processes in the database, this must and
+     * can only happen when saving.
      *
      * @param process
      *            the parent process in which the link is to be added
@@ -79,13 +79,13 @@ public class MetadataEditor {
         URI metadataFileUri = ServiceManager.getProcessService().getMetadataFileUri(process);
         Workpiece workpiece = ServiceManager.getMetsService().loadWorkpiece(metadataFileUri);
         List<String> indices = Arrays.asList(insertionPosition.split(Pattern.quote(INSERTION_POSITION_SEPARATOR)));
-        IncludedStructuralElement includedStructuralElement = workpiece.getLogicalStructureRoot();
+        LogicalStructure logicalStructure = workpiece.getLogicalStructureRoot();
         for (int index = 0; index < indices.size(); index++) {
             if (index < indices.size() - 1) {
-                includedStructuralElement = includedStructuralElement.getChildren()
+                logicalStructure = logicalStructure.getChildren()
                         .get(Integer.parseInt(indices.get(index)));
             } else {
-                addLink(includedStructuralElement, Integer.parseInt(indices.get(index)), childProcessId);
+                addLink(logicalStructure, Integer.parseInt(indices.get(index)), childProcessId);
             }
         }
         ServiceManager.getFileService().createBackupFile(process);
@@ -94,35 +94,35 @@ public class MetadataEditor {
 
     /**
      * Connects two processes by means of a link. The link is sorted as a linked
-     * included structural element in a included structural element of the
-     * parent process. The order is based on the order number specified by the
-     * user. This method does not create a link between the two processes in the
-     * database, this must and can only happen when saving.
+     * logical structure in a logical structure of the parent process. The order
+     * is based on the order number specified by the user. This method does not
+     * create a link between the two processes in the database, this must and
+     * can only happen when saving.
      *
-     * @param parentIncludedStructuralElement
-     *            document included structural element of the parent process in
-     *            which the link is to be added
+     * @param logicalStructure
+     *            logical structure of the parent process in which the link is
+     *            to be added
      * @param childProcessId
      *            Database ID of the child process to be linked
      */
-    public static void addLink(IncludedStructuralElement parentIncludedStructuralElement, int childProcessId) {
-        addLink(parentIncludedStructuralElement, -1, childProcessId);
+    public static void addLink(LogicalStructure logicalStructure, int childProcessId) {
+        addLink(logicalStructure, -1, childProcessId);
     }
 
-    private static void addLink(IncludedStructuralElement parentIncludedStructuralElement, int index,
+    private static void addLink(LogicalStructure parentLogicalStructure, int index,
             int childProcessId) {
 
         LinkedMetsResource link = new LinkedMetsResource();
         link.setLoctype(INTERNAL_LOCTYPE);
         URI uri = ServiceManager.getProcessService().getProcessURI(childProcessId);
         link.setUri(uri);
-        IncludedStructuralElement includedStructuralElement = new IncludedStructuralElement();
-        includedStructuralElement.setLink(link);
-        List<IncludedStructuralElement> children = parentIncludedStructuralElement.getChildren();
+        LogicalStructure logicalStructure = new LogicalStructure();
+        logicalStructure.setLink(link);
+        List<LogicalStructure> children = parentLogicalStructure.getChildren();
         if (index < 0) {
-            children.add(includedStructuralElement);
+            children.add(logicalStructure);
         } else {
-            children.add(index, includedStructuralElement);
+            children.add(index, logicalStructure);
         }
     }
 
@@ -144,10 +144,10 @@ public class MetadataEditor {
         }
     }
 
-    private static boolean removeLinkRecursive(IncludedStructuralElement element, int childId) {
-        IncludedStructuralElement parentElement = null;
-        IncludedStructuralElement linkElement = null;
-        for (IncludedStructuralElement structuralElement : element.getChildren()) {
+    private static boolean removeLinkRecursive(LogicalStructure element, int childId) {
+        LogicalStructure parentElement = null;
+        LogicalStructure linkElement = null;
+        for (LogicalStructure structuralElement : element.getChildren()) {
             if (Objects.nonNull(structuralElement.getLink()) && Objects.nonNull(structuralElement.getLink().getUri())
                     && structuralElement.getLink().getUri().toString().endsWith("process.id=" + childId)) {
                 parentElement = element;
@@ -189,12 +189,12 @@ public class MetadataEditor {
      * @param metadataValue
      *            value of the first metadata entry
      */
-    public static void addMultipleStructures(int number, String type, Workpiece workpiece, IncludedStructuralElement structure,
+    public static void addMultipleStructures(int number, String type, Workpiece workpiece, LogicalStructure structure,
             InsertionPosition position, String metadataKey, String metadataValue) {
 
         Paginator metadataValues = new Paginator(metadataValue);
         for (int i = 0; i < number; i++) {
-            IncludedStructuralElement newStructure = addStructure(type, workpiece, structure, position, Collections.emptyList());
+            LogicalStructure newStructure = addStructure(type, workpiece, structure, position, Collections.emptyList());
             if (Objects.isNull(newStructure)) {
                 continue;
             }
@@ -223,10 +223,10 @@ public class MetadataEditor {
      *            views to be assigned to the structure
      * @return the newly created structure
      */
-    public static IncludedStructuralElement addStructure(String type, Workpiece workpiece, IncludedStructuralElement structure,
+    public static LogicalStructure addStructure(String type, Workpiece workpiece, LogicalStructure structure,
             InsertionPosition position, List<View> viewsToAdd) {
-        LinkedList<IncludedStructuralElement> parents = getAncestorsOfStructure(structure, workpiece.getLogicalStructureRoot());
-        List<IncludedStructuralElement> siblings = new LinkedList<>();
+        LinkedList<LogicalStructure> parents = getAncestorsOfStructure(structure, workpiece.getLogicalStructureRoot());
+        List<LogicalStructure> siblings = new LinkedList<>();
         if (parents.isEmpty()) {
             if (position.equals(InsertionPosition.AFTER_CURRENT_ELEMENT)
                     || position.equals(InsertionPosition.BEFORE_CURRENT_ELEMENT)
@@ -237,9 +237,9 @@ public class MetadataEditor {
         } else {
             siblings = parents.getLast().getChildren();
         }
-        IncludedStructuralElement newStructure = new IncludedStructuralElement();
+        LogicalStructure newStructure = new LogicalStructure();
         newStructure.setType(type);
-        LinkedList<IncludedStructuralElement> structuresToAddViews = new LinkedList<>(parents);
+        LinkedList<LogicalStructure> structuresToAddViews = new LinkedList<>(parents);
         switch (position) {
             case AFTER_CURRENT_ELEMENT:
                 siblings.add(siblings.indexOf(structure) + 1, newStructure);
@@ -269,12 +269,12 @@ public class MetadataEditor {
         }
         if (Objects.nonNull(viewsToAdd) && !viewsToAdd.isEmpty()) {
             for (View viewToAdd : viewsToAdd) {
-                List<IncludedStructuralElement> includedStructuralElements = viewToAdd.getMediaUnit().getIncludedStructuralElements();
-                for (IncludedStructuralElement elementToUnassign : includedStructuralElements) {
+                List<LogicalStructure> logicalStructures = viewToAdd.getMediaUnit().getLogicalStructures();
+                for (LogicalStructure elementToUnassign : logicalStructures) {
                     elementToUnassign.getViews().remove(viewToAdd);
                 }
-                includedStructuralElements.clear();
-                includedStructuralElements.add(newStructure);
+                logicalStructures.clear();
+                logicalStructures.add(newStructure);
             }
             newStructure.getViews().addAll(viewsToAdd);
         }
@@ -328,16 +328,16 @@ public class MetadataEditor {
      * @param structure
      *            structure to add all views of all children to
      */
-    public static void assignViewsFromChildren(IncludedStructuralElement structure) {
+    public static void assignViewsFromChildren(LogicalStructure structure) {
         Collection<View> viewsToAdd = getViewsFromChildrenRecursive(structure);
         Collection<View> assignedViews = structure.getViews();
         viewsToAdd.removeAll(assignedViews);
         assignedViews.addAll(viewsToAdd);
     }
 
-    private static Collection<View> getViewsFromChildrenRecursive(IncludedStructuralElement structure) {
+    private static Collection<View> getViewsFromChildrenRecursive(LogicalStructure structure) {
         List<View> viewsFromChildren = new ArrayList<>(structure.getViews());
-        for (IncludedStructuralElement child : structure.getChildren()) {
+        for (LogicalStructure child : structure.getChildren()) {
             viewsFromChildren.addAll(getViewsFromChildrenRecursive(child));
         }
         return viewsFromChildren;
@@ -358,38 +358,37 @@ public class MetadataEditor {
     }
 
     /**
-     * Determines the path to the included structural element of the child. For
-     * each level of the logical structure, the recursion is run through once,
-     * that is for a newspaper year process tree times (year, month, day).
+     * Determines the path to the logical structure of the child. For each level
+     * of the logical structure, the recursion is run through once, that is for
+     * a newspaper year process tree times (year, month, day).
      *
-     * @param includedStructuralElement
-     *            included structural element of the level stage of recursion
-     *            (starting from the top)
+     * @param logicalStructure
+     *            logical structure of the level stage of recursion (starting
+     *            from the top)
      * @param number
      *            number of the record of the process of the child
      *
      */
-    public static List<IncludedStructuralElement> determineIncludedStructuralElementPathToChild(
-            IncludedStructuralElement includedStructuralElement, int number) {
+    public static List<LogicalStructure> determineLogicalStructurePathToChild(
+            LogicalStructure logicalStructure, int number) {
 
-        if (Objects.nonNull(includedStructuralElement.getLink())) {
+        if (Objects.nonNull(logicalStructure.getLink())) {
             try {
                 if (ServiceManager.getProcessService()
-                        .processIdFromUri(includedStructuralElement.getLink().getUri()) == number) {
-                    LinkedList<IncludedStructuralElement> linkedIncludedStructuralElements = new LinkedList<>();
-                    linkedIncludedStructuralElements.add(includedStructuralElement);
-                    return linkedIncludedStructuralElements;
+                        .processIdFromUri(logicalStructure.getLink().getUri()) == number) {
+                    LinkedList<LogicalStructure> linkedLogicalStructures = new LinkedList<>();
+                    linkedLogicalStructures.add(logicalStructure);
+                    return linkedLogicalStructures;
                 }
             } catch (IllegalArgumentException | ClassCastException | SecurityException e) {
                 logger.catching(Level.TRACE, e);
             }
         }
-        for (IncludedStructuralElement includedStructuralElementChild : includedStructuralElement.getChildren()) {
-            List<IncludedStructuralElement> includedStructuralElementList = determineIncludedStructuralElementPathToChild(
-                includedStructuralElementChild, number);
-            if (!includedStructuralElementList.isEmpty()) {
-                includedStructuralElementList.add(0, includedStructuralElement);
-                return includedStructuralElementList;
+        for (LogicalStructure logicalChild : logicalStructure.getChildren()) {
+            List<LogicalStructure> logicalStructureList = determineLogicalStructurePathToChild(logicalChild, number);
+            if (!logicalStructureList.isEmpty()) {
+                logicalStructureList.add(0, logicalStructure);
+                return logicalStructureList;
             }
         }
         return Collections.emptyList();
@@ -433,11 +432,11 @@ public class MetadataEditor {
      *            node to be searched recursively
      * @return the parent nodes (maybe empty)
      */
-    public static LinkedList<IncludedStructuralElement> getAncestorsOfStructure(IncludedStructuralElement searched,
-                                                                                IncludedStructuralElement position) {
+    public static LinkedList<LogicalStructure> getAncestorsOfStructure(LogicalStructure searched,
+                                                                                LogicalStructure position) {
         return getAncestorsRecursive(searched, position, null)
                 .stream()
-                .map(parent -> (IncludedStructuralElement) parent)
+                .map(parent -> (LogicalStructure) parent)
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
@@ -483,15 +482,15 @@ public class MetadataEditor {
     /**
      * Returns the value of the specified metadata entry.
      *
-     * @param includedStructuralElement
-     *            included structural element from whose metadata the value is
-     *            to be retrieved
+     * @param logicalStructure
+     *            logical structure from whose metadata the value is to be
+     *            retrieved
      * @param key
      *            key of the metadata to be determined
      * @return the value of the metadata entry, otherwise {@code null}
      */
-    public static String getMetadataValue(IncludedStructuralElement includedStructuralElement, String key) {
-        for (Metadata metadata : includedStructuralElement.getMetadata()) {
+    public static String getMetadataValue(LogicalStructure logicalStructure, String key) {
+        for (Metadata metadata : logicalStructure.getMetadata()) {
             if (metadata.getKey().equals(key) && metadata instanceof MetadataEntry) {
                 return ((MetadataEntry) metadata).getValue();
             }
@@ -505,9 +504,9 @@ public class MetadataEditor {
      * @return View or null if no View was found
      */
     public static View getFirstViewForMediaUnit(MediaUnit mediaUnit) {
-        List<IncludedStructuralElement> includedStructuralElements = mediaUnit.getIncludedStructuralElements();
-        if (!includedStructuralElements.isEmpty() && Objects.nonNull(includedStructuralElements.get(0))) {
-            for (View view : includedStructuralElements.get(0).getViews()) {
+        List<LogicalStructure> logicalStructures = mediaUnit.getLogicalStructures();
+        if (!logicalStructures.isEmpty() && Objects.nonNull(logicalStructures.get(0))) {
+            for (View view : logicalStructures.get(0).getViews()) {
                 if (Objects.nonNull(view) && Objects.equals(view.getMediaUnit(), mediaUnit)) {
                     return view;
                 }
@@ -517,18 +516,17 @@ public class MetadataEditor {
     }
 
     /**
-     * Reads the simple metadata from an included structural element defined by
-     * the simple metadata view interface, including {@code mets:div} metadata.
+     * Reads the simple metadata from an logical structure defined by the simple
+     * metadata view interface, including {@code mets:div} metadata.
      *
      * @param division
-     *            included structural element from which the metadata should be
-     *            read
+     *            logical structure from which the metadata should be read
      * @param simpleMetadataView
      *            simple metadata view interface which formally describes the
-     *            methadata to be read
+     *            metadata to be read
      * @return metadata which corresponds to the formal description
      */
-    public static List<String> readSimpleMetadataValues(IncludedStructuralElement division,
+    public static List<String> readSimpleMetadataValues(LogicalStructure division,
             SimpleMetadataViewInterface simpleMetadataView) {
         Domain domain = simpleMetadataView.getDomain().orElse(Domain.DESCRIPTION);
         if (domain.equals(Domain.METS_DIV)) {
@@ -556,13 +554,13 @@ public class MetadataEditor {
      * Removes all metadata of the given key from the given included structural
      * element.
      *
-     * @param includedStructuralElement
-     *            included structural element to remove metadata from
+     * @param logicalStructure
+     *            logical structure to remove metadata from
      * @param key
      *            key of metadata to remove
      */
-    public static void removeAllMetadata(IncludedStructuralElement includedStructuralElement, String key) {
-        for (Iterator<Metadata> iterator = includedStructuralElement.getMetadata().iterator(); iterator.hasNext();) {
+    public static void removeAllMetadata(LogicalStructure logicalStructure, String key) {
+        for (Iterator<Metadata> iterator = logicalStructure.getMetadata().iterator(); iterator.hasNext();) {
             Metadata metadata = iterator.next();
             if (key.equals(metadata.getKey())) {
                 iterator.remove();
@@ -577,8 +575,7 @@ public class MetadataEditor {
      * model. Otherwise, however, a metadata entry is written in metadata area.
      *
      * @param division
-     *            included structural element at which the metadata entry is to
-     *            be written
+     *            logical structure at which the metadata entry is to be written
      * @param simpleMetadataView
      *            properties of the metadata entry as defined in the ruleset
      * @param value
@@ -589,7 +586,7 @@ public class MetadataEditor {
      *             and the value is different from either {@code label} or
      *             {@code orderlabel}.
      */
-    public static void writeMetadataEntry(IncludedStructuralElement division,
+    public static void writeMetadataEntry(LogicalStructure division,
             SimpleMetadataViewInterface simpleMetadataView, String value) {
 
         Domain domain = simpleMetadataView.getDomain().orElse(Domain.DESCRIPTION);

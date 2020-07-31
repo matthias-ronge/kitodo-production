@@ -39,7 +39,7 @@ import org.apache.logging.log4j.Logger;
 import org.kitodo.api.Metadata;
 import org.kitodo.api.MetadataEntry;
 import org.kitodo.api.dataeditor.rulesetmanagement.RulesetManagementInterface;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.MediaUnit;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.api.dataformat.Workpiece;
@@ -162,7 +162,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
      * This List of Pairs stores all selected physical elements and the logical elements in which the physical element was selected.
      * It is necessary to store the logical elements as well, because a physical element can be assigned to multiple logical elements.
      */
-    private List<Pair<MediaUnit, IncludedStructuralElement>> selectedMedia;
+    private List<Pair<MediaUnit, LogicalStructure>> selectedMedia;
 
     private static final String DESKTOP_LINK = "/pages/desktop.jsf";
 
@@ -393,7 +393,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
     }
 
     private void initSeveralAssignments(MediaUnit mediaUnit, List<MediaUnit> severalAssignments) {
-        if (mediaUnit.getIncludedStructuralElements().size() > 1) {
+        if (mediaUnit.getLogicalStructures().size() > 1) {
             severalAssignments.add(mediaUnit);
         }
         for (MediaUnit child : mediaUnit.getChildren()) {
@@ -530,7 +530,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         return ruleset;
     }
 
-    Optional<IncludedStructuralElement> getSelectedStructure() {
+    Optional<LogicalStructure> getSelectedStructure() {
         return structurePanel.getSelectedStructure();
     }
 
@@ -539,13 +539,13 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
     }
 
     /**
-     * Check if the passed IncludedStructuralElement is part of the selection.
-     * @param structure IncludedStructuralElement to be checked
+     * Check if the passed LogicalStructure is part of the selection.
+     * @param structure LogicalStructure to be checked
      * @return boolean representing selection status
      */
-    public boolean isStripeSelected(IncludedStructuralElement structure) {
-        Optional<IncludedStructuralElement> selectedStructure = structurePanel.getSelectedStructure();
-        return selectedStructure.filter(includedStructuralElement -> Objects.equals(structure, includedStructuralElement)).isPresent();
+    public boolean isStripeSelected(LogicalStructure structure) {
+        Optional<LogicalStructure> selectedStructure = structurePanel.getSelectedStructure();
+        return selectedStructure.filter(logicalStructure -> Objects.equals(structure, logicalStructure)).isPresent();
     }
 
     /**
@@ -575,25 +575,30 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
      *
      * @return value of selectedMedia
      */
-    List<Pair<MediaUnit, IncludedStructuralElement>> getSelectedMedia() {
+    List<Pair<MediaUnit, LogicalStructure>> getSelectedMedia() {
         return selectedMedia;
     }
 
-    void setSelectedMedia(List<Pair<MediaUnit, IncludedStructuralElement>> media) {
+    void setSelectedMedia(List<Pair<MediaUnit, LogicalStructure>> media) {
         this.selectedMedia = media;
     }
 
     /**
      * Check if the passed MediaUnit is selected.
-     * @param mediaUnit MediaUnit object to check for selection
-     * @param includedStructuralElement object to check whether the MediaUnit is selected as a child of this IncludedStructuralElement.
-     *                                  A MediaUnit can be assigned to multiple IncludedStructuralElements but can be selected
-     *                                  in one of these IncludedStructuralElements.
-     * @return boolean whether the MediaUnit is selected at the specified position
+     * 
+     * @param mediaUnit
+     *            MediaUnit object to check for selection
+     * @param logicalStructure
+     *            object to check whether the MediaUnit is selected as a child
+     *            of this LogicalStructure. A MediaUnit can be assigned to
+     *            multiple LogicalStructures but can be selected in one of these
+     *            LogicalStructures.
+     * @return boolean whether the MediaUnit is selected at the specified
+     *         position
      */
-    public boolean isSelected(MediaUnit mediaUnit, IncludedStructuralElement includedStructuralElement) {
-        if (Objects.nonNull(mediaUnit) && Objects.nonNull(includedStructuralElement)) {
-            return selectedMedia.contains(new ImmutablePair<>(mediaUnit, includedStructuralElement));
+    public boolean isSelected(MediaUnit mediaUnit, LogicalStructure logicalStructure) {
+        if (Objects.nonNull(mediaUnit) && Objects.nonNull(logicalStructure)) {
+            return selectedMedia.contains(new ImmutablePair<>(mediaUnit, logicalStructure));
         }
         return false;
     }
@@ -605,17 +610,17 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
             logger.info(e.getLocalizedMessage(), e);
         }
 
-        Optional<IncludedStructuralElement> selectedStructure = structurePanel.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = structurePanel.getSelectedStructure();
 
         metadataPanel.showLogical(selectedStructure);
         if (treeNodeData instanceof StructureTreeNode) {
             StructureTreeNode structureTreeNode = (StructureTreeNode) treeNodeData;
             if (Objects.nonNull(structureTreeNode.getDataObject())) {
-                if (structureTreeNode.getDataObject() instanceof IncludedStructuralElement
+                if (structureTreeNode.getDataObject() instanceof LogicalStructure
                         && selectedStructure.isPresent()) {
                     // Logical structure element selected
                     if (structurePanel.isSeparateMedia()) {
-                        IncludedStructuralElement structuralElement = selectedStructure.get();
+                        LogicalStructure structuralElement = selectedStructure.get();
                         if (!structuralElement.getViews().isEmpty()) {
                             ArrayList<View> views = new ArrayList<>(structuralElement.getViews());
                             if (Objects.nonNull(views.get(0)) && updateGalleryAndPhysicalTree) {
@@ -677,38 +682,38 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         }
     }
 
-    void assignView(IncludedStructuralElement includedStructuralElement, View view, Integer index) {
-        if (Objects.nonNull(index) && index >= 0 && index < includedStructuralElement.getViews().size()) {
-            includedStructuralElement.getViews().add(index, view);
+    void assignView(LogicalStructure logicalStructure, View view, Integer index) {
+        if (Objects.nonNull(index) && index >= 0 && index < logicalStructure.getViews().size()) {
+            logicalStructure.getViews().add(index, view);
         } else {
-            includedStructuralElement.getViews().add(view);
+            logicalStructure.getViews().add(view);
         }
-        view.getMediaUnit().getIncludedStructuralElements().add(includedStructuralElement);
+        view.getMediaUnit().getLogicalStructures().add(logicalStructure);
     }
 
-    void unassignView(IncludedStructuralElement includedStructuralElement, View view, boolean removeLast) {
+    void unassignView(LogicalStructure logicalStructure, View view, boolean removeLast) {
         // if View was moved within one element, we need to distinguish two possible directions it could have been moved
         if (removeLast) {
-            includedStructuralElement.getViews().removeLastOccurrence(view);
+            logicalStructure.getViews().removeLastOccurrence(view);
         } else {
-            includedStructuralElement.getViews().removeFirstOccurrence(view);
+            logicalStructure.getViews().removeFirstOccurrence(view);
         }
-        view.getMediaUnit().getIncludedStructuralElements().remove(includedStructuralElement);
+        view.getMediaUnit().getLogicalStructures().remove(logicalStructure);
     }
 
     /**
      * Retrieve and return 'title' value of given Object 'dataObject' if Object is instance of
-     * 'IncludedStructuralElement' and if it does have a title. Uses a configurable list of metadata keys to determine
+     * 'LogicalStructure' and if it does have a title. Uses a configurable list of metadata keys to determine
      * which metadata keys should be considered.
      * Return empty string otherwise.
      *
      * @param dataObject
-     *          StructureTreeNode containing the IncludedStructuralElement whose title is returned
-     * @return 'title' value of the IncludedStructuralElement contained in the given StructureTreeNode 'treeNode'
+     *          StructureTreeNode containing the LogicalStructure whose title is returned
+     * @return 'title' value of the LogicalStructure contained in the given StructureTreeNode 'treeNode'
      */
     public String getStructureElementTitle(Object dataObject) {
-        if (dataObject instanceof IncludedStructuralElement) {
-            IncludedStructuralElement element = (IncludedStructuralElement) dataObject;
+        if (dataObject instanceof LogicalStructure) {
+            LogicalStructure element = (LogicalStructure) dataObject;
             List<Metadata> titleMetadata = element.getMetadata().stream()
                     .filter(m -> DataEditorService.getTitleKeys().contains(m.getKey())).collect(Collectors.toList());
             for (Metadata metadata : titleMetadata) {

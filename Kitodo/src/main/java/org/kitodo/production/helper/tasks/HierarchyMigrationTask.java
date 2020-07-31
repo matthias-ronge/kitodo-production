@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitodo.api.MetadataEntry;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.dataformat.mets.LinkedMetsResource;
 import org.kitodo.data.database.beans.Process;
@@ -288,7 +288,7 @@ public class HierarchyMigrationTask extends EmptyTask {
      */
     private static Integer convertChildMetsFile(URI metadataFilePath) throws IOException {
         Workpiece workpiece = metsService.loadWorkpiece(metadataFilePath);
-        IncludedStructuralElement childStructureRoot = workpiece.getLogicalStructureRoot().getChildren().get(0);
+        LogicalStructure childStructureRoot = workpiece.getLogicalStructureRoot().getChildren().get(0);
         workpiece.setLogicalStructureRoot(childStructureRoot);
         metsService.saveWorkpiece(workpiece, metadataFilePath);
         return getCurrentNo(childStructureRoot);
@@ -309,7 +309,7 @@ public class HierarchyMigrationTask extends EmptyTask {
      *            outline element with metadata
      * @return the CurrentNo, or {@code null}
      */
-    private static Integer getCurrentNo(IncludedStructuralElement includedStructualElement) {
+    private static Integer getCurrentNo(LogicalStructure includedStructualElement) {
         Integer currentNo = includedStructualElement.getMetadata().parallelStream()
                 .filter(metadata -> metadata.getKey().equals("CurrentNo")).filter(MetadataEntry.class::isInstance)
                 .map(MetadataEntry.class::cast).map(MetadataEntry::getValue).filter(value -> value.matches("\\d+"))

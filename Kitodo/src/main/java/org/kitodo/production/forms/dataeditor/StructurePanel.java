@@ -33,7 +33,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.MediaUnit;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.data.database.beans.Process;
@@ -71,7 +71,7 @@ public class StructurePanel implements Serializable {
 
     private TreeNode selectedPhysicalNode;
 
-    private IncludedStructuralElement structure;
+    private LogicalStructure structure;
 
     /**
      * The logical structure tree of the edited document.
@@ -86,7 +86,7 @@ public class StructurePanel implements Serializable {
     /**
      * HashMap containing the current expansion states of all TreeNodes in the logical structure tree.
      */
-    private HashMap<IncludedStructuralElement, Boolean> previousExpansionStatesLogicalTree;
+    private HashMap<LogicalStructure, Boolean> previousExpansionStatesLogicalTree;
 
     /**
      * HashMap containing the current expansion states of all TreeNodes in the physical structure tree.
@@ -94,7 +94,7 @@ public class StructurePanel implements Serializable {
     private HashMap<MediaUnit, Boolean> previousExpansionStatesPhysicalTree;
 
     /**
-     * List of all mediaUnits assigned to multiple IncludedStructuralElements.
+     * List of all mediaUnits assigned to multiple LogicalStructures.
      */
     private List<MediaUnit> severalAssignments = new LinkedList<>();
 
@@ -133,7 +133,7 @@ public class StructurePanel implements Serializable {
     }
 
     void deleteSelectedStructure() {
-        Optional<IncludedStructuralElement> selectedStructure = getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = getSelectedStructure();
         if (!selectedStructure.isPresent()) {
             /*
              * No element is selected or the selected element is not a structure
@@ -141,12 +141,12 @@ public class StructurePanel implements Serializable {
              */
             return;
         }
-        LinkedList<IncludedStructuralElement> ancestors = MetadataEditor.getAncestorsOfStructure(selectedStructure.get(), structure);
+        LinkedList<LogicalStructure> ancestors = MetadataEditor.getAncestorsOfStructure(selectedStructure.get(), structure);
         if (ancestors.isEmpty()) {
             // The selected element is the root node of the tree.
             return;
         }
-        IncludedStructuralElement parent = ancestors.getLast();
+        LogicalStructure parent = ancestors.getLast();
 
         Collection<View> subViews = new ArrayList<>();
         subViews = getAllSubViews(selectedStructure.get(), subViews);
@@ -158,11 +158,11 @@ public class StructurePanel implements Serializable {
         dataEditor.getGalleryPanel().updateStripes();
     }
 
-    private Collection<View> getAllSubViews(IncludedStructuralElement selectedStructure, Collection<View> views) {
+    private Collection<View> getAllSubViews(LogicalStructure selectedStructure, Collection<View> views) {
         if (Objects.nonNull(selectedStructure.getViews())) {
             views.addAll(selectedStructure.getViews());
         }
-        for (IncludedStructuralElement child : selectedStructure.getChildren()) {
+        for (LogicalStructure child : selectedStructure.getChildren()) {
             getAllSubViews(child, views);
         }
         return views;
@@ -227,10 +227,10 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    Optional<IncludedStructuralElement> getSelectedStructure() {
+    Optional<LogicalStructure> getSelectedStructure() {
         StructureTreeNode structureTreeNode = (StructureTreeNode) selectedLogicalNode.getData();
         Object dataObject = structureTreeNode.getDataObject();
-        return Optional.ofNullable(dataObject instanceof IncludedStructuralElement ? (IncludedStructuralElement) dataObject : null);
+        return Optional.ofNullable(dataObject instanceof LogicalStructure ? (LogicalStructure) dataObject : null);
     }
 
     Optional<MediaUnit> getSelectedMediaUnit() {
@@ -323,17 +323,17 @@ public class StructurePanel implements Serializable {
      * aren’t structures, {@code null} is returned to skip them on the level
      * above.
      */
-    private static IncludedStructuralElement preserveLogicalRecursive(TreeNode treeNode) {
+    private static LogicalStructure preserveLogicalRecursive(TreeNode treeNode) {
         StructureTreeNode structureTreeNode = (StructureTreeNode) treeNode.getData();
-        if (Objects.isNull(structureTreeNode) || !(structureTreeNode.getDataObject() instanceof IncludedStructuralElement)) {
+        if (Objects.isNull(structureTreeNode) || !(structureTreeNode.getDataObject() instanceof LogicalStructure)) {
             return null;
         }
-        IncludedStructuralElement structure = (IncludedStructuralElement) structureTreeNode.getDataObject();
+        LogicalStructure structure = (LogicalStructure) structureTreeNode.getDataObject();
 
-        List<IncludedStructuralElement> childrenLive = structure.getChildren();
+        List<LogicalStructure> childrenLive = structure.getChildren();
         childrenLive.clear();
         for (TreeNode child : treeNode.getChildren()) {
-            IncludedStructuralElement maybeChildStructure = preserveLogicalRecursive(child);
+            LogicalStructure maybeChildStructure = preserveLogicalRecursive(child);
             if (Objects.nonNull(maybeChildStructure)) {
                 childrenLive.add(maybeChildStructure);
             }
@@ -448,7 +448,7 @@ public class StructurePanel implements Serializable {
         return invisibleRootNode;
     }
 
-    private Collection<View> buildStructureTreeRecursively(IncludedStructuralElement structure, TreeNode result) {
+    private Collection<View> buildStructureTreeRecursively(LogicalStructure structure, TreeNode result) {
         StructureTreeNode node;
         if (Objects.isNull(structure.getLink())) {
             StructuralElementViewInterface divisionView = dataEditor.getRuleset().getStructuralElementView(
@@ -484,7 +484,7 @@ public class StructurePanel implements Serializable {
 
         Set<View> viewsShowingOnAChild = new HashSet<>();
         if (this.isSeparateMedia()) {
-            for (IncludedStructuralElement child : structure.getChildren()) {
+            for (LogicalStructure child : structure.getChildren()) {
                 viewsShowingOnAChild.addAll(buildStructureTreeRecursively(child, parent));
             }
         } else {
@@ -495,21 +495,30 @@ public class StructurePanel implements Serializable {
     }
 
     /**
-     * This method appends IncludedStructuralElement children and assigned views while considering the ORDER attribute to create the
-     * combined tree with the correct order of logical and physical elements.
-     * @param children List of IncludedStructuralElements which are children of the element represented by the DefaultTreeNode parent
-     * @param views List of Views assigned to the element represented by the DefaultTreeNode parent
-     * @param parent DefaultTreeNode representing the logical element where all new elements should be appended
-     * @param viewsShowingOnAChild Collection of Views displayed in the combined tree
+     * This method appends LogicalStructure children and assigned views while
+     * considering the ORDER attribute to create the combined tree with the
+     * correct order of logical and physical elements.
+     *
+     * @param children
+     *            List of LogicalStructures which are children of the element
+     *            represented by the DefaultTreeNode parent
+     * @param views
+     *            List of Views assigned to the element represented by the
+     *            DefaultTreeNode parent
+     * @param parent
+     *            DefaultTreeNode representing the logical element where all new
+     *            elements should be appended
+     * @param viewsShowingOnAChild
+     *            Collection of Views displayed in the combined tree
      */
-    private void orderChildrenAndViews(List<IncludedStructuralElement> children, List<View> views, DefaultTreeNode parent,
+    private void orderChildrenAndViews(List<LogicalStructure> children, List<View> views, DefaultTreeNode parent,
                                        Set<View> viewsShowingOnAChild) {
-        List<IncludedStructuralElement> temporaryChildren = new ArrayList<>(children);
+        List<LogicalStructure> temporaryChildren = new ArrayList<>(children);
         List<View> temporaryViews = new ArrayList<>(views);
         temporaryChildren.removeAll(Collections.singletonList(null));
         temporaryViews.removeAll(Collections.singletonList(null));
         while (temporaryChildren.size() > 0 || temporaryViews.size() > 0) {
-            IncludedStructuralElement temporaryChild = null;
+            LogicalStructure temporaryChild = null;
             View temporaryView = null;
 
             if (temporaryChildren.size() > 0) {
@@ -593,7 +602,7 @@ public class StructurePanel implements Serializable {
         DefaultTreeNode node = new DefaultTreeNode(new StructureTreeNode(label, undefined, linked, dataObject),
                 parent);
         if (dataObject instanceof MediaUnit && physicalNodeStateUnknown(this.previousExpansionStatesPhysicalTree, node)
-                || dataObject instanceof IncludedStructuralElement
+                || dataObject instanceof LogicalStructure
                 && logicalNodeStateUnknown(this.previousExpansionStatesLogicalTree, node)) {
             node.setExpanded(true);
         }
@@ -623,12 +632,12 @@ public class StructurePanel implements Serializable {
         addParentLinksRecursive(parent, tree);
         URI uri = ServiceManager.getProcessService().getMetadataFileUri(parent);
         try {
-            IncludedStructuralElement logicalStructureRoot = ServiceManager.getMetsService().loadWorkpiece(uri)
+            LogicalStructure logicalStructureRoot = ServiceManager.getMetsService().loadWorkpiece(uri)
                     .getLogicalStructureRoot();
-            List<IncludedStructuralElement> includedStructuralElementList = MetadataEditor
-                    .determineIncludedStructuralElementPathToChild(logicalStructureRoot, child.getId());
+            List<LogicalStructure> logicalStructureList = MetadataEditor
+                    .determineLogicalStructurePathToChild(logicalStructureRoot, child.getId());
             DefaultTreeNode parentNode = tree;
-            if (includedStructuralElementList.isEmpty()) {
+            if (logicalStructureList.isEmpty()) {
                 /*
                  * Error case: The child is not linked in the parent process.
                  * Show the process title of the parent process and a warning
@@ -640,11 +649,11 @@ public class StructurePanel implements Serializable {
                  * Default case: Show the path through the parent process to the
                  * linked child
                  */
-                for (IncludedStructuralElement includedStructuralElement : includedStructuralElementList) {
-                    if (Objects.isNull(includedStructuralElement.getType())) {
+                for (LogicalStructure logicalStructure : logicalStructureList) {
+                    if (Objects.isNull(logicalStructure.getType())) {
                         break;
                     } else {
-                        parentNode = addTreeNode(includedStructuralElement.getType(), true, null, parentNode);
+                        parentNode = addTreeNode(logicalStructure.getType(), true, null, parentNode);
                         parentNode.setExpanded(true);
                     }
                 }
@@ -732,7 +741,7 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    void updateNodeSelection(GalleryMediaContent galleryMediaContent, IncludedStructuralElement structure) {
+    void updateNodeSelection(GalleryMediaContent galleryMediaContent, LogicalStructure structure) {
         this.updateLogicalNodeSelection(galleryMediaContent, structure);
         this.updatePhysicalNodeSelection(galleryMediaContent);
     }
@@ -759,7 +768,7 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    void updateLogicalNodeSelection(GalleryMediaContent galleryMediaContent, IncludedStructuralElement structure) {
+    void updateLogicalNodeSelection(GalleryMediaContent galleryMediaContent, LogicalStructure structure) {
         if (Objects.nonNull(previouslySelectedLogicalNode)) {
             previouslySelectedLogicalNode.setSelected(false);
         }
@@ -790,7 +799,7 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    void updateLogicalNodeSelection(IncludedStructuralElement includedStructuralElement) {
+    void updateLogicalNodeSelection(LogicalStructure logicalStructure) {
         if (Objects.nonNull(previouslySelectedLogicalNode)) {
             previouslySelectedLogicalNode.setSelected(false);
         }
@@ -798,7 +807,7 @@ public class StructurePanel implements Serializable {
             selectedLogicalNode.setSelected(false);
         }
         if (Objects.nonNull(logicalTree)) {
-            TreeNode selectedTreeNode = updateLogicalNodeSelectionRecursive(includedStructuralElement, logicalTree);
+            TreeNode selectedTreeNode = updateLogicalNodeSelectionRecursive(logicalStructure, logicalTree);
             if (Objects.nonNull(selectedTreeNode)) {
                 setSelectedLogicalNode(selectedTreeNode);
                 try {
@@ -814,11 +823,11 @@ public class StructurePanel implements Serializable {
 
     /**
      * Update the node selection in logical tree.
-     * @param structure the IncludedStructuralElement to be selected as a TreeNode
+     * @param structure the LogicalStructure to be selected as a TreeNode
      * @param treeNode the logical structure tree
      * @return the TreeNode that will be selected
      */
-    public TreeNode updateLogicalNodeSelectionRecursive(IncludedStructuralElement structure, TreeNode treeNode) {
+    public TreeNode updateLogicalNodeSelectionRecursive(LogicalStructure structure, TreeNode treeNode) {
         TreeNode matchingTreeNode = null;
         for (TreeNode currentTreeNode : treeNode.getChildren()) {
             if (treeNodeMatchesStructure(structure, currentTreeNode)) {
@@ -854,7 +863,7 @@ public class StructurePanel implements Serializable {
         return matchingTreeNode;
     }
 
-    private TreeNode updatePhysSelectionInLogTreeRecursive(MediaUnit selectedMediaUnit, IncludedStructuralElement parentElement,
+    private TreeNode updatePhysSelectionInLogTreeRecursive(MediaUnit selectedMediaUnit, LogicalStructure parentElement,
                                                            TreeNode treeNode) {
         TreeNode matchingTreeNode = null;
         for (TreeNode currentTreeNode : treeNode.getChildren()) {
@@ -894,10 +903,10 @@ public class StructurePanel implements Serializable {
         return false;
     }
 
-    private boolean treeNodeMatchesStructure(IncludedStructuralElement structure, TreeNode treeNode) {
+    private boolean treeNodeMatchesStructure(LogicalStructure structure, TreeNode treeNode) {
         if (Objects.nonNull(treeNode) && treeNode.getData() instanceof StructureTreeNode) {
             StructureTreeNode structureTreeNode = (StructureTreeNode) treeNode.getData();
-            if (structureTreeNode.getDataObject() instanceof IncludedStructuralElement) {
+            if (structureTreeNode.getDataObject() instanceof LogicalStructure) {
                 return Objects.equals(structureTreeNode.getDataObject(), structure);
             }
         }
@@ -948,14 +957,14 @@ public class StructurePanel implements Serializable {
         try {
             StructureTreeNode dropNode = (StructureTreeNode) dropNodeObject;
             StructureTreeNode dragNode = (StructureTreeNode) dragNodeObject;
-            if (dragNode.getDataObject() instanceof IncludedStructuralElement
-                    && dropNode.getDataObject() instanceof IncludedStructuralElement) {
+            if (dragNode.getDataObject() instanceof LogicalStructure
+                    && dropNode.getDataObject() instanceof LogicalStructure) {
                 checkLogicalDragDrop(dragNode, dropNode);
             } else if (dragNode.getDataObject() instanceof MediaUnit
                     && dropNode.getDataObject() instanceof MediaUnit) {
                 checkPhysicalDragDrop(dragNode, dropNode);
             } else if (dragNode.getDataObject() instanceof View
-                     && dropNode.getDataObject() instanceof IncludedStructuralElement) {
+                     && dropNode.getDataObject() instanceof LogicalStructure) {
                 movePageNode(event, dropNode, dragNode);
             } else {
                 Helper.setErrorMessage(Helper.getTranslation("dataEditor.dragnDropError", Arrays.asList(
@@ -968,15 +977,15 @@ public class StructurePanel implements Serializable {
     }
 
     /**
-     * Determine the IncludedStructuralElement to which the given View is assigned.
+     * Determine the LogicalStructure to which the given View is assigned.
      *
      * @param view
-     *          View for which the IncludedStructuralElement is determined
-     * @return the IncludedStructuralElement to which the given View is assigned
+     *          View for which the LogicalStructure is determined
+     * @return the LogicalStructure to which the given View is assigned
      */
-    IncludedStructuralElement getPageStructure(View view, IncludedStructuralElement parent) {
-        IncludedStructuralElement resultElement = null;
-        for (IncludedStructuralElement child : parent.getChildren()) {
+    LogicalStructure getPageStructure(View view, LogicalStructure parent) {
+        LogicalStructure resultElement = null;
+        for (LogicalStructure child : parent.getChildren()) {
             if (child.getViews().contains(view)) {
                 resultElement = child;
             } else {
@@ -1004,7 +1013,7 @@ public class StructurePanel implements Serializable {
         TreeNode dragParent = event.getDragNode().getParent();
         if (dragParent.getData() instanceof StructureTreeNode) {
             StructureTreeNode dragParentTreeNode = (StructureTreeNode) dragParent.getData();
-            if (dragParentTreeNode.getDataObject() instanceof IncludedStructuralElement) {
+            if (dragParentTreeNode.getDataObject() instanceof LogicalStructure) {
                 // FIXME waiting for PrimeFaces' tree drop index bug to be fixed.
                 // Until fixed dropping nodes onto other nodes will produce random drop indices.
                 preserveLogicalAndPhysical();
@@ -1031,8 +1040,8 @@ public class StructurePanel implements Serializable {
      * @param insertionIndex index at which the MediaUnits are added to the existing List of MediaUnits.
      *                       The value -1 represents the end of the list.
      */
-    void reorderMediaUnits(IncludedStructuralElement toElement,
-                           List<Pair<View, IncludedStructuralElement>> elementsToBeMoved,
+    void reorderMediaUnits(LogicalStructure toElement,
+                           List<Pair<View, LogicalStructure>> elementsToBeMoved,
                            int insertionIndex) {
         int physicalInsertionIndex;
         List<MediaUnit> mediaUnitsToBeMoved = elementsToBeMoved.stream()
@@ -1086,7 +1095,7 @@ public class StructurePanel implements Serializable {
      *                  logical elements.
      * @param elementsToBeMoved List of physical elements to be moved
      */
-    void changePhysicalOrderFields(IncludedStructuralElement toElement, List<Pair<View, IncludedStructuralElement>> elementsToBeMoved) {
+    void changePhysicalOrderFields(LogicalStructure toElement, List<Pair<View, LogicalStructure>> elementsToBeMoved) {
         ServiceManager.getFileService().renumberMediaUnits(dataEditor.getWorkpiece(), false);
     }
 
@@ -1095,10 +1104,10 @@ public class StructurePanel implements Serializable {
      * @param toElement logical element the pages will be assigned to
      * @param elementsToBeMoved physical elements which are moved
      */
-    void changeLogicalOrderFields(IncludedStructuralElement toElement, List<Pair<View, IncludedStructuralElement>> elementsToBeMoved,
+    void changeLogicalOrderFields(LogicalStructure toElement, List<Pair<View, LogicalStructure>> elementsToBeMoved,
                                   int insertionIndex) {
-        HashMap<Integer, List<IncludedStructuralElement>> logicalElementsByOrder = new HashMap<>();
-        for (IncludedStructuralElement logicalElement : dataEditor.getWorkpiece().getAllIncludedStructuralElements()) {
+        HashMap<Integer, List<LogicalStructure>> logicalElementsByOrder = new HashMap<>();
+        for (LogicalStructure logicalElement : dataEditor.getWorkpiece().getAllLogicalStructures()) {
             if (logicalElementsByOrder.containsKey(logicalElement.getOrder()))  {
                 logicalElementsByOrder.get(logicalElement.getOrder()).add(logicalElement);
             } else {
@@ -1115,7 +1124,7 @@ public class StructurePanel implements Serializable {
         (ordersAffectedByMove equals to the number of moved pages + the target element.)
          */
 
-        for (Map.Entry<Integer, List<IncludedStructuralElement>> entry : logicalElementsByOrder.entrySet()) {
+        for (Map.Entry<Integer, List<LogicalStructure>> entry : logicalElementsByOrder.entrySet()) {
             for (int i = 0; i < ordersAffectedByMove.size() - 1; i++) {
                 if (ordersAffectedByMove.get(i) < entry.getKey() && entry.getKey() < ordersAffectedByMove.get(i + 1)) {
                     if (ordersAffectedByMove.get(i) < toElement.getOrder()) {
@@ -1127,8 +1136,8 @@ public class StructurePanel implements Serializable {
             }
             // check if elements exist with the same order like toElement (the toElememt itself might be affected as well)
             if (entry.getKey() == toElement.getOrder()) {
-                List<IncludedStructuralElement> beforeToElement = entry.getValue().subList(0, entry.getValue().indexOf(toElement) + 1);
-                List<IncludedStructuralElement> afterToElement = entry.getValue().subList(entry.getValue().indexOf(toElement) + 1,
+                List<LogicalStructure> beforeToElement = entry.getValue().subList(0, entry.getValue().indexOf(toElement) + 1);
+                List<LogicalStructure> afterToElement = entry.getValue().subList(entry.getValue().indexOf(toElement) + 1,
                         entry.getValue().size());
                 /* toElement at index 0 means we're in an edge case: toElement is the first order which is affected (no pages with smaller
                 order affected) and its order will not change, nor will other elements with the same order before it. */
@@ -1144,7 +1153,7 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    private List<Integer> getOrdersAffectedByMove(List<Pair<View, IncludedStructuralElement>> views, IncludedStructuralElement toElement) {
+    private List<Integer> getOrdersAffectedByMove(List<Pair<View, LogicalStructure>> views, LogicalStructure toElement) {
         Set<Integer> ordersAffectedByMove = views.stream()
                 .map(e -> e.getLeft().getMediaUnit().getOrder())
                 .collect(Collectors.toSet());
@@ -1154,25 +1163,25 @@ public class StructurePanel implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    private void updateOrder(List<IncludedStructuralElement> elementsToBeUpdated, int delta) {
-        for (IncludedStructuralElement element : elementsToBeUpdated) {
+    private void updateOrder(List<LogicalStructure> elementsToBeUpdated, int delta) {
+        for (LogicalStructure element : elementsToBeUpdated) {
             element.setOrder(element.getOrder() + delta);
         }
     }
 
     /**
-     * Move List of elements 'elementsToBeMoved' from IncludedStructuralElement in each Pair to IncludedStructuralElement
+     * Move List of elements 'elementsToBeMoved' from LogicalStructure in each Pair to LogicalStructure
      * 'toElement'.
      *
      * @param toElement
-     *          IncludedStructuralElement to which View is moved
+     *          LogicalStructure to which View is moved
      * @param elementsToBeMoved
-     *          List of elements to be moved as Pairs of View and IncludedStructuralElement they are attached to
+     *          List of elements to be moved as Pairs of View and LogicalStructure they are attached to
      * @param insertionIndex
      *          Index where views will be inserted into toElement's views
      */
-    void moveViews(IncludedStructuralElement toElement,
-                   List<Pair<View, IncludedStructuralElement>> elementsToBeMoved,
+    void moveViews(LogicalStructure toElement,
+                   List<Pair<View, LogicalStructure>> elementsToBeMoved,
                    int insertionIndex) {
         List<View> views = elementsToBeMoved.stream()
                 .map(Pair::getKey)
@@ -1184,28 +1193,28 @@ public class StructurePanel implements Serializable {
             toElement.getViews().addAll(insertionIndex, views);
         }
 
-        for (Pair<View, IncludedStructuralElement> elementToBeMoved : elementsToBeMoved) {
+        for (Pair<View, LogicalStructure> elementToBeMoved : elementsToBeMoved) {
             boolean removeLastOccurrenceOfView = toElement.equals(elementToBeMoved.getValue())
                     && insertionIndex < elementToBeMoved.getValue().getViews().lastIndexOf(elementToBeMoved.getKey());
             dataEditor.unassignView(elementToBeMoved.getValue(), elementToBeMoved.getKey(), removeLastOccurrenceOfView);
-            elementToBeMoved.getKey().getMediaUnit().getIncludedStructuralElements().add(toElement);
+            elementToBeMoved.getKey().getMediaUnit().getLogicalStructures().add(toElement);
         }
     }
 
     private void checkLogicalDragDrop(StructureTreeNode dragNode, StructureTreeNode dropNode) throws Exception {
 
-        IncludedStructuralElement dragStructure = (IncludedStructuralElement) dragNode.getDataObject();
-        IncludedStructuralElement dropStructure = (IncludedStructuralElement) dropNode.getDataObject();
+        LogicalStructure dragStructure = (LogicalStructure) dragNode.getDataObject();
+        LogicalStructure dropStructure = (LogicalStructure) dropNode.getDataObject();
 
         StructuralElementViewInterface divisionView = dataEditor.getRuleset().getStructuralElementView(
                 dropStructure.getType(), dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
 
-        LinkedList<IncludedStructuralElement> dragParents;
+        LinkedList<LogicalStructure> dragParents;
         if (divisionView.getAllowedSubstructuralElements().containsKey(dragStructure.getType())) {
             dragParents = MetadataEditor.getAncestorsOfStructure(dragStructure,
                     dataEditor.getWorkpiece().getLogicalStructureRoot());
             if (!dragParents.isEmpty()) {
-                IncludedStructuralElement parentStructure = dragParents.get(dragParents.size() - 1);
+                LogicalStructure parentStructure = dragParents.get(dragParents.size() - 1);
                 if (parentStructure.getChildren().contains(dragStructure)) {
                     if (isSeparateMedia()) {
                         preserveLogical();
@@ -1262,19 +1271,19 @@ public class StructurePanel implements Serializable {
         if (!this.logicalTree.getChildren().isEmpty()) {
             order = 1;
             for (MediaUnit mediaUnit : dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren()) {
-                mediaUnit.getIncludedStructuralElements().clear();
+                mediaUnit.getLogicalStructures().clear();
             }
             dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().clear();
             preserveLogicalAndPhysicalRecursive(this.logicalTree.getChildren().get(logicalTree.getChildCount() - 1));
         }
     }
 
-    private IncludedStructuralElement preserveLogicalAndPhysicalRecursive(TreeNode treeNode) throws UnknownTreeNodeDataException {
+    private LogicalStructure preserveLogicalAndPhysicalRecursive(TreeNode treeNode) throws UnknownTreeNodeDataException {
         StructureTreeNode structureTreeNode = (StructureTreeNode) treeNode.getData();
-        if (Objects.isNull(structureTreeNode) || !(structureTreeNode.getDataObject() instanceof IncludedStructuralElement)) {
+        if (Objects.isNull(structureTreeNode) || !(structureTreeNode.getDataObject() instanceof LogicalStructure)) {
             return null;
         }
-        IncludedStructuralElement structure = (IncludedStructuralElement) structureTreeNode.getDataObject();
+        LogicalStructure structure = (LogicalStructure) structureTreeNode.getDataObject();
         structure.setOrder(order);
         structure.getViews().clear();
         structure.getChildren().clear();
@@ -1282,8 +1291,8 @@ public class StructurePanel implements Serializable {
             if (!(child.getData() instanceof StructureTreeNode)) {
                 throw new UnknownTreeNodeDataException(child.getData().getClass().getCanonicalName());
             }
-            if (((StructureTreeNode) child.getData()).getDataObject() instanceof IncludedStructuralElement) {
-                IncludedStructuralElement possibleChildStructure = preserveLogicalAndPhysicalRecursive(child);
+            if (((StructureTreeNode) child.getData()).getDataObject() instanceof LogicalStructure) {
+                LogicalStructure possibleChildStructure = preserveLogicalAndPhysicalRecursive(child);
                 if (Objects.nonNull(possibleChildStructure)) {
                     structure.getChildren().add(possibleChildStructure);
                 }
@@ -1291,8 +1300,8 @@ public class StructurePanel implements Serializable {
                 View view = (View) ((StructureTreeNode) child.getData()).getDataObject();
                 structure.getViews().add(view);
                 view.getMediaUnit().setOrder(order);
-                if (!view.getMediaUnit().getIncludedStructuralElements().contains(structure)) {
-                    view.getMediaUnit().getIncludedStructuralElements().add(structure);
+                if (!view.getMediaUnit().getLogicalStructures().contains(structure)) {
+                    view.getMediaUnit().getLogicalStructures().add(structure);
                 }
                 dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().add(view.getMediaUnit());
                 order++;
@@ -1324,10 +1333,10 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    private HashMap<IncludedStructuralElement, Boolean> getLogicalTreeNodeExpansionStates(DefaultTreeNode tree) {
+    private HashMap<LogicalStructure, Boolean> getLogicalTreeNodeExpansionStates(DefaultTreeNode tree) {
         if (Objects.nonNull(tree) && tree.getChildCount() == 1) {
             TreeNode treeRoot = tree.getChildren().get(0);
-            IncludedStructuralElement structuralElement = getTreeNodeStructuralElement(treeRoot);
+            LogicalStructure structuralElement = getTreeNodeStructuralElement(treeRoot);
             if (Objects.nonNull(structuralElement)) {
                 return getLogicalTreeNodeExpansionStatesRecursively(treeRoot, new HashMap<>());
             }
@@ -1335,10 +1344,10 @@ public class StructurePanel implements Serializable {
         return new HashMap<>();
     }
 
-    private HashMap<IncludedStructuralElement, Boolean> getLogicalTreeNodeExpansionStatesRecursively(TreeNode treeNode,
-            HashMap<IncludedStructuralElement, Boolean> expansionStates) {
+    private HashMap<LogicalStructure, Boolean> getLogicalTreeNodeExpansionStatesRecursively(TreeNode treeNode,
+            HashMap<LogicalStructure, Boolean> expansionStates) {
         if (Objects.nonNull(treeNode)) {
-            IncludedStructuralElement structureData = getTreeNodeStructuralElement(treeNode);
+            LogicalStructure structureData = getTreeNodeStructuralElement(treeNode);
             if (Objects.nonNull(structureData)) {
                 expansionStates.put(structureData, treeNode.isExpanded());
                 for (TreeNode childNode : treeNode.getChildren()) {
@@ -1374,14 +1383,14 @@ public class StructurePanel implements Serializable {
         return expansionStates;
     }
 
-    private void updateLogicalNodeExpansionStates(DefaultTreeNode tree, HashMap<IncludedStructuralElement, Boolean> expansionStates) {
+    private void updateLogicalNodeExpansionStates(DefaultTreeNode tree, HashMap<LogicalStructure, Boolean> expansionStates) {
         if (Objects.nonNull(tree) && Objects.nonNull(expansionStates) && !expansionStates.isEmpty()) {
             updateNodeExpansionStatesRecursively(tree, expansionStates);
         }
     }
 
-    private void updateNodeExpansionStatesRecursively(TreeNode treeNode, HashMap<IncludedStructuralElement, Boolean> expansionStates) {
-        IncludedStructuralElement element = getTreeNodeStructuralElement(treeNode);
+    private void updateNodeExpansionStatesRecursively(TreeNode treeNode, HashMap<LogicalStructure, Boolean> expansionStates) {
+        LogicalStructure element = getTreeNodeStructuralElement(treeNode);
         if (Objects.nonNull(element) && expansionStates.containsKey(element)) {
             treeNode.setExpanded(expansionStates.get(element));
         }
@@ -1406,8 +1415,8 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    private boolean logicalNodeStateUnknown(HashMap<IncludedStructuralElement, Boolean> expansionStates, TreeNode treeNode) {
-        IncludedStructuralElement element = getTreeNodeStructuralElement(treeNode);
+    private boolean logicalNodeStateUnknown(HashMap<LogicalStructure, Boolean> expansionStates, TreeNode treeNode) {
+        LogicalStructure element = getTreeNodeStructuralElement(treeNode);
         return !Objects.nonNull(expansionStates) || (Objects.nonNull(element) && !expansionStates.containsKey(element));
     }
 
@@ -1416,11 +1425,11 @@ public class StructurePanel implements Serializable {
         return Objects.isNull(expanionStates) || (Objects.nonNull(mediaUnit) && !expanionStates.containsKey(mediaUnit));
     }
 
-    private IncludedStructuralElement getTreeNodeStructuralElement(TreeNode treeNode) {
+    private LogicalStructure getTreeNodeStructuralElement(TreeNode treeNode) {
         if (treeNode.getData() instanceof StructureTreeNode) {
             StructureTreeNode structureTreeNode = (StructureTreeNode) treeNode.getData();
-            if (structureTreeNode.getDataObject() instanceof IncludedStructuralElement) {
-                return (IncludedStructuralElement) structureTreeNode.getDataObject();
+            if (structureTreeNode.getDataObject() instanceof LogicalStructure) {
+                return (LogicalStructure) structureTreeNode.getDataObject();
             }
         }
         return null;
@@ -1437,7 +1446,7 @@ public class StructurePanel implements Serializable {
     }
 
     /**
-     * Get List of MediaUnits assigned to multiple IncludedStructuralElements.
+     * Get List of MediaUnits assigned to multiple LogicalStructures.
      *
      * @return value of severalAssignments
      */
@@ -1465,7 +1474,7 @@ public class StructurePanel implements Serializable {
 
     /**
      * Get the index of this StructureTreeNode's MediaUnit out of all MediaUnits
-     * which are assigned to more than one IncludedStructuralElement.
+     * which are assigned to more than one LogicalStructure.
      *
      * @param treeNode object to find the index for
      * @return index of the StructureTreeNode's MediaUnit if present in the List of several assignments, or -1 if not present in the list.
@@ -1479,16 +1488,18 @@ public class StructurePanel implements Serializable {
     }
 
     /**
-     * Check if the selected Node's MediaUnit is assigned to several IncludedStructuralElements.
+     * Check if the selected Node's MediaUnit is assigned to several
+     * LogicalStructures.
      *
-     * @return {@code true} when the MediaUnit is assigned to more than one logical element
+     * @return {@code true} when the MediaUnit is assigned to more than one
+     *         logical element
      */
     public boolean isAssignedSeveralTimes() {
         if (Objects.nonNull(selectedLogicalNode) && selectedLogicalNode.getData() instanceof  StructureTreeNode) {
             StructureTreeNode structureTreeNode = (StructureTreeNode) selectedLogicalNode.getData();
             if (structureTreeNode.getDataObject() instanceof View) {
                 View view = (View) structureTreeNode.getDataObject();
-                return view.getMediaUnit().getIncludedStructuralElements().size() > 1;
+                return view.getMediaUnit().getLogicalStructures().size() > 1;
             }
         }
         return false;
@@ -1496,7 +1507,7 @@ public class StructurePanel implements Serializable {
 
     /**
      * Check if the selected Node's MediaUnit can be assigned to the next logical element in addition to the current assignment.
-     * @return {@code true} if the MediaUnit can be assigned to the next IncludedStructuralElement
+     * @return {@code true} if the MediaUnit can be assigned to the next LogicalStructure
      */
     public boolean isAssignableSeveralTimes() {
         if (Objects.nonNull(selectedLogicalNode) && selectedLogicalNode.getData() instanceof  StructureTreeNode) {
@@ -1511,7 +1522,7 @@ public class StructurePanel implements Serializable {
                     TreeNode nextSibling = logicalNodeSiblings.get(logicalNodeIndex + 1);
                     if (nextSibling.getData() instanceof StructureTreeNode) {
                         StructureTreeNode structureTreeNodeSibling = (StructureTreeNode) nextSibling.getData();
-                        return structureTreeNodeSibling.getDataObject() instanceof IncludedStructuralElement;
+                        return structureTreeNodeSibling.getDataObject() instanceof LogicalStructure;
                     }
                 }
             }
@@ -1521,7 +1532,7 @@ public class StructurePanel implements Serializable {
     }
 
     /**
-     * Assign selected Node's MediaUnit to the next IncludedStructuralElement.
+     * Assign selected Node's MediaUnit to the next LogicalStructure.
      */
     public void assign() {
         if (isAssignableSeveralTimes()) {
@@ -1532,8 +1543,8 @@ public class StructurePanel implements Serializable {
             int logicalNodeIndex = logicalNodeSiblings.indexOf(selectedLogicalNode.getParent());
             TreeNode nextSibling = logicalNodeSiblings.get(logicalNodeIndex + 1);
             StructureTreeNode structureTreeNodeSibling = (StructureTreeNode) nextSibling.getData();
-            IncludedStructuralElement includedStructuralElement = (IncludedStructuralElement) structureTreeNodeSibling.getDataObject();
-            dataEditor.assignView(includedStructuralElement, viewToAssign, 0);
+            LogicalStructure logicalStructure = (LogicalStructure) structureTreeNodeSibling.getDataObject();
+            dataEditor.assignView(logicalStructure, viewToAssign, 0);
             severalAssignments.add(viewToAssign.getMediaUnit());
             show();
             dataEditor.getGalleryPanel().updateStripes();
@@ -1541,8 +1552,9 @@ public class StructurePanel implements Serializable {
     }
 
     /**
-     * Unassign the selected Node's MediaUnit from the IncludedStructuralElement parent at the selected position.
-     * This does not remove it from other IncludedStructuralElements.
+     * Unassign the selected Node's MediaUnit from the LogicalStructure parent
+     * at the selected position. This does not remove it from other
+     * LogicalStructures.
      */
     public void unassign() {
         if (isAssignedSeveralTimes()) {
@@ -1550,11 +1562,11 @@ public class StructurePanel implements Serializable {
             View view = (View) structureTreeNode.getDataObject();
             if (selectedLogicalNode.getParent().getData() instanceof StructureTreeNode) {
                 StructureTreeNode structureTreeNodeParent = (StructureTreeNode) selectedLogicalNode.getParent().getData();
-                if (structureTreeNodeParent.getDataObject() instanceof IncludedStructuralElement) {
-                    IncludedStructuralElement includedStructuralElement =
-                            (IncludedStructuralElement) structureTreeNodeParent.getDataObject();
-                    dataEditor.unassignView(includedStructuralElement, view, false);
-                    if (view.getMediaUnit().getIncludedStructuralElements().size() <= 1) {
+                if (structureTreeNodeParent.getDataObject() instanceof LogicalStructure) {
+                    LogicalStructure logicalStructure =
+                            (LogicalStructure) structureTreeNodeParent.getDataObject();
+                    dataEditor.unassignView(logicalStructure, view, false);
+                    if (view.getMediaUnit().getLogicalStructures().size() <= 1) {
                         severalAssignments.remove(view.getMediaUnit());
                     }
                     show();

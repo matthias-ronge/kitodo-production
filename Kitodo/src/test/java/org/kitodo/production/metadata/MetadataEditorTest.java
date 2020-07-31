@@ -19,46 +19,47 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.mets.LinkedMetsResource;
 
 public class MetadataEditorTest {
 
     @Test
-    public void testDetermineIncludedStructuralElementPathToChildRecursive() throws Exception {
-        IncludedStructuralElement includedStructuralElement = new IncludedStructuralElement();
-        includedStructuralElement.setType("newspaperYear");
+    public void testDetermineLogicalStructurePathToChildRecursive() throws Exception {
+        LogicalStructure logicalStructure = new LogicalStructure();
+        logicalStructure.setType("newspaperYear");
 
-        IncludedStructuralElement monthIncludedStructuralElement = new IncludedStructuralElement();
-        monthIncludedStructuralElement.setType("newspaperMonth");
+        LogicalStructure monthLogicalStructure = new LogicalStructure();
+        monthLogicalStructure.setType("newspaperMonth");
 
-        IncludedStructuralElement wrongDayIncludedStructuralElement = new IncludedStructuralElement();
-        wrongDayIncludedStructuralElement.setType("newspaperDay");
-        wrongDayIncludedStructuralElement.setLabel("wrong");
+        LogicalStructure wrongDayLogicalStructure = new LogicalStructure();
+        wrongDayLogicalStructure.setType("newspaperDay");
+        wrongDayLogicalStructure.setLabel("wrong");
         LinkedMetsResource wrongLink = new LinkedMetsResource();
         wrongLink.setUri(URI.create("database://?process.id=13"));
-        wrongDayIncludedStructuralElement.setLink(wrongLink);
-        monthIncludedStructuralElement.getChildren().add(wrongDayIncludedStructuralElement);
+        wrongDayLogicalStructure.setLink(wrongLink);
+        monthLogicalStructure.getChildren().add(wrongDayLogicalStructure);
 
-        IncludedStructuralElement correctDayIncludedStructuralElement = new IncludedStructuralElement();
-        correctDayIncludedStructuralElement.setType("newspaperDay");
-        correctDayIncludedStructuralElement.setLabel("correct");
+        LogicalStructure correctDayLogicalStructure = new LogicalStructure();
+        correctDayLogicalStructure.setType("newspaperDay");
+        correctDayLogicalStructure.setLabel("correct");
         LinkedMetsResource correctLink = new LinkedMetsResource();
         correctLink.setUri(URI.create("database://?process.id=42"));
-        correctDayIncludedStructuralElement.setLink(correctLink);
-        monthIncludedStructuralElement.getChildren().add(correctDayIncludedStructuralElement);
+        correctDayLogicalStructure.setLink(correctLink);
+        monthLogicalStructure.getChildren().add(correctDayLogicalStructure);
 
-        includedStructuralElement.getChildren().add(monthIncludedStructuralElement);
+        logicalStructure.getChildren().add(monthLogicalStructure);
         int number = 42;
 
-        Method determineIncludedStructuralElementPathToChild = MetadataEditor.class.getDeclaredMethod(
-            "determineIncludedStructuralElementPathToChild", IncludedStructuralElement.class, int.class);
-        determineIncludedStructuralElementPathToChild.setAccessible(true);
+        Method determineLogicalStructurePathToChild = MetadataEditor.class
+                .getDeclaredMethod("determineLogicalStructurePathToChild", LogicalStructure.class, int.class);
+        determineLogicalStructurePathToChild.setAccessible(true);
         @SuppressWarnings("unchecked")
-        List<IncludedStructuralElement> result = (List<IncludedStructuralElement>) determineIncludedStructuralElementPathToChild
-                .invoke(null, includedStructuralElement, number);
+        List<LogicalStructure> result = (List<LogicalStructure>) determineLogicalStructurePathToChild
+                .invoke(null, logicalStructure, number);
 
-        Assert.assertEquals(new LinkedList<>(Arrays.asList(includedStructuralElement, monthIncludedStructuralElement,
-            correctDayIncludedStructuralElement)), result);
+        Assert.assertEquals(
+            new LinkedList<>(Arrays.asList(logicalStructure, monthLogicalStructure, correctDayLogicalStructure)),
+            result);
     }
 }

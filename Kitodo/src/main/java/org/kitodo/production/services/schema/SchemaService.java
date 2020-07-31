@@ -23,7 +23,7 @@ import java.util.Optional;
 
 import org.kitodo.api.MdSec;
 import org.kitodo.api.MetadataEntry;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.MediaUnit;
 import org.kitodo.api.dataformat.MediaVariant;
 import org.kitodo.api.dataformat.Workpiece;
@@ -96,18 +96,17 @@ public class SchemaService {
      * At all levels, assigns the views of the children to the included
      * structural elements.
      *
-     * @param includedStructuralElement
-     *            included structural element on which the recursion is
-     *            performed
+     * @param logicalStructure
+     *            logical structure on which the recursion is performed
      */
-    private void assignViewsFromChildrenRecursive(IncludedStructuralElement includedStructuralElement) {
-        List<IncludedStructuralElement> children = includedStructuralElement.getChildren();
+    private void assignViewsFromChildrenRecursive(LogicalStructure logicalStructure) {
+        List<LogicalStructure> children = logicalStructure.getChildren();
         if (!children.isEmpty()) {
-            for (IncludedStructuralElement child : children) {
+            for (LogicalStructure child : children) {
                 assignViewsFromChildrenRecursive(child);
             }
-            if (!Objects.nonNull(includedStructuralElement.getType())) {
-                MetadataEditor.assignViewsFromChildren(includedStructuralElement);
+            if (!Objects.nonNull(logicalStructure.getType())) {
+                MetadataEditor.assignViewsFromChildren(logicalStructure);
             }
         }
     }
@@ -220,7 +219,7 @@ public class SchemaService {
      *            legacy ruleset wrapper
      * @return whether the current structure shall be deleted
      */
-    private boolean convertChildrenLinksForExportRecursive(Workpiece workpiece, IncludedStructuralElement structure,
+    private boolean convertChildrenLinksForExportRecursive(Workpiece workpiece, LogicalStructure structure,
                                                LegacyPrefsHelper prefs) throws DAOException, IOException {
 
         LinkedMetsResource link = structure.getLink();
@@ -232,7 +231,7 @@ public class SchemaService {
             }
             setLinkForExport(structure, process, prefs, workpiece);
         }
-        for (Iterator<IncludedStructuralElement> iterator = structure.getChildren().iterator(); iterator.hasNext();) {
+        for (Iterator<LogicalStructure> iterator = structure.getChildren().iterator(); iterator.hasNext();) {
             if (convertChildrenLinksForExportRecursive(workpiece, iterator.next(), prefs)) {
                 iterator.remove();
             }
@@ -243,14 +242,14 @@ public class SchemaService {
     private void addParentLinkForExport(LegacyPrefsHelper prefs, Workpiece workpiece, Process parent)
             throws IOException {
 
-        IncludedStructuralElement linkHolder = new IncludedStructuralElement();
+        LogicalStructure linkHolder = new LogicalStructure();
         linkHolder.setLink(new LinkedMetsResource());
         setLinkForExport(linkHolder, parent, prefs, workpiece);
         linkHolder.getChildren().add(workpiece.getLogicalStructureRoot());
         workpiece.setLogicalStructureRoot(linkHolder);
     }
 
-    private void setLinkForExport(IncludedStructuralElement structure, Process process, LegacyPrefsHelper prefs,
+    private void setLinkForExport(LogicalStructure structure, Process process, LegacyPrefsHelper prefs,
             Workpiece workpiece) throws IOException {
 
         LinkedMetsResource link = structure.getLink();

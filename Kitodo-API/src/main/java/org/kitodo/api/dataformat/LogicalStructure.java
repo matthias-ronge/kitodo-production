@@ -17,16 +17,14 @@ import java.util.Objects;
 import org.kitodo.api.dataformat.mets.LinkedMetsResource;
 
 /**
- * The tree-like outline included structural element for digital representation.
- * This structuring included structural element can be subdivided into arbitrary
- * finely granular {@link #subincludedStructuralElements}. It can be described
- * by {@link #metadata}.
+ * The tree-like logical outline for digital representation. This structuring
+ * logical structure can be subdivided into arbitrary finely granular
+ * {@link #children}. It can be described by {@link #metadata}.
  */
-public class IncludedStructuralElement extends Division<IncludedStructuralElement> {
+public class LogicalStructure extends Division<LogicalStructure> {
     /**
-     * The label for this included structural element. The label is displayed in
-     * the graphical representation of the included structural element tree for
-     * this level.
+     * The label for this logical structure. The label is displayed in the
+     * graphical representation of the logical structure tree for this level.
      */
     private String label;
 
@@ -36,26 +34,28 @@ public class IncludedStructuralElement extends Division<IncludedStructuralElemen
     private LinkedMetsResource link;
 
     /**
-     * The views on {@link MediaUnit}s that this included structural element
-     * level comprises.
+     * The views on {@link MediaUnit}s that this logical structure level
+     * comprises.
      */
     private final LinkedList<View> views;
 
     /**
-     * Creates a new included structural element.
+     * Creates a new logical structure.
      */
-    public IncludedStructuralElement() {
+    public LogicalStructure() {
         views = new LinkedList<>();
     }
 
     /**
-     * Creates a new subclass of included structural element from an existing
-     * included structural element.
+     * Creates a new subclass of logical structure from an existing logical
+     * structure. This is used by a subclass to make a division an instance of
+     * itself, so the shallow copies of {@code link} and {@code views} are
+     * intended.
      *
      * @param source
-     *            included structural element that serves as data source
+     *            logical structure that serves as data source
      */
-    protected IncludedStructuralElement(IncludedStructuralElement source) {
+    protected LogicalStructure(LogicalStructure source) {
         super(source);
         label = source.label;
         link = source.link;
@@ -63,7 +63,7 @@ public class IncludedStructuralElement extends Division<IncludedStructuralElemen
     }
 
     /**
-     * Returns the label of this included structural element.
+     * Returns the label of this logical structure.
      *
      * @return the label
      */
@@ -72,7 +72,7 @@ public class IncludedStructuralElement extends Division<IncludedStructuralElemen
     }
 
     /**
-     * Sets the label of this included structural element.
+     * Sets the label of this logical structure.
      *
      * @param label
      *            label to set
@@ -82,7 +82,7 @@ public class IncludedStructuralElement extends Division<IncludedStructuralElemen
     }
 
     /**
-     * Returns the link of this included structural element.
+     * Returns the link of this logical structure.
      *
      * @return the link
      */
@@ -91,7 +91,7 @@ public class IncludedStructuralElement extends Division<IncludedStructuralElemen
     }
 
     /**
-     * Sets the link of this included structural element.
+     * Sets the link of this logical structure.
      *
      * @param link
      *            link to set
@@ -101,7 +101,7 @@ public class IncludedStructuralElement extends Division<IncludedStructuralElemen
     }
 
     /**
-     * Returns the views associated with this included structural element.
+     * Returns the views associated with this logical structure.
      *
      * @return the views
      */
@@ -122,10 +122,10 @@ public class IncludedStructuralElement extends Division<IncludedStructuralElemen
         if (!super.equals(compared)) {
             return false;
         }
-        if (!(compared instanceof IncludedStructuralElement)) {
+        if (!(compared instanceof LogicalStructure)) {
             return false;
         }
-        IncludedStructuralElement other = (IncludedStructuralElement) compared;
+        LogicalStructure other = (LogicalStructure) compared;
         return Objects.equals(label, other.label) && Objects.equals(link, other.link)
                 && Objects.equals(views, other.views);
     }

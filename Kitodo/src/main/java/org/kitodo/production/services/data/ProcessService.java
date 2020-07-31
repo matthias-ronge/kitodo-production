@@ -89,7 +89,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 import org.kitodo.api.dataeditor.rulesetmanagement.FunctionalDivision;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.docket.DocketData;
 import org.kitodo.api.docket.DocketInterface;
 import org.kitodo.api.filemanagement.ProcessSubType;
@@ -2144,16 +2144,16 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
      * @throws DataException
      *             if the process cannot be saved
      */
-    public void updateChildrenFromLogicalStructure(Process process, IncludedStructuralElement logicalStructureRoot)
+    public void updateChildrenFromLogicalStructure(Process process, LogicalStructure logicalStructureRoot)
             throws DAOException, DataException {
         removeLinksFromNoLongerLinkedProcesses(process, logicalStructureRoot);
         addNewLinks(process, logicalStructureRoot);
     }
 
-    private void removeLinksFromNoLongerLinkedProcesses(Process process, IncludedStructuralElement logicalStructureRoot)
+    private void removeLinksFromNoLongerLinkedProcesses(Process process, LogicalStructure logicalStructureRoot)
             throws DAOException, DataException {
         ArrayList<Process> childrenToRemove = new ArrayList<>(process.getChildren());
-        childrenToRemove.removeAll(getProcessesLinkedInIncludedStructuralElement(logicalStructureRoot));
+        childrenToRemove.removeAll(getProcessesLinkedInLogicalStructure(logicalStructureRoot));
         for (Process childToRemove : childrenToRemove) {
             childToRemove.setParent(null);
             process.getChildren().remove(childToRemove);
@@ -2164,9 +2164,9 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
         }
     }
 
-    private void addNewLinks(Process process, IncludedStructuralElement logicalStructureRoot)
+    private void addNewLinks(Process process, LogicalStructure logicalStructureRoot)
             throws DAOException, DataException {
-        HashSet<Process> childrenToAdd = getProcessesLinkedInIncludedStructuralElement(logicalStructureRoot);
+        HashSet<Process> childrenToAdd = getProcessesLinkedInLogicalStructure(logicalStructureRoot);
         childrenToAdd.removeAll(process.getChildren());
         for (Process childToAdd : childrenToAdd) {
             childToAdd.setParent(process);
@@ -2178,17 +2178,17 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
         }
     }
 
-    private HashSet<Process> getProcessesLinkedInIncludedStructuralElement(
-            IncludedStructuralElement includedStructuralElement) throws DAOException {
-        HashSet<Process> processesLinkedInIncludedStructuralElement = new HashSet<>();
-        if (Objects.nonNull(includedStructuralElement.getLink())) {
-            int processId = processIdFromUri(includedStructuralElement.getLink().getUri());
-            processesLinkedInIncludedStructuralElement.add(getById(processId));
+    private HashSet<Process> getProcessesLinkedInLogicalStructure(
+            LogicalStructure logicalStructure) throws DAOException {
+        HashSet<Process> processesLinkedInLogicalStructure = new HashSet<>();
+        if (Objects.nonNull(logicalStructure.getLink())) {
+            int processId = processIdFromUri(logicalStructure.getLink().getUri());
+            processesLinkedInLogicalStructure.add(getById(processId));
         }
-        for (IncludedStructuralElement child : includedStructuralElement.getChildren()) {
-            processesLinkedInIncludedStructuralElement.addAll(getProcessesLinkedInIncludedStructuralElement(child));
+        for (LogicalStructure child : logicalStructure.getChildren()) {
+            processesLinkedInLogicalStructure.addAll(getProcessesLinkedInLogicalStructure(child));
         }
-        return processesLinkedInIncludedStructuralElement;
+        return processesLinkedInLogicalStructure;
     }
 
     /**

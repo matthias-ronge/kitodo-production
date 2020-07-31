@@ -46,7 +46,7 @@ public class Workpiece {
     /**
      * The root element of the logical structure.
      */
-    private IncludedStructuralElement logicalStructureRoot = new IncludedStructuralElement();
+    private LogicalStructure logicalStructureRoot = new LogicalStructure();
 
     /**
      * The root element of the physical structure.
@@ -105,7 +105,7 @@ public class Workpiece {
      *
      * @return root element of the logical structure
      */
-    public IncludedStructuralElement getLogicalStructureRoot() {
+    public LogicalStructure getLogicalStructureRoot() {
         return logicalStructureRoot;
     }
 
@@ -113,9 +113,9 @@ public class Workpiece {
      * Sets the root element of the logical structure of the workpiece.
      *
      * @param logicalStructureRoot
-     *            included structural element to set
+     *            logical structure to set
      */
-    public void setLogicalStructureRoot(IncludedStructuralElement logicalStructureRoot) {
+    public void setLogicalStructureRoot(LogicalStructure logicalStructureRoot) {
         this.logicalStructureRoot = logicalStructureRoot;
     }
 
@@ -143,7 +143,7 @@ public class Workpiece {
      * Sets the root element of the physical structure of the workpiece.
      *
      * @param physicalStructureRoot
-     *            included structural element to set
+     *            logical structure to set
      */
     public void setPhysicalStructureRoot(MediaUnit physicalStructureRoot) {
         this.physicalStructureRoot = physicalStructureRoot;
@@ -183,21 +183,21 @@ public class Workpiece {
      *
      * @return list of all logical elements
      */
-    public List<IncludedStructuralElement> getAllIncludedStructuralElements() {
-        List<IncludedStructuralElement> includedStructuralElements = new LinkedList<>();
-        includedStructuralElements.add(logicalStructureRoot);
-        includedStructuralElements.addAll(getAllIncludedStructuralElementsRecursive(logicalStructureRoot));
-        return includedStructuralElements;
+    public List<LogicalStructure> getAllLogicalStructures() {
+        List<LogicalStructure> logicalStructures = new LinkedList<>();
+        logicalStructures.add(logicalStructureRoot);
+        logicalStructures.addAll(getAllLocicalStructuresRecursive(logicalStructureRoot));
+        return logicalStructures;
     }
 
-    private List<IncludedStructuralElement> getAllIncludedStructuralElementsRecursive(IncludedStructuralElement parent) {
-        List<IncludedStructuralElement> includedStructuralElements = new LinkedList<>(parent.getChildren());
-        for (IncludedStructuralElement child : parent.getChildren()) {
+    private List<LogicalStructure> getAllLocicalStructuresRecursive(LogicalStructure parent) {
+        List<LogicalStructure> logicalStructures = new LinkedList<>(parent.getChildren());
+        for (LogicalStructure child : parent.getChildren()) {
             if (Objects.nonNull(child)) {
-                includedStructuralElements.addAll(getAllIncludedStructuralElementsRecursive(child));
+                logicalStructures.addAll(getAllLocicalStructuresRecursive(child));
             }
         }
-        return includedStructuralElements;
+        return logicalStructures;
     }
 
     /**

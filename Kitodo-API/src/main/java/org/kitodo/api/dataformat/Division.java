@@ -32,8 +32,8 @@ public abstract class Division<T extends Division<T>> {
 
     /**
      * Sequence number. The playback order of the media units when referenced
-     * from an included structural element is determined by this attribute (not
-     * by the order of the references).
+     * from a logical structure is determined by this attribute (not by the
+     * order of the references).
      */
     private int order;
 
@@ -41,9 +41,9 @@ public abstract class Division<T extends Division<T>> {
      * The order label of this division.
      *
      * <p>
-     * <i>For included structural elements</i>, used to store <b>the
-     * machine-readable value</b> if the <i>label</i> contains a human-readable
-     * value that can be mapped to a machine-readable value.
+     * <i>For logical structures</i>, used to store <b>the machine-readable
+     * value</b> if the <i>label</i> contains a human-readable value that can be
+     * mapped to a machine-readable value.
      *
      * <p>
      * <i>For media units</i>, <b>a human readable label</b> for the
@@ -54,10 +54,10 @@ public abstract class Division<T extends Division<T>> {
     private String orderlabel;
 
     /**
-     * The type of included structural element. Although the data type of this
-     * variable is a string, it is recommended to use a controlled vocabulary.
-     * If the generated METS files are to be used with the DFG Viewer, the list
-     * of possible included structural element types is defined.
+     * The type of the division. Although the data type of this variable is a
+     * string, it is recommended to use a controlled vocabulary. If the
+     * generated METS files are to be used with the DFG Viewer, the list of
+     * possible logical structure types is defined.
      *
      * @see "https://dfg-viewer.de/en/structural-data-set/"
      */
@@ -142,7 +142,7 @@ public abstract class Division<T extends Division<T>> {
     }
 
     /**
-     * Returns the type of this included structural element.
+     * Returns the type of this division.
      *
      * @return the type
      */
@@ -151,7 +151,7 @@ public abstract class Division<T extends Division<T>> {
     }
 
     /**
-     * Sets the type of this included structural element.
+     * Sets the type of this division.
      *
      * @param type
      *            type to set

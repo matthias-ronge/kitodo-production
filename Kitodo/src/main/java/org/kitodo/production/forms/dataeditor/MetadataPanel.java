@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitodo.api.Metadata;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.MediaUnit;
 import org.kitodo.exceptions.InvalidMetadataValueException;
 import org.kitodo.exceptions.NoSuchMetadataFieldException;
@@ -124,7 +124,7 @@ public class MetadataPanel implements Serializable {
         this.selectedMetadataTreeNode = selectedMetadataTreeNode;
     }
 
-    void showLogical(Optional<IncludedStructuralElement> optionalStructure) {
+    void showLogical(Optional<LogicalStructure> optionalStructure) {
         if (optionalStructure.isPresent()) {
             StructuralElementViewInterface divisionView = dataEditorForm.getRuleset().getStructuralElementView(
                     optionalStructure.get().getType(), dataEditorForm.getAcquisitionStage(), dataEditorForm.getPriorityList());

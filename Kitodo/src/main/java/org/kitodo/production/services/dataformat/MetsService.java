@@ -32,8 +32,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitodo.api.MetadataEntry;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
 import org.kitodo.api.dataformat.Division;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.dataformat.mets.MetsXmlElementAccessInterface;
 import org.kitodo.production.services.ServiceManager;
@@ -83,11 +83,11 @@ public class MetsService {
      *             not found)
      */
     public String getBaseType(URI uri) throws IOException {
-        IncludedStructuralElement includedStructuralElement = loadWorkpiece(uri).getLogicalStructureRoot();
-        String type = includedStructuralElement.getType();
-        while (Objects.isNull(type) && !includedStructuralElement.getChildren().isEmpty()) {
-            includedStructuralElement = includedStructuralElement.getChildren().get(0);
-            type = includedStructuralElement.getType();
+        LogicalStructure logicalStructure = loadWorkpiece(uri).getLogicalStructureRoot();
+        String type = logicalStructure.getType();
+        while (Objects.isNull(type) && !logicalStructure.getChildren().isEmpty()) {
+            logicalStructure = logicalStructure.getChildren().get(0);
+            type = logicalStructure.getType();
         }
         return type;
     }
@@ -157,7 +157,7 @@ public class MetsService {
      */
     public static long countLogicalMetadata(Workpiece workpiece) {
         return treeStream(workpiece.getLogicalStructureRoot(), Division::getChildren)
-                .flatMap(includedStructuralElement -> includedStructuralElement.getMetadata().parallelStream())
+                .flatMap(logicalStructure -> logicalStructure.getMetadata().parallelStream())
                 .filter(metadata -> !(metadata instanceof MetadataEntry)
                         || Objects.nonNull(((MetadataEntry) metadata).getValue())
                                 && !((MetadataEntry) metadata).getValue().isEmpty())

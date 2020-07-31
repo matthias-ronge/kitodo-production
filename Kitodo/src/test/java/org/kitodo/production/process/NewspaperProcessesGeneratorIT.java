@@ -39,7 +39,7 @@ import org.kitodo.MockDatabase;
 import org.kitodo.NewspaperCourse;
 import org.kitodo.SecurityTestUtils;
 import org.kitodo.TreeDeleter;
-import org.kitodo.api.dataformat.IncludedStructuralElement;
+import org.kitodo.api.dataformat.LogicalStructure;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.config.ConfigCore;
 import org.kitodo.config.enums.KitodoConfigFile;
@@ -180,12 +180,12 @@ public class NewspaperProcessesGeneratorIT {
 
     private void dayChecksOfShouldGenerateSeasonProcesses(Process seasonProcess, Workpiece seasonYearWorkpiece) {
         // all days must be inside their month
-        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getLogicalStructureRoot()
+        for (LogicalStructure monthLogicalStructure : seasonYearWorkpiece.getLogicalStructureRoot()
                 .getChildren()) {
-            String monthValue = monthIncludedStructuralElement.getOrderlabel();
-            for (IncludedStructuralElement dayIncludedStructuralElement : monthIncludedStructuralElement
+            String monthValue = monthLogicalStructure.getOrderlabel();
+            for (LogicalStructure dayLogicalStructure : monthLogicalStructure
                     .getChildren()) {
-                String dayValue = dayIncludedStructuralElement.getOrderlabel();
+                String dayValue = dayLogicalStructure.getOrderlabel();
                 Assert.assertTrue(
                     "Error in " + seasonProcess + ": " + dayValue + " misplaced in month " + monthValue + '!',
                     dayValue.startsWith(monthValue));
@@ -193,12 +193,12 @@ public class NewspaperProcessesGeneratorIT {
         }
 
         // days must be ordered ascending
-        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getLogicalStructureRoot()
+        for (LogicalStructure monthLogicalStructure : seasonYearWorkpiece.getLogicalStructureRoot()
                 .getChildren()) {
             String previousDayValue = null;
-            for (IncludedStructuralElement dayIncludedStructuralElement : monthIncludedStructuralElement
+            for (LogicalStructure dayLogicalStructure : monthLogicalStructure
                     .getChildren()) {
-                String dayValue = dayIncludedStructuralElement.getOrderlabel();
+                String dayValue = dayLogicalStructure.getOrderlabel();
                 if (Objects.nonNull(previousDayValue)) {
                     Assert.assertTrue("Bad order of days in " + seasonProcess + ": " + dayValue + " should be before "
                             + previousDayValue + ", but isn’t!",
@@ -212,9 +212,9 @@ public class NewspaperProcessesGeneratorIT {
     private void monthChecksOfShouldGenerateSeasonProcesses(Process seasonProcess, Workpiece seasonYearWorkpiece,
             String twoYears, List<String> years) {
         // all months must be in the timespan
-        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getLogicalStructureRoot()
+        for (LogicalStructure monthLogicalStructure : seasonYearWorkpiece.getLogicalStructureRoot()
                 .getChildren()) {
-            String monthValue = monthIncludedStructuralElement.getOrderlabel();
+            String monthValue = monthLogicalStructure.getOrderlabel();
             List<String> monthValueFields = Arrays.asList(monthValue.split("-", 2));
             int monthNumberOfMonth = Integer.parseInt(monthValueFields.get(1));
             if (monthValueFields.get(0).equals(years.get(0))) {
@@ -233,9 +233,9 @@ public class NewspaperProcessesGeneratorIT {
 
         // months must be ordered ascending
         String previousMonthValue = null;
-        for (IncludedStructuralElement monthIncludedStructuralElement : seasonYearWorkpiece.getLogicalStructureRoot()
+        for (LogicalStructure monthLogicalStructure : seasonYearWorkpiece.getLogicalStructureRoot()
                 .getChildren()) {
-            String monthValue = monthIncludedStructuralElement.getOrderlabel();
+            String monthValue = monthLogicalStructure.getOrderlabel();
             if (Objects.nonNull(previousMonthValue)) {
                 Assert.assertTrue("Bad order of months in " + seasonProcess + ": " + monthValue + " should be before "
                         + previousMonthValue + ", but isn’t!",
