@@ -267,7 +267,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         final long begin = System.nanoTime();
 
         List<MediaUnit> severalAssignments = new LinkedList<>();
-        initSeveralAssignments(workpiece.getMediaUnit(), severalAssignments);
+        initSeveralAssignments(workpiece.getPhysicalStructureRoot(), severalAssignments);
         structurePanel.getSeveralAssignments().addAll(severalAssignments);
 
         structurePanel.show();

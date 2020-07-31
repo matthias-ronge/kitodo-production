@@ -81,7 +81,7 @@ public class AddMediaUnitDialog {
             possiblePositions.add(new SelectItem(InsertionPosition.LAST_CHILD_OF_CURRENT_ELEMENT,
                     Helper.getTranslation("dataEditor.position.asLastChildOfCurrentElement")));
             List<MediaUnit> parents = MetadataEditor.getAncestorsOfMediaUnit(selectedMediaUnit.get(),
-                    dataEditor.getWorkpiece().getMediaUnit());
+                    dataEditor.getWorkpiece().getPhysicalStructureRoot());
             if (parents.size() > 0) {
                 possiblePositions.add(new SelectItem(InsertionPosition.BEFORE_CURRENT_ELEMENT,
                         Helper.getTranslation("dataEditor.position.beforeCurrentElement")));
@@ -114,7 +114,7 @@ public class AddMediaUnitDialog {
                     || InsertionPosition.AFTER_CURRENT_ELEMENT.equals(selectedPosition)) {
                 LinkedList<MediaUnit> parents = MetadataEditor.getAncestorsOfMediaUnit(
                     selectedMediaUnit.get(),
-                        dataEditor.getWorkpiece().getMediaUnit());
+                        dataEditor.getWorkpiece().getPhysicalStructureRoot());
                 if (!parents.isEmpty()) {
                     divisionView = dataEditor.getRuleset().getStructuralElementView(
                             parents.getLast().getType(),

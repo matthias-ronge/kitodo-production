@@ -1106,7 +1106,7 @@ public class FileService {
                 }
             }
             MediaUnit mediaUnit = createMediaUnit(entry.getValue());
-            workpiece.getMediaUnit().getChildren().add(insertionPoint, mediaUnit);
+            workpiece.getPhysicalStructureRoot().getChildren().add(insertionPoint, mediaUnit);
             View view = new View();
             view.setMediaUnit(mediaUnit);
             workpiece.getLogicalStructureRoot().getViews().add(view);

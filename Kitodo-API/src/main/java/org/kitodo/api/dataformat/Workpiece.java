@@ -49,10 +49,9 @@ public class Workpiece {
     private IncludedStructuralElement logicalStructureRoot = new IncludedStructuralElement();
 
     /**
-     * The media unit that belongs to this workpiece. The media unit can have
-     * children, such as a bound book that can have pages.
+     * The root element of the physical structure.
      */
-    private MediaUnit mediaUnit = new MediaUnit();
+    private MediaUnit physicalStructureRoot = new MediaUnit();
 
     /**
      * Returns the creation date of the workpiece.
@@ -102,7 +101,7 @@ public class Workpiece {
     }
 
     /**
-     * Returns the root element of the logical structure.
+     * Returns the root element of the logical structure of the workpiece.
      *
      * @return root element of the logical structure
      */
@@ -121,12 +120,12 @@ public class Workpiece {
     }
 
     /**
-     * Returns the media unit of this workpiece.
+     * Returns the root element of the physical structure of the workpiece.
      *
-     * @return the media units
+     * @return root element of the physical structure
      */
-    public MediaUnit getMediaUnit() {
-        return mediaUnit;
+    public MediaUnit getPhysicalStructureRoot() {
+        return physicalStructureRoot;
     }
 
     /**
@@ -137,17 +136,17 @@ public class Workpiece {
      */
     @Deprecated
     public List<MediaUnit> getMediaUnits() {
-        return mediaUnit.getChildren();
+        return physicalStructureRoot.getChildren();
     }
 
     /**
-     * Sets the media unit of the workpiece.
+     * Sets the root element of the physical structure of the workpiece.
      *
-     * @param mediaUnit
-     *            media unit to set
+     * @param physicalStructureRoot
+     *            included structural element to set
      */
-    public void setMediaUnit(MediaUnit mediaUnit) {
-        this.mediaUnit = mediaUnit;
+    public void setPhysicalStructureRoot(MediaUnit physicalStructureRoot) {
+        this.physicalStructureRoot = physicalStructureRoot;
     }
 
     @Override
@@ -175,7 +174,7 @@ public class Workpiece {
         return Objects.equals(creationDate, workpiece.creationDate)
                 && Objects.equals(editHistory, workpiece.editHistory)
                 && Objects.equals(id, workpiece.id)
-                && Objects.equals(mediaUnit, workpiece.mediaUnit)
+                && Objects.equals(physicalStructureRoot, workpiece.physicalStructureRoot)
                 && Objects.equals(logicalStructureRoot, workpiece.logicalStructureRoot);
     }
 
@@ -218,8 +217,8 @@ public class Workpiece {
      * @return list of all media units with type "page".
      */
     public List<MediaUnit> getAllMediaUnits() {
-        List<MediaUnit> mediaUnits = new LinkedList<>(mediaUnit.getChildren());
-        for (MediaUnit mediaUnit : mediaUnit.getChildren()) {
+        List<MediaUnit> mediaUnits = new LinkedList<>(physicalStructureRoot.getChildren());
+        for (MediaUnit mediaUnit : physicalStructureRoot.getChildren()) {
             if (Objects.nonNull(mediaUnit)) {
                 mediaUnits = getAllMediaUnitsRecursive(mediaUnit, mediaUnits);
             }

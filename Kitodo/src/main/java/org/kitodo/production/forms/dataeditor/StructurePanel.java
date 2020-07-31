@@ -174,7 +174,7 @@ public class StructurePanel implements Serializable {
             return;
         }
         LinkedList<MediaUnit> ancestors = MetadataEditor.getAncestorsOfMediaUnit(selectedMediaUnit.get(),
-                dataEditor.getWorkpiece().getMediaUnit());
+                dataEditor.getWorkpiece().getPhysicalStructureRoot());
         if (ancestors.isEmpty()) {
             // The selected element is the root node of the tree.
             return;
@@ -411,7 +411,7 @@ public class StructurePanel implements Serializable {
         updateLogicalNodeExpansionStates(this.logicalTree, this.previousExpansionStatesLogicalTree);
 
         this.previousExpansionStatesPhysicalTree = getPhysicalTreeNodeExpansionStates(this.physicalTree);
-        this.physicalTree = buildMediaTree(dataEditor.getWorkpiece().getMediaUnit());
+        this.physicalTree = buildMediaTree(dataEditor.getWorkpiece().getPhysicalStructureRoot());
         updatePhysicalNodeExpansionStates(this.physicalTree, this.previousExpansionStatesPhysicalTree);
 
         this.selectedLogicalNode = logicalTree.getChildren().get(logicalTree.getChildCount() - 1);
@@ -1068,12 +1068,12 @@ public class StructurePanel implements Serializable {
             int finalInsertionIndex = physicalInsertionIndex;
             physicalInsertionIndex -= (int) mediaUnitsToBeMoved.stream().filter(m -> m.getOrder() - 1 < finalInsertionIndex).count();
         }
-        dataEditor.getWorkpiece().getMediaUnit().getChildren().removeAll(mediaUnitsToBeMoved);
-        int numberOfChildren = dataEditor.getWorkpiece().getMediaUnit().getChildren().size();
+        dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().removeAll(mediaUnitsToBeMoved);
+        int numberOfChildren = dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().size();
         if (physicalInsertionIndex < numberOfChildren) {
-            dataEditor.getWorkpiece().getMediaUnit().getChildren().addAll(physicalInsertionIndex, mediaUnitsToBeMoved);
+            dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().addAll(physicalInsertionIndex, mediaUnitsToBeMoved);
         } else {
-            dataEditor.getWorkpiece().getMediaUnit().getChildren().addAll(mediaUnitsToBeMoved);
+            dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().addAll(mediaUnitsToBeMoved);
             if (physicalInsertionIndex > numberOfChildren) {
                 Helper.setErrorMessage("Could not append media at correct position. Index exceeded list.");
             }
@@ -1238,7 +1238,7 @@ public class StructurePanel implements Serializable {
 
         LinkedList<MediaUnit> dragParents;
         if (divisionView.getAllowedSubstructuralElements().containsKey(dragUnit.getType())) {
-            dragParents = MetadataEditor.getAncestorsOfMediaUnit(dragUnit, dataEditor.getWorkpiece().getMediaUnit());
+            dragParents = MetadataEditor.getAncestorsOfMediaUnit(dragUnit, dataEditor.getWorkpiece().getPhysicalStructureRoot());
             if (dragParents.isEmpty()) {
                 Helper.setErrorMessage(Helper.getTranslation("dataEditor.noParentsError",
                         Collections.singletonList(dragNode.getLabel())));
@@ -1261,10 +1261,10 @@ public class StructurePanel implements Serializable {
     private void preserveLogicalAndPhysical() throws UnknownTreeNodeDataException {
         if (!this.logicalTree.getChildren().isEmpty()) {
             order = 1;
-            for (MediaUnit mediaUnit : dataEditor.getWorkpiece().getMediaUnit().getChildren()) {
+            for (MediaUnit mediaUnit : dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren()) {
                 mediaUnit.getIncludedStructuralElements().clear();
             }
-            dataEditor.getWorkpiece().getMediaUnit().getChildren().clear();
+            dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().clear();
             preserveLogicalAndPhysicalRecursive(this.logicalTree.getChildren().get(logicalTree.getChildCount() - 1));
         }
     }
@@ -1294,7 +1294,7 @@ public class StructurePanel implements Serializable {
                 if (!view.getMediaUnit().getIncludedStructuralElements().contains(structure)) {
                     view.getMediaUnit().getIncludedStructuralElements().add(structure);
                 }
-                dataEditor.getWorkpiece().getMediaUnit().getChildren().add(view.getMediaUnit());
+                dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().add(view.getMediaUnit());
                 order++;
             }
         }

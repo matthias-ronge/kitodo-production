@@ -128,7 +128,7 @@ public class MetadataValidation implements MetadataValidationInterface {
                 getMetadata(includedStructuralElement), ruleset, metadataLanguage, translations));
         }
 
-        for (MediaUnit mediaUnit : treeStream(workpiece.getMediaUnit(), MediaUnit::getChildren)
+        for (MediaUnit mediaUnit : treeStream(workpiece.getPhysicalStructureRoot(), MediaUnit::getChildren)
                 .collect(Collectors.toList())) {
             results.addAll(checkMetadataRules(mediaUnit.toString(), mediaUnit.getType(), getMetadata(mediaUnit),
                     ruleset, metadataLanguage, translations));

@@ -290,7 +290,7 @@ public class MetadataEditor {
      * @param position position relative to the parent element
      */
     public static MediaUnit addMediaUnit(String type, Workpiece workpiece, MediaUnit parent, InsertionPosition position) {
-        LinkedList<MediaUnit> grandparents = getAncestorsOfMediaUnit(parent, workpiece.getMediaUnit());
+        LinkedList<MediaUnit> grandparents = getAncestorsOfMediaUnit(parent, workpiece.getPhysicalStructureRoot());
         List<MediaUnit> siblings = new LinkedList<>();
         if (grandparents.isEmpty()) {
             if (position.equals(InsertionPosition.AFTER_CURRENT_ELEMENT)

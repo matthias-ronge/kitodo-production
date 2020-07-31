@@ -67,7 +67,7 @@ public class SchemaService {
                 new LegacyMetsModsDigitalDocumentHelper(prefs.getRuleset(), workpiece), prefs,
                 process, null);
 
-        addVirtualFileGroupsToMetsMods(workpiece.getMediaUnit(), process);
+        addVirtualFileGroupsToMetsMods(workpiece.getPhysicalStructureRoot(), process);
         replaceFLocatForExport(workpiece, process);
 
         // Replace rights and digiprov entries.
@@ -120,13 +120,13 @@ public class SchemaService {
         workpiece.getLogicalStructureRoot().getMetadata().add(entry);
     }
 
-    private void addVirtualFileGroupsToMetsMods(MediaUnit mediaUnit, Process process) {
-        String canonical = ServiceManager.getFolderService().getCanonical(process, mediaUnit);
+    private void addVirtualFileGroupsToMetsMods(MediaUnit physicalStructureRoot, Process process) {
+        String canonical = ServiceManager.getFolderService().getCanonical(process, physicalStructureRoot);
         if (Objects.nonNull(canonical)) {
-            removeFLocatsForUnwantedUses(process, mediaUnit, canonical);
-            addMissingUses(process, mediaUnit, canonical);
+            removeFLocatsForUnwantedUses(process, physicalStructureRoot, canonical);
+            addMissingUses(process, physicalStructureRoot, canonical);
         }
-        for (MediaUnit child : mediaUnit.getChildren()) {
+        for (MediaUnit child : physicalStructureRoot.getChildren()) {
             addVirtualFileGroupsToMetsMods(child, process);
         }
     }

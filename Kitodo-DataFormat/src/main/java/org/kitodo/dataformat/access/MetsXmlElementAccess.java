@@ -130,7 +130,7 @@ public class MetsXmlElementAccess implements MetsXmlElementAccessInterface {
             DivType div = optionalPhysicalStructMap.get().getDiv();
             FileXmlElementAccess fileXmlElementAccess = new FileXmlElementAccess(div, mets, useXmlAttributeAccess);
             MediaUnit mediaUnit = fileXmlElementAccess.getMediaUnit();
-            workpiece.setMediaUnit(mediaUnit);
+            workpiece.setPhysicalStructureRoot(mediaUnit);
             divIDsToMediaUnits.put(div.getID(), fileXmlElementAccess);
             readMeadiaUnitsTreeRecursive(div, mets, useXmlAttributeAccess, mediaUnit, divIDsToMediaUnits);
         }
@@ -312,7 +312,7 @@ public class MetsXmlElementAccess implements MetsXmlElementAccessInterface {
 
         Map<UseXmlAttributeAccess, Set<URI>> useToMediaUnits = new HashMap<>();
         Map<Pair<UseXmlAttributeAccess, URI>, String> fileIds = new HashMap<>();
-        generateFileSecRecursive(workpiece.getMediaUnit(), useToMediaUnits, fileIds);
+        generateFileSecRecursive(workpiece.getPhysicalStructureRoot(), useToMediaUnits, fileIds);
 
         for (Entry<UseXmlAttributeAccess, Set<URI>> fileGrpData : useToMediaUnits.entrySet()) {
             FileGrp fileGrp = new FileGrp();
@@ -369,7 +369,7 @@ public class MetsXmlElementAccess implements MetsXmlElementAccessInterface {
         StructMapType physical = new StructMapType();
         physical.setTYPE("PHYSICAL");
         physical.setDiv(
-            generatePhysicalStructMapRecursive(workpiece.getMediaUnit(), mediaFilesToIDFiles, mediaUnitIDs, mets));
+            generatePhysicalStructMapRecursive(workpiece.getPhysicalStructureRoot(), mediaFilesToIDFiles, mediaUnitIDs, mets));
         return physical;
     }
 
