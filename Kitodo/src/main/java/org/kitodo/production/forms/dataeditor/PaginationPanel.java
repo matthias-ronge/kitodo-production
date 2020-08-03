@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import javax.faces.model.SelectItem;
 
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.config.ConfigCore;
 import org.kitodo.config.enums.ParameterCore;
@@ -71,11 +71,11 @@ public class PaginationPanel {
             Helper.setErrorMessage(e.getLocalizedMessage());
         }
         Paginator paginator = new Paginator(metsEditorDefaultPagination(1));
-        List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted();
-        for (int i = 1; i < mediaUnits.size(); i++) {
-            MediaUnit mediaUnit = mediaUnits.get(i);
-            mediaUnit.setOrder(i);
-            mediaUnit.setOrderlabel(paginator.next());
+        List<PhysicalStructure> physicalStructures = dataEditor.getWorkpiece().getAllPhysicalStructuresSorted();
+        for (int i = 1; i < physicalStructures.size(); i++) {
+            PhysicalStructure physicalStructure = physicalStructures.get(i);
+            physicalStructure.setOrder(i);
+            physicalStructure.setOrderlabel(paginator.next());
         }
     }
 
@@ -83,17 +83,17 @@ public class PaginationPanel {
      * This method is invoked if the generate dummy images button is clicked.
      */
     public void generateDummyImagesButtonClick() {
-        List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted();
-        int order = mediaUnits.isEmpty() ? 1 : mediaUnits.get(mediaUnits.size() - 1).getOrder() + 1;
+        List<PhysicalStructure> physicalStructures = dataEditor.getWorkpiece().getAllPhysicalStructuresSorted();
+        int order = physicalStructures.isEmpty() ? 1 : physicalStructures.get(physicalStructures.size() - 1).getOrder() + 1;
         boolean withAutomaticPagination = ConfigCore.getBooleanParameter(ParameterCore.WITH_AUTOMATIC_PAGINATION);
         Paginator orderlabel = new Paginator(metsEditorDefaultPagination(order));
         for (int i = 1; i <= newPagesCountValue; i++) {
-            MediaUnit mediaUnit = new MediaUnit();
-            mediaUnit.setOrder(order++);
+            PhysicalStructure physicalStructure = new PhysicalStructure();
+            physicalStructure.setOrder(order++);
             if (withAutomaticPagination) {
-                mediaUnit.setOrderlabel(orderlabel.next());
+                physicalStructure.setOrderlabel(orderlabel.next());
             }
-            mediaUnits.add(mediaUnit);
+            physicalStructures.add(physicalStructure);
         }
     }
 
@@ -281,34 +281,35 @@ public class PaginationPanel {
     }
 
     private void preparePaginationSelectionItems() {
-        List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted();
-        paginationSelectionItems = new ArrayList<>(mediaUnits.size());
-        for (int i = 0; i < mediaUnits.size(); i++) {
-            MediaUnit mediaUnit = mediaUnits.get(i);
-            String label = Objects.isNull(mediaUnit.getOrderlabel()) ? Integer.toString(mediaUnit.getOrder())
-                    : mediaUnit.getOrder() + " : " + mediaUnit.getOrderlabel();
+        List<PhysicalStructure> physicalStructures = dataEditor.getWorkpiece().getAllPhysicalStructuresSorted();
+        paginationSelectionItems = new ArrayList<>(physicalStructures.size());
+        for (int i = 0; i < physicalStructures.size(); i++) {
+            PhysicalStructure physicalStructure = physicalStructures.get(i);
+            String label = Objects.isNull(physicalStructure.getOrderlabel()) ? Integer.toString(physicalStructure.getOrder())
+                    : physicalStructure.getOrder() + " : " + physicalStructure.getOrderlabel();
             paginationSelectionItems.add(new SelectItem(i, label));
         }
     }
 
     private void preparePaginationSelectionSelectedItem() {
-        MediaUnit selectedMediaUnit = null;
-        Optional<MediaUnit> optionalSelectedMediaUnit = dataEditor.getSelectedMediaUnit();
-        if (dataEditor.getStructurePanel().isSeparateMedia() && Objects.nonNull(optionalSelectedMediaUnit)
-                && optionalSelectedMediaUnit.isPresent() && "page".equals(optionalSelectedMediaUnit.get().getType())) {
-            selectedMediaUnit = optionalSelectedMediaUnit.get();
+        PhysicalStructure selectedPhysicalStructure = null;
+        Optional<PhysicalStructure> optionalSelectedPhysicalStructure = dataEditor.getSelectedPhysicalStructure();
+        if (dataEditor.getStructurePanel().isSeparateMedia() && Objects.nonNull(optionalSelectedPhysicalStructure)
+                && optionalSelectedPhysicalStructure.isPresent()
+                && "page".equals(optionalSelectedPhysicalStructure.get().getType())) {
+            selectedPhysicalStructure = optionalSelectedPhysicalStructure.get();
         } else if (Objects.nonNull(dataEditor.getStructurePanel().getSelectedLogicalNode())) {
             StructureTreeNode structureTreeNode = (StructureTreeNode) dataEditor.getStructurePanel().getSelectedLogicalNode().getData();
             if (structureTreeNode.getDataObject() instanceof View) {
                 View view = (View) structureTreeNode.getDataObject();
-                selectedMediaUnit = view.getMediaUnit();
+                selectedPhysicalStructure = view.getPhysicalStructure();
             }
         }
-        if (Objects.nonNull(selectedMediaUnit)) {
-            List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted();
-            for (int i = 0; i < mediaUnits.size(); i++) {
-                MediaUnit mediaUnit = mediaUnits.get(i);
-                if (mediaUnit.equals(selectedMediaUnit)) {
+        if (Objects.nonNull(selectedPhysicalStructure)) {
+            List<PhysicalStructure> physicalStructures = dataEditor.getWorkpiece().getAllPhysicalStructuresSorted();
+            for (int i = 0; i < physicalStructures.size(); i++) {
+                PhysicalStructure physicalStructure = physicalStructures.get(i);
+                if (physicalStructure.equals(selectedPhysicalStructure)) {
                     setPaginationSelectionSelectedItems(Collections.singletonList(i));
                     break;
                 }
@@ -363,14 +364,14 @@ public class PaginationPanel {
         String initializer = paginationTypeSelectSelectedItem.format(selectPaginationModeSelectedItem.getValue(),
                 paginationStartValue, fictitiousCheckboxChecked, selectPaginationSeparatorSelectedItem);
         Paginator paginator = new Paginator(initializer);
-        List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted();
+        List<PhysicalStructure> physicalStructures = dataEditor.getWorkpiece().getAllPhysicalStructuresSorted();
         if (selectPaginationScopeSelectedItem) {
-            for (int i = paginationSelectionSelectedItems.get(0); i < mediaUnits.size(); i++) {
-                mediaUnits.get(i).setOrderlabel(paginator.next());
+            for (int i = paginationSelectionSelectedItems.get(0); i < physicalStructures.size(); i++) {
+                physicalStructures.get(i).setOrderlabel(paginator.next());
             }
         } else {
             for (int i : paginationSelectionSelectedItems) {
-                mediaUnits.get(i).setOrderlabel(paginator.next());
+                physicalStructures.get(i).setOrderlabel(paginator.next());
             }
         }
         dataEditor.refreshStructurePanel();

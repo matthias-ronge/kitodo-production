@@ -34,7 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.data.database.beans.Process;
 import org.kitodo.data.exceptions.DataException;
@@ -91,12 +91,12 @@ public class StructurePanel implements Serializable {
     /**
      * HashMap containing the current expansion states of all TreeNodes in the physical structure tree.
      */
-    private HashMap<MediaUnit, Boolean> previousExpansionStatesPhysicalTree;
+    private HashMap<PhysicalStructure, Boolean> previousExpansionStatesPhysicalTree;
 
     /**
-     * List of all mediaUnits assigned to multiple LogicalStructures.
+     * List of all physicalStructures assigned to multiple LogicalStructures.
      */
-    private List<MediaUnit> severalAssignments = new LinkedList<>();
+    private List<PhysicalStructure> severalAssignments = new LinkedList<>();
 
     /**
      * Variable used to set the correct order value when building the logical and physical trees from the PrimeFaces tree.
@@ -137,7 +137,7 @@ public class StructurePanel implements Serializable {
         if (!selectedStructure.isPresent()) {
             /*
              * No element is selected or the selected element is not a structure
-             * but, for example, a media unit.
+             * but, for example, a physical structure.
              */
             return;
         }
@@ -151,7 +151,7 @@ public class StructurePanel implements Serializable {
         Collection<View> subViews = new ArrayList<>();
         subViews = getAllSubViews(selectedStructure.get(), subViews);
         parent.getViews().addAll(subViews);
-        parent.getViews().sort(Comparator.comparingInt(v -> v.getMediaUnit().getOrder()));
+        parent.getViews().sort(Comparator.comparingInt(v -> v.getPhysicalStructure().getOrder()));
 
         parent.getChildren().remove(selectedStructure.get());
         show();
@@ -168,19 +168,20 @@ public class StructurePanel implements Serializable {
         return views;
     }
 
-    void deleteSelectedMediaUnit() {
-        Optional<MediaUnit> selectedMediaUnit = getSelectedMediaUnit();
-        if (!selectedMediaUnit.isPresent()) {
+    void deleteSelectedPhysicalStructure() {
+        Optional<PhysicalStructure> selectedPhysicalStructure = getSelectedPhysicalStructure();
+        if (!selectedPhysicalStructure.isPresent()) {
             return;
         }
-        LinkedList<MediaUnit> ancestors = MetadataEditor.getAncestorsOfMediaUnit(selectedMediaUnit.get(),
+        LinkedList<PhysicalStructure> ancestors = MetadataEditor.getAncestorsOfPhysicalStructure(
+            selectedPhysicalStructure.get(),
                 dataEditor.getWorkpiece().getPhysicalStructureRoot());
         if (ancestors.isEmpty()) {
             // The selected element is the root node of the tree.
             return;
         }
-        MediaUnit parent = ancestors.getLast();
-        parent.getChildren().remove(selectedMediaUnit.get());
+        PhysicalStructure parent = ancestors.getLast();
+        parent.getChildren().remove(selectedPhysicalStructure.get());
         show();
     }
 
@@ -233,20 +234,20 @@ public class StructurePanel implements Serializable {
         return Optional.ofNullable(dataObject instanceof LogicalStructure ? (LogicalStructure) dataObject : null);
     }
 
-    Optional<MediaUnit> getSelectedMediaUnit() {
+    Optional<PhysicalStructure> getSelectedPhysicalStructure() {
         StructureTreeNode structureTreeNode = (StructureTreeNode) selectedPhysicalNode.getData();
         Object dataObject = structureTreeNode.getDataObject();
-        return Optional.ofNullable(dataObject instanceof MediaUnit ? (MediaUnit) dataObject : null);
+        return Optional.ofNullable(dataObject instanceof PhysicalStructure ? (PhysicalStructure) dataObject : null);
     }
 
     /**
-     * Select given MediaUnit in physical structure tree.
+     * Select given PhysicalStructure in physical structure tree.
      *
-     * @param mediaUnit
-     *          MediaUnit to be selected in physical structure tree
+     * @param physicalStructure
+     *          PhysicalStructure to be selected in physical structure tree
      */
-    void selectMediaUnit(MediaUnit mediaUnit) {
-        TreeNode matchingTreeNode = getMatchingTreeNode(getPhysicalTree(), mediaUnit);
+    void setSelectPhysicalStructure(PhysicalStructure physicalStructure) {
+        TreeNode matchingTreeNode = getMatchingTreeNode(getPhysicalTree(), physicalStructure);
         if (Objects.nonNull(matchingTreeNode)) {
             updatePhysicalNodeSelection(matchingTreeNode);
             matchingTreeNode.setSelected(true);
@@ -255,19 +256,19 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    private TreeNode getMatchingTreeNode(TreeNode parent, MediaUnit mediaUnit) {
+    private TreeNode getMatchingTreeNode(TreeNode parent, PhysicalStructure physicalStructure) {
         TreeNode matchingTreeNode = null;
         for (TreeNode treeNode : parent.getChildren()) {
             if (Objects.nonNull(treeNode) && treeNode.getData() instanceof StructureTreeNode) {
                 StructureTreeNode structureTreeNode = (StructureTreeNode) treeNode.getData();
-                if (structureTreeNode.getDataObject() instanceof MediaUnit) {
-                    MediaUnit currentMediaUnit = (MediaUnit) structureTreeNode.getDataObject();
-                    if (Objects.nonNull(currentMediaUnit.getDivId())
-                            && currentMediaUnit.getDivId().equals(mediaUnit.getDivId())) {
+                if (structureTreeNode.getDataObject() instanceof PhysicalStructure) {
+                    PhysicalStructure currentPhysicalStructure = (PhysicalStructure) structureTreeNode.getDataObject();
+                    if (Objects.nonNull(currentPhysicalStructure.getDivId())
+                            && currentPhysicalStructure.getDivId().equals(physicalStructure.getDivId())) {
                         matchingTreeNode = treeNode;
                         break;
                     } else {
-                        matchingTreeNode = getMatchingTreeNode(treeNode, mediaUnit);
+                        matchingTreeNode = getMatchingTreeNode(treeNode, physicalStructure);
                         if (Objects.nonNull(matchingTreeNode)) {
                             break;
                         }
@@ -348,22 +349,20 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    private static MediaUnit preservePhysicalRecursive(TreeNode treeNode) {
+    private static PhysicalStructure preservePhysicalRecursive(TreeNode treeNode) {
         StructureTreeNode structureTreeNode = (StructureTreeNode) treeNode.getData();
-        if (Objects.isNull(structureTreeNode) || !(structureTreeNode.getDataObject() instanceof MediaUnit)) {
+        if (Objects.isNull(structureTreeNode) || !(structureTreeNode.getDataObject() instanceof PhysicalStructure)) {
             return null;
         }
-        MediaUnit mediaUnit = (MediaUnit) structureTreeNode.getDataObject();
-
-        List<MediaUnit> childrenLive = mediaUnit.getChildren();
-        childrenLive.clear();
+        PhysicalStructure physicalStructure = (PhysicalStructure) structureTreeNode.getDataObject();
+        physicalStructure.getChildren().clear();
         for (TreeNode child : treeNode.getChildren()) {
-            MediaUnit possibleChildMediaUnit = preservePhysicalRecursive(child);
-            if (Objects.nonNull(possibleChildMediaUnit)) {
-                childrenLive.add(possibleChildMediaUnit);
+            PhysicalStructure possibleChild = preservePhysicalRecursive(child);
+            if (Objects.nonNull(possibleChild)) {
+                physicalStructure.getChildren().add(possibleChild);
             }
         }
-        return mediaUnit;
+        return physicalStructure;
     }
 
     /**
@@ -533,7 +532,7 @@ public class StructurePanel implements Serializable {
             }
 
             if (Objects.nonNull(temporaryChild) && Objects.isNull(temporaryView)
-                    || Objects.nonNull(temporaryChild) && temporaryChild.getOrder() <= temporaryView.getMediaUnit().getOrder()) {
+                    || Objects.nonNull(temporaryChild) && temporaryChild.getOrder() <= temporaryView.getPhysicalStructure().getOrder()) {
                 viewsShowingOnAChild.addAll(buildStructureTreeRecursively(temporaryChild, parent));
                 temporaryChildren.remove(0);
             } else {
@@ -547,9 +546,9 @@ public class StructurePanel implements Serializable {
     }
 
     private String buildViewLabel(View view) {
-        String order = view.getMediaUnit().getOrder() + " : ";
-        if (Objects.nonNull(view.getMediaUnit().getOrderlabel())) {
-            return order + view.getMediaUnit().getOrderlabel();
+        String order = view.getPhysicalStructure().getOrder() + " : ";
+        if (Objects.nonNull(view.getPhysicalStructure().getOrderlabel())) {
+            return order + view.getPhysicalStructure().getOrderlabel();
         } else {
             return order + "uncounted";
         }
@@ -601,7 +600,7 @@ public class StructurePanel implements Serializable {
             DefaultTreeNode parent) {
         DefaultTreeNode node = new DefaultTreeNode(new StructureTreeNode(label, undefined, linked, dataObject),
                 parent);
-        if (dataObject instanceof MediaUnit && physicalNodeStateUnknown(this.previousExpansionStatesPhysicalTree, node)
+        if (dataObject instanceof PhysicalStructure && physicalNodeStateUnknown(this.previousExpansionStatesPhysicalTree, node)
                 || dataObject instanceof LogicalStructure
                 && logicalNodeStateUnknown(this.previousExpansionStatesLogicalTree, node)) {
             node.setExpanded(true);
@@ -673,10 +672,10 @@ public class StructurePanel implements Serializable {
      * Creates the media tree.
      *
      * @param mediaRoot
-     *            root of media units to show on the tree
+     *            root of physical structures to show on the tree
      * @return the media tree
      */
-    private DefaultTreeNode buildMediaTree(MediaUnit mediaRoot) {
+    private DefaultTreeNode buildMediaTree(PhysicalStructure mediaRoot) {
         DefaultTreeNode rootTreeNode = new DefaultTreeNode();
         if (physicalNodeStateUnknown(this.previousExpansionStatesPhysicalTree, rootTreeNode)) {
             rootTreeNode.setExpanded(true);
@@ -685,17 +684,17 @@ public class StructurePanel implements Serializable {
         return rootTreeNode;
     }
 
-    private void buildMediaTreeRecursively(MediaUnit mediaUnit, DefaultTreeNode parentTreeNode) {
+    private void buildMediaTreeRecursively(PhysicalStructure physicalStructure, DefaultTreeNode parentTreeNode) {
         StructuralElementViewInterface divisionView = dataEditor.getRuleset().getStructuralElementView(
-                mediaUnit.getType(), dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
-        DefaultTreeNode treeNode = addTreeNode("page".equals(mediaUnit.getType())
-                        ? divisionView.getLabel().concat(" " + mediaUnit.getOrderlabel()) : divisionView.getLabel(),
-                false, false, mediaUnit, parentTreeNode);
+                physicalStructure.getType(), dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
+        DefaultTreeNode treeNode = addTreeNode("page".equals(physicalStructure.getType())
+                        ? divisionView.getLabel().concat(" " + physicalStructure.getOrderlabel()) : divisionView.getLabel(),
+                false, false, physicalStructure, parentTreeNode);
         if (physicalNodeStateUnknown(this.previousExpansionStatesPhysicalTree, treeNode)) {
             treeNode.setExpanded(true);
         }
-        if (Objects.nonNull(mediaUnit.getChildren())) {
-            for (MediaUnit child : mediaUnit.getChildren()) {
+        if (Objects.nonNull(physicalStructure.getChildren())) {
+            for (PhysicalStructure child : physicalStructure.getChildren()) {
                 buildMediaTreeRecursively(child, treeNode);
             }
         }
@@ -733,7 +732,7 @@ public class StructurePanel implements Serializable {
          * JSF at this point.
          */
         try {
-            dataEditor.switchMediaUnit();
+            dataEditor.switchPhysicalStructure();
             previouslySelectedPhysicalNode = selectedPhysicalNode;
         } catch (NoSuchMetadataFieldException e) {
             Helper.setErrorMessage(e.getLocalizedMessage(), logger, e);
@@ -756,7 +755,7 @@ public class StructurePanel implements Serializable {
             }
             if (Objects.nonNull(physicalTree) && Objects.nonNull(treeNode)) {
                 setSelectedPhysicalNode(treeNode);
-                this.dataEditor.getMetadataPanel().showPhysical(this.dataEditor.getSelectedMediaUnit());
+                this.dataEditor.getMetadataPanel().showPhysical(this.dataEditor.getSelectedPhysicalStructure());
             }
         }
     }
@@ -787,7 +786,7 @@ public class StructurePanel implements Serializable {
                 if (this.isSeparateMedia()) {
                     selectedTreeNode = updateLogicalNodeSelectionRecursive(structure, logicalTree);
                 } else {
-                    selectedTreeNode = updatePhysSelectionInLogTreeRecursive(galleryMediaContent.getView().getMediaUnit(), structure,
+                    selectedTreeNode = updatePhysSelectionInLogTreeRecursive(galleryMediaContent.getView().getPhysicalStructure(), structure,
                             logicalTree);
                 }
                 if (Objects.nonNull(selectedTreeNode)) {
@@ -863,7 +862,7 @@ public class StructurePanel implements Serializable {
         return matchingTreeNode;
     }
 
-    private TreeNode updatePhysSelectionInLogTreeRecursive(MediaUnit selectedMediaUnit, LogicalStructure parentElement,
+    private TreeNode updatePhysSelectionInLogTreeRecursive(PhysicalStructure selectedMediaUnit, LogicalStructure parentElement,
                                                            TreeNode treeNode) {
         TreeNode matchingTreeNode = null;
         for (TreeNode currentTreeNode : treeNode.getChildren()) {
@@ -872,7 +871,7 @@ public class StructurePanel implements Serializable {
                     && ((StructureTreeNode) treeNode.getData()).getDataObject().equals(parentElement)
                     && currentTreeNode.getData() instanceof StructureTreeNode
                     && ((StructureTreeNode) currentTreeNode.getData()).getDataObject() instanceof View
-                    && ((View) ((StructureTreeNode) currentTreeNode.getData()).getDataObject()).getMediaUnit().equals(selectedMediaUnit)) {
+                    && ((View) ((StructureTreeNode) currentTreeNode.getData()).getDataObject()).getPhysicalStructure().equals(selectedMediaUnit)) {
                 currentTreeNode.setSelected(true);
                 matchingTreeNode = currentTreeNode;
             } else {
@@ -889,15 +888,15 @@ public class StructurePanel implements Serializable {
     private boolean treeNodeMatchesGalleryMediaContent(GalleryMediaContent galleryMediaContent, TreeNode treeNode) {
         if (treeNode.getData() instanceof StructureTreeNode) {
             StructureTreeNode structureTreeNode = (StructureTreeNode) treeNode.getData();
-            MediaUnit mediaUnit = null;
-            if (structureTreeNode.getDataObject() instanceof MediaUnit) {
-                mediaUnit = (MediaUnit) structureTreeNode.getDataObject();
+            PhysicalStructure physicalStructure = null;
+            if (structureTreeNode.getDataObject() instanceof PhysicalStructure) {
+                physicalStructure = (PhysicalStructure) structureTreeNode.getDataObject();
             } else if (structureTreeNode.getDataObject() instanceof View) {
                 View view = (View) structureTreeNode.getDataObject();
-                mediaUnit = view.getMediaUnit();
+                physicalStructure = view.getPhysicalStructure();
             }
-            if (Objects.nonNull(mediaUnit) && Objects.nonNull(galleryMediaContent.getView())) {
-                return Objects.equals(mediaUnit, galleryMediaContent.getView().getMediaUnit());
+            if (Objects.nonNull(physicalStructure) && Objects.nonNull(galleryMediaContent.getView())) {
+                return Objects.equals(physicalStructure, galleryMediaContent.getView().getPhysicalStructure());
             }
         }
         return false;
@@ -960,8 +959,8 @@ public class StructurePanel implements Serializable {
             if (dragNode.getDataObject() instanceof LogicalStructure
                     && dropNode.getDataObject() instanceof LogicalStructure) {
                 checkLogicalDragDrop(dragNode, dropNode);
-            } else if (dragNode.getDataObject() instanceof MediaUnit
-                    && dropNode.getDataObject() instanceof MediaUnit) {
+            } else if (dragNode.getDataObject() instanceof PhysicalStructure
+                    && dropNode.getDataObject() instanceof PhysicalStructure) {
                 checkPhysicalDragDrop(dragNode, dropNode);
             } else if (dragNode.getDataObject() instanceof View
                      && dropNode.getDataObject() instanceof LogicalStructure) {
@@ -1040,12 +1039,12 @@ public class StructurePanel implements Serializable {
      * @param insertionIndex index at which the MediaUnits are added to the existing List of MediaUnits.
      *                       The value -1 represents the end of the list.
      */
-    void reorderMediaUnits(LogicalStructure toElement,
+    void reorderPhysicalStructures(LogicalStructure toElement,
                            List<Pair<View, LogicalStructure>> elementsToBeMoved,
                            int insertionIndex) {
         int physicalInsertionIndex;
-        List<MediaUnit> mediaUnitsToBeMoved = elementsToBeMoved.stream()
-                .map(e -> e.getLeft().getMediaUnit())
+        List<PhysicalStructure> mediaUnitsToBeMoved = elementsToBeMoved.stream()
+                .map(e -> e.getLeft().getPhysicalStructure())
                 .collect(Collectors.toList());
 
         if (insertionIndex > toElement.getViews().size()) {
@@ -1060,18 +1059,18 @@ public class StructurePanel implements Serializable {
             // if 'insertionIndex' equals the size of the list, it means we want to append the moved pages _behind_ the media unit of
             // the last view in the list of views of the 'toElement'
             if (insertionIndex == toElement.getViews().size()) {
-                physicalInsertionIndex = toElement.getViews().getLast().getMediaUnit().getOrder();
+                physicalInsertionIndex = toElement.getViews().getLast().getPhysicalStructure().getOrder();
             } else if (insertionIndex == 0) {
                 // insert at first position directly after logical element
                 physicalInsertionIndex = toElement.getOrder() - 1;
             } else {
                 // insert at given index
-                physicalInsertionIndex = toElement.getViews().get(insertionIndex).getMediaUnit().getOrder() - 1;
+                physicalInsertionIndex = toElement.getViews().get(insertionIndex).getPhysicalStructure().getOrder() - 1;
             }
         }
 
         if (physicalInsertionIndex > mediaUnitsToBeMoved.stream()
-                .map(MediaUnit::getOrder)
+                .map(PhysicalStructure::getOrder)
                 .collect(Collectors.summarizingInt(Integer::intValue))
                 .getMin() - 1) {
             int finalInsertionIndex = physicalInsertionIndex;
@@ -1155,7 +1154,7 @@ public class StructurePanel implements Serializable {
 
     private List<Integer> getOrdersAffectedByMove(List<Pair<View, LogicalStructure>> views, LogicalStructure toElement) {
         Set<Integer> ordersAffectedByMove = views.stream()
-                .map(e -> e.getLeft().getMediaUnit().getOrder())
+                .map(e -> e.getLeft().getPhysicalStructure().getOrder())
                 .collect(Collectors.toSet());
         ordersAffectedByMove.add(toElement.getOrder());
         return ordersAffectedByMove.stream()
@@ -1197,7 +1196,7 @@ public class StructurePanel implements Serializable {
             boolean removeLastOccurrenceOfView = toElement.equals(elementToBeMoved.getValue())
                     && insertionIndex < elementToBeMoved.getValue().getViews().lastIndexOf(elementToBeMoved.getKey());
             dataEditor.unassignView(elementToBeMoved.getValue(), elementToBeMoved.getKey(), removeLastOccurrenceOfView);
-            elementToBeMoved.getKey().getMediaUnit().getLogicalStructures().add(toElement);
+            elementToBeMoved.getKey().getPhysicalStructure().getLogicalStructures().add(toElement);
         }
     }
 
@@ -1239,20 +1238,20 @@ public class StructurePanel implements Serializable {
 
     private void checkPhysicalDragDrop(StructureTreeNode dragNode, StructureTreeNode dropNode) {
 
-        MediaUnit dragUnit = (MediaUnit) dragNode.getDataObject();
-        MediaUnit dropUnit = (MediaUnit) dropNode.getDataObject();
+        PhysicalStructure dragUnit = (PhysicalStructure) dragNode.getDataObject();
+        PhysicalStructure dropUnit = (PhysicalStructure) dropNode.getDataObject();
 
         StructuralElementViewInterface divisionView = dataEditor.getRuleset().getStructuralElementView(
                 dropUnit.getType(), dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
 
-        LinkedList<MediaUnit> dragParents;
+        LinkedList<PhysicalStructure> dragParents;
         if (divisionView.getAllowedSubstructuralElements().containsKey(dragUnit.getType())) {
-            dragParents = MetadataEditor.getAncestorsOfMediaUnit(dragUnit, dataEditor.getWorkpiece().getPhysicalStructureRoot());
+            dragParents = MetadataEditor.getAncestorsOfPhysicalStructure(dragUnit, dataEditor.getWorkpiece().getPhysicalStructureRoot());
             if (dragParents.isEmpty()) {
                 Helper.setErrorMessage(Helper.getTranslation("dataEditor.noParentsError",
                         Collections.singletonList(dragNode.getLabel())));
             } else {
-                MediaUnit parentUnit = dragParents.get(dragParents.size() - 1);
+                PhysicalStructure parentUnit = dragParents.get(dragParents.size() - 1);
                 if (parentUnit.getChildren().contains(dragUnit)) {
                     preservePhysical();
                 } else {
@@ -1270,8 +1269,8 @@ public class StructurePanel implements Serializable {
     private void preserveLogicalAndPhysical() throws UnknownTreeNodeDataException {
         if (!this.logicalTree.getChildren().isEmpty()) {
             order = 1;
-            for (MediaUnit mediaUnit : dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren()) {
-                mediaUnit.getLogicalStructures().clear();
+            for (PhysicalStructure physicalStructure : dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren()) {
+                physicalStructure.getLogicalStructures().clear();
             }
             dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().clear();
             preserveLogicalAndPhysicalRecursive(this.logicalTree.getChildren().get(logicalTree.getChildCount() - 1));
@@ -1299,11 +1298,11 @@ public class StructurePanel implements Serializable {
             } else if (((StructureTreeNode) child.getData()).getDataObject() instanceof View) {
                 View view = (View) ((StructureTreeNode) child.getData()).getDataObject();
                 structure.getViews().add(view);
-                view.getMediaUnit().setOrder(order);
-                if (!view.getMediaUnit().getLogicalStructures().contains(structure)) {
-                    view.getMediaUnit().getLogicalStructures().add(structure);
+                view.getPhysicalStructure().setOrder(order);
+                if (!view.getPhysicalStructure().getLogicalStructures().contains(structure)) {
+                    view.getPhysicalStructure().getLogicalStructures().add(structure);
                 }
-                dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().add(view.getMediaUnit());
+                dataEditor.getWorkpiece().getPhysicalStructureRoot().getChildren().add(view.getPhysicalStructure());
                 order++;
             }
         }
@@ -1358,23 +1357,23 @@ public class StructurePanel implements Serializable {
         return expansionStates;
     }
 
-    private HashMap<MediaUnit, Boolean> getPhysicalTreeNodeExpansionStates(DefaultTreeNode tree) {
+    private HashMap<PhysicalStructure, Boolean> getPhysicalTreeNodeExpansionStates(DefaultTreeNode tree) {
         if (Objects.nonNull(tree) && tree.getChildCount() == 1) {
             TreeNode treeRoot = tree.getChildren().get(0);
-            MediaUnit mediaUnit = getTreeNodeMediaUnit(treeRoot);
-            if (Objects.nonNull(mediaUnit)) {
+            PhysicalStructure physicalStructure = getTreeNodePhysicalStructure(treeRoot);
+            if (Objects.nonNull(physicalStructure)) {
                 return getPhysicalTreeNodeExpansionStatesRecursively(treeRoot, new HashMap<>());
             }
         }
         return new HashMap<>();
     }
 
-    private HashMap<MediaUnit, Boolean> getPhysicalTreeNodeExpansionStatesRecursively(TreeNode treeNode,
-            HashMap<MediaUnit, Boolean> expansionStates) {
+    private HashMap<PhysicalStructure, Boolean> getPhysicalTreeNodeExpansionStatesRecursively(TreeNode treeNode,
+            HashMap<PhysicalStructure, Boolean> expansionStates) {
         if (Objects.nonNull(treeNode)) {
-            MediaUnit mediaUnit = getTreeNodeMediaUnit(treeNode);
-            if (Objects.nonNull(mediaUnit)) {
-                expansionStates.put(mediaUnit, treeNode.isExpanded());
+            PhysicalStructure physicalStructure = getTreeNodePhysicalStructure(treeNode);
+            if (Objects.nonNull(physicalStructure)) {
+                expansionStates.put(physicalStructure, treeNode.isExpanded());
                 for (TreeNode childNode : treeNode.getChildren()) {
                     expansionStates.putAll(getPhysicalTreeNodeExpansionStatesRecursively(childNode, expansionStates));
                 }
@@ -1399,16 +1398,16 @@ public class StructurePanel implements Serializable {
         }
     }
 
-    private void updatePhysicalNodeExpansionStates(DefaultTreeNode tree, HashMap<MediaUnit, Boolean> expansionStates) {
+    private void updatePhysicalNodeExpansionStates(DefaultTreeNode tree, HashMap<PhysicalStructure, Boolean> expansionStates) {
         if (Objects.nonNull(tree) && Objects.nonNull(expansionStates) && !expansionStates.isEmpty()) {
             updatePhysicalNodeExpansionStatesRecursively(tree, expansionStates);
         }
     }
 
-    private void updatePhysicalNodeExpansionStatesRecursively(TreeNode treeNode, HashMap<MediaUnit, Boolean> expansionStates) {
-        MediaUnit mediaUnit = getTreeNodeMediaUnit(treeNode);
-        if (Objects.nonNull(mediaUnit) && expansionStates.containsKey(mediaUnit)) {
-            treeNode.setExpanded(expansionStates.get(mediaUnit));
+    private void updatePhysicalNodeExpansionStatesRecursively(TreeNode treeNode, HashMap<PhysicalStructure, Boolean> expansionStates) {
+        PhysicalStructure physicalStructure = getTreeNodePhysicalStructure(treeNode);
+        if (Objects.nonNull(physicalStructure) && expansionStates.containsKey(physicalStructure)) {
+            treeNode.setExpanded(expansionStates.get(physicalStructure));
         }
         for (TreeNode childNode : treeNode.getChildren()) {
             updatePhysicalNodeExpansionStatesRecursively(childNode, expansionStates);
@@ -1420,9 +1419,9 @@ public class StructurePanel implements Serializable {
         return !Objects.nonNull(expansionStates) || (Objects.nonNull(element) && !expansionStates.containsKey(element));
     }
 
-    private boolean physicalNodeStateUnknown(HashMap<MediaUnit, Boolean> expanionStates, TreeNode treeNode) {
-        MediaUnit mediaUnit = getTreeNodeMediaUnit(treeNode);
-        return Objects.isNull(expanionStates) || (Objects.nonNull(mediaUnit) && !expanionStates.containsKey(mediaUnit));
+    private boolean physicalNodeStateUnknown(HashMap<PhysicalStructure, Boolean> expanionStates, TreeNode treeNode) {
+        PhysicalStructure physicalStructure = getTreeNodePhysicalStructure(treeNode);
+        return Objects.isNull(expanionStates) || (Objects.nonNull(physicalStructure) && !expanionStates.containsKey(physicalStructure));
     }
 
     private LogicalStructure getTreeNodeStructuralElement(TreeNode treeNode) {
@@ -1435,11 +1434,11 @@ public class StructurePanel implements Serializable {
         return null;
     }
 
-    private MediaUnit getTreeNodeMediaUnit(TreeNode treeNode) {
+    private PhysicalStructure getTreeNodePhysicalStructure(TreeNode treeNode) {
         if (treeNode.getData() instanceof StructureTreeNode) {
             StructureTreeNode structureTreeNode = (StructureTreeNode) treeNode.getData();
-            if (structureTreeNode.getDataObject() instanceof MediaUnit) {
-                return (MediaUnit) structureTreeNode.getDataObject();
+            if (structureTreeNode.getDataObject() instanceof PhysicalStructure) {
+                return (PhysicalStructure) structureTreeNode.getDataObject();
             }
         }
         return null;
@@ -1450,7 +1449,7 @@ public class StructurePanel implements Serializable {
      *
      * @return value of severalAssignments
      */
-    List<MediaUnit> getSeveralAssignments() {
+    List<PhysicalStructure> getSeveralAssignments() {
         return severalAssignments;
     }
 
@@ -1473,25 +1472,25 @@ public class StructurePanel implements Serializable {
     }
 
     /**
-     * Get the index of this StructureTreeNode's MediaUnit out of all MediaUnits
+     * Get the index of this StructureTreeNode's PhysicalStructure out of all MediaUnits
      * which are assigned to more than one LogicalStructure.
      *
      * @param treeNode object to find the index for
-     * @return index of the StructureTreeNode's MediaUnit if present in the List of several assignments, or -1 if not present in the list.
+     * @return index of the StructureTreeNode's PhysicalStructure if present in the List of several assignments, or -1 if not present in the list.
      */
     public int getMultipleAssignmentsIndex(StructureTreeNode treeNode) {
         if (treeNode.getDataObject() instanceof View
-                && Objects.nonNull(((View) treeNode.getDataObject()).getMediaUnit())) {
-            return severalAssignments.indexOf(((View) treeNode.getDataObject()).getMediaUnit());
+                && Objects.nonNull(((View) treeNode.getDataObject()).getPhysicalStructure())) {
+            return severalAssignments.indexOf(((View) treeNode.getDataObject()).getPhysicalStructure());
         }
         return -1;
     }
 
     /**
-     * Check if the selected Node's MediaUnit is assigned to several
+     * Check if the selected Node's PhysicalStructure is assigned to several
      * LogicalStructures.
      *
-     * @return {@code true} when the MediaUnit is assigned to more than one
+     * @return {@code true} when the PhysicalStructure is assigned to more than one
      *         logical element
      */
     public boolean isAssignedSeveralTimes() {
@@ -1499,15 +1498,15 @@ public class StructurePanel implements Serializable {
             StructureTreeNode structureTreeNode = (StructureTreeNode) selectedLogicalNode.getData();
             if (structureTreeNode.getDataObject() instanceof View) {
                 View view = (View) structureTreeNode.getDataObject();
-                return view.getMediaUnit().getLogicalStructures().size() > 1;
+                return view.getPhysicalStructure().getLogicalStructures().size() > 1;
             }
         }
         return false;
     }
 
     /**
-     * Check if the selected Node's MediaUnit can be assigned to the next logical element in addition to the current assignment.
-     * @return {@code true} if the MediaUnit can be assigned to the next LogicalStructure
+     * Check if the selected Node's PhysicalStructure can be assigned to the next logical element in addition to the current assignment.
+     * @return {@code true} if the PhysicalStructure can be assigned to the next LogicalStructure
      */
     public boolean isAssignableSeveralTimes() {
         if (Objects.nonNull(selectedLogicalNode) && selectedLogicalNode.getData() instanceof  StructureTreeNode) {
@@ -1532,27 +1531,27 @@ public class StructurePanel implements Serializable {
     }
 
     /**
-     * Assign selected Node's MediaUnit to the next LogicalStructure.
+     * Assign selected Node's PhysicalStructure to the next LogicalStructure.
      */
     public void assign() {
         if (isAssignableSeveralTimes()) {
             View view = (View) ((StructureTreeNode) selectedLogicalNode.getData()).getDataObject();
             View viewToAssign = new View();
-            viewToAssign.setMediaUnit(view.getMediaUnit());
+            viewToAssign.setPhysicalStructure(view.getPhysicalStructure());
             List<TreeNode> logicalNodeSiblings = selectedLogicalNode.getParent().getParent().getChildren();
             int logicalNodeIndex = logicalNodeSiblings.indexOf(selectedLogicalNode.getParent());
             TreeNode nextSibling = logicalNodeSiblings.get(logicalNodeIndex + 1);
             StructureTreeNode structureTreeNodeSibling = (StructureTreeNode) nextSibling.getData();
             LogicalStructure logicalStructure = (LogicalStructure) structureTreeNodeSibling.getDataObject();
             dataEditor.assignView(logicalStructure, viewToAssign, 0);
-            severalAssignments.add(viewToAssign.getMediaUnit());
+            severalAssignments.add(viewToAssign.getPhysicalStructure());
             show();
             dataEditor.getGalleryPanel().updateStripes();
         }
     }
 
     /**
-     * Unassign the selected Node's MediaUnit from the LogicalStructure parent
+     * Unassign the selected Node's PhysicalStructure from the LogicalStructure parent
      * at the selected position. This does not remove it from other
      * LogicalStructures.
      */
@@ -1566,8 +1565,8 @@ public class StructurePanel implements Serializable {
                     LogicalStructure logicalStructure =
                             (LogicalStructure) structureTreeNodeParent.getDataObject();
                     dataEditor.unassignView(logicalStructure, view, false);
-                    if (view.getMediaUnit().getLogicalStructures().size() <= 1) {
-                        severalAssignments.remove(view.getMediaUnit());
+                    if (view.getPhysicalStructure().getLogicalStructures().size() <= 1) {
+                        severalAssignments.remove(view.getPhysicalStructure());
                     }
                     show();
                     dataEditor.getGalleryPanel().updateStripes();

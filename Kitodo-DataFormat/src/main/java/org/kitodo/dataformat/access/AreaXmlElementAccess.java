@@ -16,9 +16,9 @@ import org.kitodo.api.dataformat.View;
 /**
  * A view on a media unit. The individual levels of the {@link DivXmlElementAccess} refer
  * to {@code View}s on {@link FileXmlElementAccess}s. At the moment, each {@code View}
- * refers to exactly one {@code MediaUnit} as a whole. This concept level has
+ * refers to exactly one {@code PhysicalStructure} as a whole. This concept level has
  * been added here in order to be able to expand it in the future in order to be
- * able to refer to individual parts of a {@code MediaUnit}.
+ * able to refer to individual parts of a {@code PhysicalStructure}.
  */
 public class AreaXmlElementAccess {
 
@@ -42,7 +42,7 @@ public class AreaXmlElementAccess {
      *            media unit in view
      */
     AreaXmlElementAccess(FileXmlElementAccess fileXmlElementAccess) {
-        view.setMediaUnit(fileXmlElementAccess.getMediaUnit());
+        view.setPhysicalStructure(fileXmlElementAccess.getMediaUnit());
     }
 
     View getView() {

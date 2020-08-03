@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.kitodo.api.Metadata;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.exceptions.InvalidMetadataValueException;
 import org.kitodo.exceptions.NoSuchMetadataFieldException;
 import org.kitodo.production.forms.createprocess.ProcessFieldedMetadata;
@@ -137,11 +137,11 @@ public class MetadataPanel implements Serializable {
 
     }
 
-    void showPageInLogical(MediaUnit mediaUnit) {
-        if (Objects.nonNull(mediaUnit)) {
+    void showPageInLogical(PhysicalStructure physicalStructure) {
+        if (Objects.nonNull(physicalStructure)) {
             StructuralElementViewInterface divisionView = dataEditorForm.getRuleset().getStructuralElementView(
-                    mediaUnit.getType(), dataEditorForm.getAcquisitionStage(), dataEditorForm.getPriorityList());
-            logicalMetadataTable = new ProcessFieldedMetadata(mediaUnit, divisionView);
+                    physicalStructure.getType(), dataEditorForm.getAcquisitionStage(), dataEditorForm.getPriorityList());
+            logicalMetadataTable = new ProcessFieldedMetadata(physicalStructure, divisionView);
             dataEditorForm.getAddDocStrucTypeDialog().prepareSelectAddableMetadataTypesItems(true,
                     getPhysicalMetadataRows().getChildren());
         } else {
@@ -150,11 +150,12 @@ public class MetadataPanel implements Serializable {
 
     }
 
-    void showPhysical(Optional<MediaUnit> optionalMediaUnit) {
-        if (optionalMediaUnit.isPresent() && Objects.nonNull(optionalMediaUnit.get().getType())) {
+    void showPhysical(Optional<PhysicalStructure> optionalPhysicalStructure) {
+        if (optionalPhysicalStructure.isPresent() && Objects.nonNull(optionalPhysicalStructure.get().getType())) {
             StructuralElementViewInterface divisionView = dataEditorForm.getRuleset().getStructuralElementView(
-                    optionalMediaUnit.get().getType(), dataEditorForm.getAcquisitionStage(), dataEditorForm.getPriorityList());
-            physicalMetadataTable = new ProcessFieldedMetadata(optionalMediaUnit.get(), divisionView);
+                optionalPhysicalStructure.get().getType(), dataEditorForm.getAcquisitionStage(),
+                dataEditorForm.getPriorityList());
+            physicalMetadataTable = new ProcessFieldedMetadata(optionalPhysicalStructure.get(), divisionView);
             dataEditorForm.getAddDocStrucTypeDialog().prepareSelectAddableMetadataTypesItems(true);
         } else {
             physicalMetadataTable = ProcessFieldedMetadata.EMPTY;

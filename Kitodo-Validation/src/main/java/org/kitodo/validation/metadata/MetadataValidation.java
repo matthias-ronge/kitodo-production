@@ -46,7 +46,7 @@ import org.kitodo.api.dataeditor.rulesetmanagement.RulesetManagementInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.SimpleMetadataViewInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.dataformat.mets.MetsXmlElementAccessInterface;
@@ -128,9 +128,9 @@ public class MetadataValidation implements MetadataValidationInterface {
                 getMetadata(logicalStructure), ruleset, metadataLanguage, translations));
         }
 
-        for (MediaUnit mediaUnit : treeStream(workpiece.getPhysicalStructureRoot(), MediaUnit::getChildren)
+        for (PhysicalStructure physicalStructure : treeStream(workpiece.getPhysicalStructureRoot(), PhysicalStructure::getChildren)
                 .collect(Collectors.toList())) {
-            results.addAll(checkMetadataRules(mediaUnit.toString(), mediaUnit.getType(), getMetadata(mediaUnit),
+            results.addAll(checkMetadataRules(physicalStructure.toString(), physicalStructure.getType(), getMetadata(physicalStructure),
                     ruleset, metadataLanguage, translations));
         }
 
@@ -154,12 +154,12 @@ public class MetadataValidation implements MetadataValidationInterface {
         return metadata;
     }
 
-    private static Collection<Metadata> getMetadata(MediaUnit mediaUnit) {
-        Collection<Metadata> metadata = new ArrayList<>(mediaUnit.getMetadata());
-        if (Objects.nonNull(mediaUnit.getOrderlabel())) {
+    private static Collection<Metadata> getMetadata(PhysicalStructure physicalStructure) {
+        Collection<Metadata> metadata = new ArrayList<>(physicalStructure.getMetadata());
+        if (Objects.nonNull(physicalStructure.getOrderlabel())) {
             MetadataEntry orderlabelEntry = new MetadataEntry();
             orderlabelEntry.setKey("ORDERLABEL");
-            orderlabelEntry.setValue(mediaUnit.getOrderlabel());
+            orderlabelEntry.setValue(physicalStructure.getOrderlabel());
             metadata.add(orderlabelEntry);
         }
         return metadata;
@@ -208,7 +208,7 @@ public class MetadataValidation implements MetadataValidationInterface {
         }
 
         if (!treeStream(workpiece.getLogicalStructureRoot(), LogicalStructure::getChildren)
-                .flatMap(structure -> structure.getViews().stream()).map(View::getMediaUnit)
+                .flatMap(structure -> structure.getViews().stream()).map(View::getPhysicalStructure)
                 .allMatch(workpiece.getMediaUnits()::contains)) {
             messages.add(translations.get(MESSAGE_MEDIA_MISSING));
             error = true;
@@ -230,14 +230,14 @@ public class MetadataValidation implements MetadataValidationInterface {
         boolean warning = false;
         Collection<String> messages = new HashSet<>();
 
-        KeySetView<MediaUnit, ?> unassignedMediaUnits = ConcurrentHashMap.newKeySet();
+        KeySetView<PhysicalStructure, ?> unassignedMediaUnits = ConcurrentHashMap.newKeySet();
         unassignedMediaUnits.addAll(workpiece.getMediaUnits());
         treeStream(workpiece.getLogicalStructureRoot(), LogicalStructure::getChildren).flatMap(structure -> structure.getViews().stream())
-                .map(View::getMediaUnit)
+                .map(View::getPhysicalStructure)
                 .forEach(unassignedMediaUnits::remove);
         if (!unassignedMediaUnits.isEmpty()) {
-            for (MediaUnit mediaUnit : unassignedMediaUnits) {
-                messages.add(translations.get(MESSAGE_MEDIA_UNASSIGNED) + ' ' + mediaUnit);
+            for (PhysicalStructure physicalStructure : unassignedMediaUnits) {
+                messages.add(translations.get(MESSAGE_MEDIA_UNASSIGNED) + ' ' + physicalStructure);
             }
             warning = true;
         }

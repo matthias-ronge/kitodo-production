@@ -34,7 +34,7 @@ import org.kitodo.api.dataeditor.rulesetmanagement.Domain;
 import org.kitodo.api.dataeditor.rulesetmanagement.SimpleMetadataViewInterface;
 import org.kitodo.api.dataformat.Division;
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.dataformat.mets.LinkedMetsResource;
@@ -269,7 +269,7 @@ public class MetadataEditor {
         }
         if (Objects.nonNull(viewsToAdd) && !viewsToAdd.isEmpty()) {
             for (View viewToAdd : viewsToAdd) {
-                List<LogicalStructure> logicalStructures = viewToAdd.getMediaUnit().getLogicalStructures();
+                List<LogicalStructure> logicalStructures = viewToAdd.getPhysicalStructure().getLogicalStructures();
                 for (LogicalStructure elementToUnassign : logicalStructures) {
                     elementToUnassign.getViews().remove(viewToAdd);
                 }
@@ -282,16 +282,16 @@ public class MetadataEditor {
     }
 
     /**
-     * Create a new MediaUnit and insert it into the passed workpiece. The position of insertion
+     * Create a new PhysicalStructure and insert it into the passed workpiece. The position of insertion
      * is determined by the passed parent and position.
-     * @param type type of new MediaUnit
+     * @param type type of new PhysicalStructure
      * @param workpiece workpiece from which the root media unit is retrieved
-     * @param parent parent of the new MediaUnit
+     * @param parent parent of the new PhysicalStructure
      * @param position position relative to the parent element
      */
-    public static MediaUnit addMediaUnit(String type, Workpiece workpiece, MediaUnit parent, InsertionPosition position) {
-        LinkedList<MediaUnit> grandparents = getAncestorsOfMediaUnit(parent, workpiece.getPhysicalStructureRoot());
-        List<MediaUnit> siblings = new LinkedList<>();
+    public static PhysicalStructure addPhysicalStructure(String type, Workpiece workpiece, PhysicalStructure parent, InsertionPosition position) {
+        LinkedList<PhysicalStructure> grandparents = getAncestorsOfPhysicalStructure(parent, workpiece.getPhysicalStructureRoot());
+        List<PhysicalStructure> siblings = new LinkedList<>();
         if (grandparents.isEmpty()) {
             if (position.equals(InsertionPosition.AFTER_CURRENT_ELEMENT)
                     || position.equals(InsertionPosition.BEFORE_CURRENT_ELEMENT)) {
@@ -300,7 +300,7 @@ public class MetadataEditor {
         } else {
             siblings = grandparents.getLast().getChildren();
         }
-        MediaUnit newMediaUnit = new MediaUnit();
+        PhysicalStructure newMediaUnit = new PhysicalStructure();
         newMediaUnit.setType(type);
         switch (position) {
             case AFTER_CURRENT_ELEMENT:
@@ -347,13 +347,13 @@ public class MetadataEditor {
      * Creates a view on a media unit that is not further restricted; that is,
      * the entire media unit is displayed.
      *
-     * @param mediaUnit
+     * @param physicalStructure
      *            media unit on which a view is to be formed
      * @return the created media unit
      */
-    public static View createUnrestrictedViewOn(MediaUnit mediaUnit) {
+    public static View createUnrestrictedViewOn(PhysicalStructure physicalStructure) {
         View unrestrictedView = new View();
-        unrestrictedView.setMediaUnit(mediaUnit);
+        unrestrictedView.setPhysicalStructure(physicalStructure);
         return unrestrictedView;
     }
 
@@ -449,10 +449,10 @@ public class MetadataEditor {
      *            node to be searched recursively
      * @return the parent nodes (maybe empty)
      */
-    public static LinkedList<MediaUnit> getAncestorsOfMediaUnit(MediaUnit searched, MediaUnit position) {
+    public static LinkedList<PhysicalStructure> getAncestorsOfPhysicalStructure(PhysicalStructure searched, PhysicalStructure position) {
         return getAncestorsRecursive(searched, position, null)
                 .stream()
-                .map(parent -> (MediaUnit) parent)
+                .map(parent -> (PhysicalStructure) parent)
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
@@ -499,15 +499,15 @@ public class MetadataEditor {
     }
 
     /**
-     * Get the first view the given MediaUnit is assigned to.
-     * @param mediaUnit MediaUnit to get the view for
+     * Get the first view the given PhysicalStructure is assigned to.
+     * @param physicalStructure PhysicalStructure to get the view for
      * @return View or null if no View was found
      */
-    public static View getFirstViewForMediaUnit(MediaUnit mediaUnit) {
-        List<LogicalStructure> logicalStructures = mediaUnit.getLogicalStructures();
+    public static View getFirstViewForPhysicalStructure(PhysicalStructure physicalStructure) {
+        List<LogicalStructure> logicalStructures = physicalStructure.getLogicalStructures();
         if (!logicalStructures.isEmpty() && Objects.nonNull(logicalStructures.get(0))) {
             for (View view : logicalStructures.get(0).getViews()) {
-                if (Objects.nonNull(view) && Objects.equals(view.getMediaUnit(), mediaUnit)) {
+                if (Objects.nonNull(view) && Objects.equals(view.getPhysicalStructure(), physicalStructure)) {
                     return view;
                 }
             }

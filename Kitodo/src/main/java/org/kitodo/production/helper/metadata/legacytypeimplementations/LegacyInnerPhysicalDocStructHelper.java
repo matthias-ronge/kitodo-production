@@ -19,7 +19,7 @@ import java.util.Objects;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.MediaVariant;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.dataformat.MetsService;
@@ -48,20 +48,20 @@ public class LegacyInnerPhysicalDocStructHelper implements LegacyDocStructHelper
     /**
      * The media unit accessed via this soldering class.
      */
-    private MediaUnit mediaUnit;
+    private PhysicalStructure physicalStructure;
 
     @Deprecated
-    public LegacyInnerPhysicalDocStructHelper(MediaUnit mediaUnit) {
-        this.mediaUnit = mediaUnit;
+    public LegacyInnerPhysicalDocStructHelper(PhysicalStructure physicalStructure) {
+        this.physicalStructure = physicalStructure;
     }
 
     @Override
     @Deprecated
     public void addMetadata(LegacyMetadataHelper metadata) {
         if (LegacyMetadataTypeHelper.SPECIAL_TYPE_ORDER.equals(metadata.getMetadataType())) {
-            mediaUnit.setOrder(Integer.parseInt(metadata.getValue()));
+            physicalStructure.setOrder(Integer.parseInt(metadata.getValue()));
         } else if (LegacyMetadataTypeHelper.SPECIAL_TYPE_ORDERLABEL.equals(metadata.getMetadataType())) {
-            mediaUnit.setOrderlabel(metadata.getValue());
+            physicalStructure.setOrderlabel(metadata.getValue());
         } else {
             logger.log(Level.TRACE, "addMetadata(metadata: {})", metadata);
         }
@@ -82,30 +82,30 @@ public class LegacyInnerPhysicalDocStructHelper implements LegacyDocStructHelper
     public List<LegacyMetadataHelper> getAllMetadata() {
         return Arrays.asList(
             new LegacyMetadataHelper(this, LegacyMetadataTypeHelper.SPECIAL_TYPE_ORDER,
-                    Integer.toString(mediaUnit.getOrder())),
+                    Integer.toString(physicalStructure.getOrder())),
             new LegacyMetadataHelper(this, LegacyMetadataTypeHelper.SPECIAL_TYPE_ORDERLABEL,
-                    mediaUnit.getOrderlabel()));
+                    physicalStructure.getOrderlabel()));
     }
 
     @Override
     @Deprecated
     public List<LegacyMetadataHelper> getAllMetadataByType(LegacyMetadataTypeHelper metadataType) {
         if (metadataType == LegacyMetadataTypeHelper.SPECIAL_TYPE_ORDER) {
-            return Objects.nonNull(mediaUnit)
+            return Objects.nonNull(physicalStructure)
                     ? Arrays.asList(
-                        new LegacyMetadataHelper(this, metadataType, Integer.toString(mediaUnit.getOrder())))
+                        new LegacyMetadataHelper(this, metadataType, Integer.toString(physicalStructure.getOrder())))
                     : Collections.emptyList();
         } else if (metadataType == LegacyMetadataTypeHelper.SPECIAL_TYPE_ORDERLABEL) {
-            return Objects.nonNull(mediaUnit) && Objects.nonNull(mediaUnit.getOrderlabel())
-                    ? Arrays.asList(new LegacyMetadataHelper(this, metadataType, mediaUnit.getOrderlabel()))
+            return Objects.nonNull(physicalStructure) && Objects.nonNull(physicalStructure.getOrderlabel())
+                    ? Arrays.asList(new LegacyMetadataHelper(this, metadataType, physicalStructure.getOrderlabel()))
                     : Collections.emptyList();
         } else {
             throw new UnsupportedOperationException("Not yet implemented");
         }
     }
 
-    MediaUnit getMediaUnit() {
-        return mediaUnit;
+    PhysicalStructure getMediaUnit() {
+        return physicalStructure;
     }
 
     @Override

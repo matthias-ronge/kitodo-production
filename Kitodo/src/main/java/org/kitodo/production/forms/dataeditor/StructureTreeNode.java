@@ -15,7 +15,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 
 public class StructureTreeNode implements Serializable {
@@ -71,13 +71,13 @@ public class StructureTreeNode implements Serializable {
     }
 
     /**
-     * Return label of dataObject if dataObject is instance of MediaUnit or LogicalStructure.
+     * Return label of dataObject if dataObject is instance of PhysicalStructure or LogicalStructure.
      *
      * @return label
      */
     public String getOrderLabel() {
-        if (this.dataObject instanceof MediaUnit) {
-            return ((MediaUnit) this.dataObject).getOrderlabel();
+        if (this.dataObject instanceof PhysicalStructure) {
+            return ((PhysicalStructure) this.dataObject).getOrderlabel();
         } else if (this.dataObject instanceof LogicalStructure) {
             return ((LogicalStructure) this.dataObject).getOrderlabel();
         } else {
@@ -86,19 +86,19 @@ public class StructureTreeNode implements Serializable {
     }
 
     /**
-     * Check if the StructureTreeNode's MediaUnit is assigned to several
+     * Check if the StructureTreeNode's PhysicalStructure is assigned to several
      * LogicalStructures.
      *
-     * @return {@code true} when the MediaUnit is assigned to more than one
+     * @return {@code true} when the PhysicalStructure is assigned to more than one
      *         logical element
      */
     public boolean isAssignedSeveralTimes() {
         if (Objects.nonNull(this.dataObject)) {
             if (this.dataObject instanceof View) {
                 View view = (View) this.dataObject;
-                return Objects.nonNull(view.getMediaUnit()) && view.getMediaUnit().getLogicalStructures().size() > 1;
-            } else if (this.dataObject instanceof MediaUnit) {
-                return ((MediaUnit) this.dataObject).getLogicalStructures().size() > 1;
+                return Objects.nonNull(view.getPhysicalStructure()) && view.getPhysicalStructure().getLogicalStructures().size() > 1;
+            } else if (this.dataObject instanceof PhysicalStructure) {
+                return ((PhysicalStructure) this.dataObject).getLogicalStructures().size() > 1;
             }
         }
         return false;

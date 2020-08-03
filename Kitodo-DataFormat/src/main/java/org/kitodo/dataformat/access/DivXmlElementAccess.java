@@ -34,7 +34,7 @@ import org.kitodo.api.Metadata;
 import org.kitodo.api.MetadataEntry;
 import org.kitodo.api.MetadataGroup;
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.api.dataformat.mets.KitodoUUID;
 import org.kitodo.dataformat.metskitodo.AmdSecType;
@@ -235,7 +235,7 @@ public class DivXmlElementAccess extends LogicalStructure {
      *            the METS structure in which the metadata is added
      * @return a METS {@code <div>} element
      */
-    DivType toDiv(Map<MediaUnit, String> mediaUnitIDs, LinkedList<Pair<String, String>> smLinkData, Mets mets) {
+    DivType toDiv(Map<PhysicalStructure, String> mediaUnitIDs, LinkedList<Pair<String, String>> smLinkData, Mets mets) {
         DivType div = new DivType();
         div.setID(metsReferrerId);
         div.setLABEL(super.getLabel());
@@ -244,7 +244,7 @@ public class DivXmlElementAccess extends LogicalStructure {
         }
         div.setORDERLABEL(super.getOrderlabel());
         div.setTYPE(super.getType());
-        smLinkData.addAll(super.getViews().stream().map(View::getMediaUnit).map(mediaUnitIDs::get)
+        smLinkData.addAll(super.getViews().stream().map(View::getPhysicalStructure).map(mediaUnitIDs::get)
                 .map(mediaUnitId -> Pair.of(metsReferrerId, mediaUnitId)).collect(Collectors.toList()));
 
         Optional<MdSecType> optionalDmdSec = createMdSec(super.getMetadata(), MdSec.DMD_SEC);

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class Workpiece {
 
-    // TODO: we probably need a way to configure MediaUnit types to be considered for renumbering/pagination!
+    // TODO: we probably need a way to configure PhysicalStructure types to be considered for renumbering/pagination!
     private static final String PAGE = "page";
 
     /**
@@ -51,7 +51,7 @@ public class Workpiece {
     /**
      * The root element of the physical structure.
      */
-    private MediaUnit physicalStructureRoot = new MediaUnit();
+    private PhysicalStructure physicalStructureRoot = new PhysicalStructure();
 
     /**
      * Returns the creation date of the workpiece.
@@ -124,7 +124,7 @@ public class Workpiece {
      *
      * @return root element of the physical structure
      */
-    public MediaUnit getPhysicalStructureRoot() {
+    public PhysicalStructure getPhysicalStructureRoot() {
         return physicalStructureRoot;
     }
 
@@ -135,7 +135,7 @@ public class Workpiece {
      * @deprecated Use {@code getMediaUnit().getChildren()}.
      */
     @Deprecated
-    public List<MediaUnit> getMediaUnits() {
+    public List<PhysicalStructure> getMediaUnits() {
         return physicalStructureRoot.getChildren();
     }
 
@@ -145,7 +145,7 @@ public class Workpiece {
      * @param physicalStructureRoot
      *            logical structure to set
      */
-    public void setPhysicalStructureRoot(MediaUnit physicalStructureRoot) {
+    public void setPhysicalStructureRoot(PhysicalStructure physicalStructureRoot) {
         this.physicalStructureRoot = physicalStructureRoot;
     }
 
@@ -205,10 +205,10 @@ public class Workpiece {
      *
      * @return list of all media units with type "page", sorted by their "ORDER" attribute.
      */
-    public List<MediaUnit> getAllMediaUnitsSorted() {
-        List<MediaUnit> mediaUnits = getAllMediaUnits();
-        mediaUnits.sort(Comparator.comparing(MediaUnit::getOrder));
-        return mediaUnits.stream().filter(m -> m.getType().equals(PAGE)).collect(Collectors.toList());
+    public List<PhysicalStructure> getAllPhysicalStructuresSorted() {
+        List<PhysicalStructure> physicalStructures = getAllMediaUnits();
+        physicalStructures.sort(Comparator.comparing(PhysicalStructure::getOrder));
+        return physicalStructures.stream().filter(m -> m.getType().equals(PAGE)).collect(Collectors.toList());
     }
 
     /**
@@ -216,23 +216,23 @@ public class Workpiece {
      *
      * @return list of all media units with type "page".
      */
-    public List<MediaUnit> getAllMediaUnits() {
-        List<MediaUnit> mediaUnits = new LinkedList<>(physicalStructureRoot.getChildren());
-        for (MediaUnit mediaUnit : physicalStructureRoot.getChildren()) {
-            if (Objects.nonNull(mediaUnit)) {
-                mediaUnits = getAllMediaUnitsRecursive(mediaUnit, mediaUnits);
+    public List<PhysicalStructure> getAllMediaUnits() {
+        List<PhysicalStructure> physicalStructures = new LinkedList<>(physicalStructureRoot.getChildren());
+        for (PhysicalStructure physicalStructure : physicalStructureRoot.getChildren()) {
+            if (Objects.nonNull(physicalStructure)) {
+                physicalStructures = getAllMediaUnitsRecursive(physicalStructure, physicalStructures);
             }
         }
-        return mediaUnits;
+        return physicalStructures;
     }
 
-    private List<MediaUnit> getAllMediaUnitsRecursive(MediaUnit parent, List<MediaUnit> mediaUnits) {
-        List<MediaUnit> allMediaUnits = mediaUnits;
-        for (MediaUnit mediaUnit : parent.getChildren()) {
-            if (Objects.nonNull(mediaUnit)) {
-                allMediaUnits.add(mediaUnit);
-                if (!mediaUnit.getChildren().isEmpty()) {
-                    allMediaUnits = getAllMediaUnitsRecursive(mediaUnit, mediaUnits);
+    private List<PhysicalStructure> getAllMediaUnitsRecursive(PhysicalStructure parent, List<PhysicalStructure> physicalStructures) {
+        List<PhysicalStructure> allMediaUnits = physicalStructures;
+        for (PhysicalStructure physicalStructure : parent.getChildren()) {
+            if (Objects.nonNull(physicalStructure)) {
+                allMediaUnits.add(physicalStructure);
+                if (!physicalStructure.getChildren().isEmpty()) {
+                    allMediaUnits = getAllMediaUnitsRecursive(physicalStructure, physicalStructures);
                 }
             }
         }

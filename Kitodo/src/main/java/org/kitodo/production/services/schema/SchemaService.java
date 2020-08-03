@@ -24,7 +24,7 @@ import java.util.Optional;
 import org.kitodo.api.MdSec;
 import org.kitodo.api.MetadataEntry;
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.MediaVariant;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.dataformat.mets.LinkedMetsResource;
@@ -119,13 +119,13 @@ public class SchemaService {
         workpiece.getLogicalStructureRoot().getMetadata().add(entry);
     }
 
-    private void addVirtualFileGroupsToMetsMods(MediaUnit physicalStructureRoot, Process process) {
+    private void addVirtualFileGroupsToMetsMods(PhysicalStructure physicalStructureRoot, Process process) {
         String canonical = ServiceManager.getFolderService().getCanonical(process, physicalStructureRoot);
         if (Objects.nonNull(canonical)) {
             removeFLocatsForUnwantedUses(process, physicalStructureRoot, canonical);
             addMissingUses(process, physicalStructureRoot, canonical);
         }
-        for (MediaUnit child : physicalStructureRoot.getChildren()) {
+        for (PhysicalStructure child : physicalStructureRoot.getChildren()) {
             addVirtualFileGroupsToMetsMods(child, process);
         }
     }
@@ -133,8 +133,8 @@ public class SchemaService {
     private void replaceFLocatForExport(Workpiece workpiece, Process process) throws URISyntaxException {
         List<Folder> folders = process.getProject().getFolders();
         VariableReplacer variableReplacer = new VariableReplacer(null, null, process, null);
-        for (MediaUnit mediaUnit : workpiece.getMediaUnits()) {
-            for (Entry<MediaVariant, URI> mediaFileForMediaVariant : mediaUnit.getMediaFiles().entrySet()) {
+        for (PhysicalStructure physicalStructure : workpiece.getMediaUnits()) {
+            for (Entry<MediaVariant, URI> mediaFileForMediaVariant : physicalStructure.getMediaFiles().entrySet()) {
                 for (Folder folder : folders) {
                     if (folder.getFileGroup().equals(mediaFileForMediaVariant.getKey().getUse())) {
                         int lastSeparator = mediaFileForMediaVariant.getValue().toString().lastIndexOf(File.separator);
@@ -154,9 +154,9 @@ public class SchemaService {
      * it.
      */
     private void removeFLocatsForUnwantedUses(Process process,
-            MediaUnit mediaUnit,
+            PhysicalStructure physicalStructure,
             String canonical) {
-        for (Iterator<Entry<MediaVariant, URI>> mediaFilesForMediaVariants = mediaUnit.getMediaFiles().entrySet()
+        for (Iterator<Entry<MediaVariant, URI>> mediaFilesForMediaVariants = physicalStructure.getMediaFiles().entrySet()
                 .iterator(); mediaFilesForMediaVariants.hasNext();) {
             Entry<MediaVariant, URI> mediaFileForMediaVariant = mediaFilesForMediaVariants.next();
             String use = mediaFileForMediaVariant.getKey().getUse();
@@ -176,14 +176,14 @@ public class SchemaService {
      * If the media unit is missing a variant that has linking mode ALL or has
      * linking mode EXISTING and the file does exist, add it.
      */
-    private void addMissingUses(Process process, MediaUnit mediaUnit,
+    private void addMissingUses(Process process, PhysicalStructure physicalStructure,
             String canonical) {
         for (Folder folder : process.getProject().getFolders()) {
             Subfolder useFolder = new Subfolder(process, folder);
-            if (mediaUnit.getMediaFiles().entrySet().parallelStream().map(Entry::getKey).map(MediaVariant::getUse)
+            if (physicalStructure.getMediaFiles().entrySet().parallelStream().map(Entry::getKey).map(MediaVariant::getUse)
                     .noneMatch(use -> use.equals(folder.getFileGroup())) && (folder.getLinkingMode().equals(LinkingMode.ALL)
                         || (folder.getLinkingMode().equals(LinkingMode.EXISTING) && useFolder.getURIIfExists(canonical).isPresent()))) {
-                addUse(useFolder, canonical, mediaUnit);
+                addUse(useFolder, canonical, physicalStructure);
             }
         }
     }
@@ -195,15 +195,15 @@ public class SchemaService {
      *            use folder for the use
      * @param canonical
      *            the canonical part of the file name of the media file
-     * @param mediaUnit
+     * @param physicalStructure
      *            media unit to add to
      */
-    private void addUse(Subfolder useFolder, String canonical, MediaUnit mediaUnit) {
+    private void addUse(Subfolder useFolder, String canonical, PhysicalStructure physicalStructure) {
         MediaVariant mediaVariant = new MediaVariant();
         mediaVariant.setUse(useFolder.getFolder().getFileGroup());
         mediaVariant.setMimeType(useFolder.getFolder().getMimeType());
         URI mediaFile = useFolder.getUri(canonical);
-        mediaUnit.getMediaFiles().put(mediaVariant, mediaFile);
+        physicalStructure.getMediaFiles().put(mediaVariant, mediaFile);
     }
 
     /**

@@ -34,7 +34,7 @@ public class LogicalStructure extends Division<LogicalStructure> {
     private LinkedMetsResource link;
 
     /**
-     * The views on {@link MediaUnit}s that this logical structure level
+     * The views on {@link PhysicalStructure}s that this logical structure level
      * comprises.
      */
     private final LinkedList<View> views;

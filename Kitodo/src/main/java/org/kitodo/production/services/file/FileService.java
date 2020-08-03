@@ -37,7 +37,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kitodo.api.command.CommandResult;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.MediaVariant;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.api.dataformat.Workpiece;
@@ -1017,7 +1017,7 @@ public class FileService {
         }
         List<String> canonicals = getCanonicalFileNamePartsAndSanitizeAbsoluteURIs(workpiece, subfolders,
             process.getProcessBaseUri());
-        addNewURIsToExistingMediaUnits(mediaToAdd, workpiece.getAllMediaUnitsSorted(), canonicals);
+        addNewURIsToExistingMediaUnits(mediaToAdd, workpiece.getAllPhysicalStructuresSorted(), canonicals);
         mediaToAdd.keySet().removeAll(canonicals);
         addNewMediaToWorkpiece(canonicals, mediaToAdd, workpiece);
         renumberMediaUnits(workpiece, true);
@@ -1042,9 +1042,9 @@ public class FileService {
         if (!baseUriString.endsWith("/")) {
             baseUriString = baseUriString.concat("/");
         }
-        for (MediaUnit mediaUnit : workpiece.getAllMediaUnitsSorted()) {
+        for (PhysicalStructure physicalStructure : workpiece.getAllPhysicalStructuresSorted()) {
             String unitCanonical = "";
-            for (Entry<MediaVariant, URI> entry : mediaUnit.getMediaFiles().entrySet()) {
+            for (Entry<MediaVariant, URI> entry : physicalStructure.getMediaFiles().entrySet()) {
                 Subfolder subfolder = subfolders.get(entry.getKey().getUse());
                 if (Objects.isNull(subfolder)) {
                     logger.warn("Missing subfolder for USE {}", entry.getKey().getUse());
@@ -1054,7 +1054,7 @@ public class FileService {
                 String fileUriString = mediaFile.toString();
                 if (fileUriString.startsWith(baseUriString)) {
                     mediaFile = URI.create(fileUriString.substring(baseUriString.length()));
-                    mediaUnit.getMediaFiles().put(entry.getKey(), mediaFile);
+                    physicalStructure.getMediaFiles().put(entry.getKey(), mediaFile);
                 }
                 String fileCanonical = subfolder.getCanonical(mediaFile);
                 if ("".equals(unitCanonical)) {
@@ -1064,8 +1064,8 @@ public class FileService {
                             + unitCanonical + "\" and \"" + fileCanonical + "\"!");
                 }
             }
-            if (mediaUnit.getMediaFiles().size() > 0 && "".equals(unitCanonical)) {
-                throw new InvalidImagesException("Missing canonical file name part in media unit " + mediaUnit);
+            if (physicalStructure.getMediaFiles().size() > 0 && "".equals(unitCanonical)) {
+                throw new InvalidImagesException("Missing canonical file name part in media unit " + physicalStructure);
             }
             canonicals.add(unitCanonical);
         }
@@ -1075,15 +1075,15 @@ public class FileService {
     /**
      * Adds new media variants found to existing media units.
      */
-    private void addNewURIsToExistingMediaUnits(Map<String, Map<Subfolder, URI>> mediaToAdd, List<MediaUnit> mediaUnits,
+    private void addNewURIsToExistingMediaUnits(Map<String, Map<Subfolder, URI>> mediaToAdd, List<PhysicalStructure> physicalStructures,
             List<String> canonicals) {
 
         for (int i = 0; i < canonicals.size(); i++) {
             String canonical = canonicals.get(i);
-            MediaUnit mediaUnit = mediaUnits.get(i);
+            PhysicalStructure physicalStructure = physicalStructures.get(i);
             if (mediaToAdd.containsKey(canonical)) {
                 for (Entry<Subfolder, URI> entry : mediaToAdd.get(canonical).entrySet()) {
-                    mediaUnit.getMediaFiles().put(createMediaVariant(entry.getKey().getFolder()), entry.getValue());
+                    physicalStructure.getMediaFiles().put(createMediaVariant(entry.getKey().getFolder()), entry.getValue());
                 }
             }
         }
@@ -1105,12 +1105,12 @@ public class FileService {
                     break;
                 }
             }
-            MediaUnit mediaUnit = createMediaUnit(entry.getValue());
-            workpiece.getPhysicalStructureRoot().getChildren().add(insertionPoint, mediaUnit);
+            PhysicalStructure physicalStructure = createMediaUnit(entry.getValue());
+            workpiece.getPhysicalStructureRoot().getChildren().add(insertionPoint, physicalStructure);
             View view = new View();
-            view.setMediaUnit(mediaUnit);
+            view.setPhysicalStructure(physicalStructure);
             workpiece.getLogicalStructureRoot().getViews().add(view);
-            view.getMediaUnit().getLogicalStructures().add(workpiece.getLogicalStructureRoot());
+            view.getPhysicalStructure().getLogicalStructures().add(workpiece.getLogicalStructureRoot());
             canonicals.add(insertionPoint, entry.getKey());
         }
     }
@@ -1118,17 +1118,17 @@ public class FileService {
     /**
      * Creates a new media unit with the given uses and URIs.
      */
-    private MediaUnit createMediaUnit(Map<Subfolder, URI> data) {
-        MediaUnit mediaUnit = new MediaUnit();
+    private PhysicalStructure createMediaUnit(Map<Subfolder, URI> data) {
+        PhysicalStructure physicalStructure = new PhysicalStructure();
         if (!data.entrySet().isEmpty()) {
-            mediaUnit.setType("page");
+            physicalStructure.setType("page");
         }
         for (Entry<Subfolder, URI> entry : data.entrySet()) {
             Folder folder = entry.getKey().getFolder();
             MediaVariant mediaVariant = createMediaVariant(folder);
-            mediaUnit.getMediaFiles().put(mediaVariant, entry.getValue());
+            physicalStructure.getMediaFiles().put(mediaVariant, entry.getValue());
         }
-        return mediaUnit;
+        return physicalStructure;
     }
 
     /**
@@ -1146,8 +1146,8 @@ public class FileService {
      */
     public void renumberMediaUnits(Workpiece workpiece, boolean sortByOrder) {
         int order = 1;
-        for (MediaUnit mediaUnit : sortByOrder ? workpiece.getAllMediaUnitsSorted() : workpiece.getAllMediaUnits()) {
-            mediaUnit.setOrder(order++);
+        for (PhysicalStructure physicalStructure : sortByOrder ? workpiece.getAllPhysicalStructuresSorted() : workpiece.getAllMediaUnits()) {
+            physicalStructure.setOrder(order++);
         }
     }
 
@@ -1157,7 +1157,7 @@ public class FileService {
      * intermediate places are marked uncounted.
      */
     private void repaginateMediaUnits(Workpiece workpiece) {
-        List<MediaUnit> mediaUnits = workpiece.getAllMediaUnitsSorted();
+        List<PhysicalStructure> physicalStructures = workpiece.getAllPhysicalStructuresSorted();
         int first = 0;
         String value;
         switch (ConfigCore.getParameter(ParameterCore.METS_EDITOR_DEFAULT_PAGINATION)) {
@@ -1171,26 +1171,26 @@ public class FileService {
                 value = " - ";
                 break;
         }
-        for (int i = mediaUnits.size() - 1; i >= 0; i--) {
-            MediaUnit mediaUnit = mediaUnits.get(i);
-            String orderlabel = mediaUnit.getOrderlabel();
-            if (Objects.nonNull(orderlabel) && !mediaUnit.getMediaFiles().isEmpty()) {
+        for (int i = physicalStructures.size() - 1; i >= 0; i--) {
+            PhysicalStructure physicalStructure = physicalStructures.get(i);
+            String orderlabel = physicalStructure.getOrderlabel();
+            if (Objects.nonNull(orderlabel) && !physicalStructure.getMediaFiles().isEmpty()) {
                 first = i + 1;
                 value = orderlabel;
-                mediaUnits.get(i).setType("page");
+                physicalStructures.get(i).setType("page");
                 break;
             }
         }
         Paginator paginator = new Paginator(value);
         if (first > 0) {
             paginator.next();
-            for (int i = first; i < mediaUnits.size(); i++) {
-                mediaUnits.get(i).setOrderlabel(paginator.next());
+            for (int i = first; i < physicalStructures.size(); i++) {
+                physicalStructures.get(i).setOrderlabel(paginator.next());
             }
         }
-        for (MediaUnit mediaUnit : mediaUnits) {
-            if (Objects.isNull(mediaUnit.getOrderlabel())) {
-                mediaUnit.setOrderlabel(" - ");
+        for (PhysicalStructure physicalStructure : physicalStructures) {
+            if (Objects.isNull(physicalStructure.getOrderlabel())) {
+                physicalStructure.setOrderlabel(" - ");
             }
         }
     }

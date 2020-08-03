@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import javax.faces.model.SelectItem;
 
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.production.metadata.MetadataEditor;
 
@@ -32,24 +32,24 @@ public class EditPagesDialog {
     private DataEditorForm dataEditor;
 
     /**
-     * Views on media units that are not associated with this structure.
+     * Views on physical structures that are not associated with this structure.
      */
     private List<SelectItem> paginationSelectionItems;
 
     /**
-     * Views on media units that are not associated with this structure selected
-     * by the user to add them.
+     * Views on physical structures that are not associated with this structure
+     * selected by the user to add them.
      */
     private List<Integer> paginationSelectionSelectedItems = new ArrayList<>();
 
     /**
-     * Views on media units that are associated with this structure.
+     * Views on physical structures that are associated with this structure.
      */
     private List<SelectItem> paginationSubSelectionItems;
 
     /**
-     * Views on media units that are associated with this structure selected by
-     * the user to remove them.
+     * Views on physical structures that are associated with this structure
+     * selected by the user to remove them.
      */
     private List<Integer> paginationSubSelectionSelectedItems = new ArrayList<>();
 
@@ -83,7 +83,7 @@ public class EditPagesDialog {
      * button.
      */
     public void addPage() {
-        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
         if (selectedStructure.isPresent()) {
             for (View viewToAdd : getViewsToAdd(paginationSelectionSelectedItems)) {
                 dataEditor.assignView(selectedStructure.get(), viewToAdd, -1);
@@ -206,8 +206,8 @@ public class EditPagesDialog {
 
     private List<View> getViewsToAdd(List<Integer> pages) {
         return pages.parallelStream()
-                .map(dataEditor.getWorkpiece().getAllMediaUnitsSorted()::get)
-                .map(MetadataEditor::getFirstViewForMediaUnit)
+                .map(dataEditor.getWorkpiece().getAllPhysicalStructuresSorted()::get)
+                .map(MetadataEditor::getFirstViewForPhysicalStructure)
                 .collect(Collectors.toList());
     }
 
@@ -216,7 +216,7 @@ public class EditPagesDialog {
      * btn command button.
      */
     public void setPageStartAndEnd() {
-        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
         if (selectedStructure.isPresent()) {
             for (View viewToAdd : getViewsToAdd(selectFirstPageSelectedItem, selectLastPageSelectedItem)) {
                 dataEditor.assignView(selectedStructure.get(), viewToAdd, -1);
@@ -232,19 +232,19 @@ public class EditPagesDialog {
         paginationSubSelectionItems = new ArrayList<>();
         paginationSelectionItems = new ArrayList<>();
 
-        List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted();
-        int capacity = (int) Math.ceil(mediaUnits.size() / .75);
+        List<PhysicalStructure> physicalStructures = dataEditor.getWorkpiece().getAllPhysicalStructuresSorted();
+        int capacity = (int) Math.ceil(physicalStructures.size() / .75);
         Set<Integer> assigneds = new HashSet<>(capacity);
         Set<Integer> unassigneds = new HashSet<>(capacity);
-        for (int i = 0; i < mediaUnits.size(); i++) {
-            MediaUnit mediaUnit = mediaUnits.get(i);
-            View view = MetadataEditor.createUnrestrictedViewOn(mediaUnit);
-            String label = Objects.isNull(mediaUnit.getOrderlabel()) ? Integer.toString(mediaUnit.getOrder())
-                    : mediaUnit.getOrder() + " : " + mediaUnit.getOrderlabel();
+        for (int i = 0; i < physicalStructures.size(); i++) {
+            PhysicalStructure physicalStructure = physicalStructures.get(i);
+            View view = MetadataEditor.createUnrestrictedViewOn(physicalStructure);
+            String label = Objects.isNull(physicalStructure.getOrderlabel()) ? Integer.toString(physicalStructure.getOrder())
+                    : physicalStructure.getOrder() + " : " + physicalStructure.getOrderlabel();
             Integer id = i;
             SelectItem selectItem = new SelectItem(id, label);
             selectPageItems.add(selectItem);
-            Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+            Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
             boolean assigned = selectedStructure.isPresent()
                     && selectedStructure.get().getViews().contains(view);
             (assigned ? paginationSubSelectionItems : paginationSelectionItems).add(selectItem);
@@ -267,7 +267,7 @@ public class EditPagesDialog {
      * button.
      */
     public void removePage() {
-        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
         if (selectedStructure.isPresent()) {
             for (View viewToRemove : getViewsToAdd(paginationSubSelectionSelectedItems)) {
                 dataEditor.unassignView(selectedStructure.get(), viewToRemove, false);

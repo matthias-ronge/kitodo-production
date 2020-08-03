@@ -109,8 +109,8 @@ public class ChangeDocStrucTypeDialog {
     }
 
     private LogicalStructure getSelectedLogicalStructure() {
-        if (dataEditor.getSelectedStructure().isPresent()) {
-            return dataEditor.getSelectedStructure().get();
+        if (dataEditor.getSelectedLogicalStructure().isPresent()) {
+            return dataEditor.getSelectedLogicalStructure().get();
         } else {
             throw new IllegalStateException("could not retrieve selected structure");
         }

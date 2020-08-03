@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.production.services.ServiceManager;
 
@@ -66,6 +66,6 @@ public class MetsServiceIT {
                 "uncounted", "uncounted", "113", "114", "115", "116", "117", "118", "uncounted", "uncounted", "119",
                 "120", "uncounted", "uncounted", "121", "122", "123", "124", "125", "126", "127", "128", "129", "130",
                 "131", "132", "133", "134", "uncounted", "uncounted", "uncounted"),
-            workpiece.getMediaUnits().stream().map(MediaUnit::getOrderlabel).collect(Collectors.toList()));
+            workpiece.getMediaUnits().stream().map(PhysicalStructure::getOrderlabel).collect(Collectors.toList()));
     }
 }

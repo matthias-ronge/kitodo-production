@@ -22,12 +22,12 @@ import java.util.Optional;
 import javax.faces.model.SelectItem;
 
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.metadata.InsertionPosition;
 import org.kitodo.production.metadata.MetadataEditor;
 
-public class AddMediaUnitDialog {
+public class AddPhysicalStructureDialog {
     private final DataEditorForm dataEditor;
     private List<SelectItem> possiblePositions;
     private List<SelectItem> possibleTypes;
@@ -37,33 +37,34 @@ public class AddMediaUnitDialog {
 
     /**
      * Constructor.
-     * @param dataEditor Instance of DataEditorForm where this instance of AddMediaUnitDialog was created.
+     * @param dataEditor Instance of DataEditorForm where this instance of AddPhysicalStructureDialog was created.
      */
-    AddMediaUnitDialog(DataEditorForm dataEditor) {
+    AddPhysicalStructureDialog(DataEditorForm dataEditor) {
         this.dataEditor = dataEditor;
     }
 
     /**
-     * Add a new MediaUnit.
+     * Add a new PhysicalStructure.
      */
-    public void addMediaUnit() {
-        Optional<MediaUnit> selectedMediaUnit = dataEditor.getSelectedMediaUnit();
-        if (selectedMediaUnit.isPresent()) {
-            MediaUnit mediaUnit = MetadataEditor.addMediaUnit(selectedType, dataEditor.getWorkpiece(),
-                    selectedMediaUnit.get(),
+    public void addPhysicalStructure() {
+        Optional<PhysicalStructure> selectedPhysicalStructure = dataEditor.getSelectedPhysicalStructure();
+        if (selectedPhysicalStructure.isPresent()) {
+            PhysicalStructure physicalStructure = MetadataEditor.addPhysicalStructure(selectedType, dataEditor.getWorkpiece(),
+                    selectedPhysicalStructure.get(),
                     selectedPosition);
             dataEditor.refreshStructurePanel();
-            dataEditor.getStructurePanel().selectMediaUnit(mediaUnit);
+            dataEditor.getStructurePanel().setSelectPhysicalStructure(physicalStructure);
         } else {
-            Helper.setErrorMessage("No media unit selected!");
+            Helper.setErrorMessage("No physical structure selected!");
         }
     }
 
     /**
-     * Prepare popup dialog by retrieving available insertion positions and media unit types for selected element.
+     * Prepare popup dialog by retrieving available insertion positions and
+     * physical structure types for selected element.
      */
     public void prepare() {
-        if (dataEditor.getSelectedMediaUnit().isPresent()) {
+        if (dataEditor.getSelectedPhysicalStructure().isPresent()) {
             preparePossiblePositions();
             preparePossibleTypes();
         } else {
@@ -73,14 +74,14 @@ public class AddMediaUnitDialog {
     }
 
     private void preparePossiblePositions() {
-        Optional<MediaUnit> selectedMediaUnit = dataEditor.getSelectedMediaUnit();
-        if (selectedMediaUnit.isPresent()) {
+        Optional<PhysicalStructure> selectedPhysicalStructure = dataEditor.getSelectedPhysicalStructure();
+        if (selectedPhysicalStructure.isPresent()) {
             possiblePositions = new ArrayList<>();
             possiblePositions.add(new SelectItem(InsertionPosition.FIRST_CHILD_OF_CURRENT_ELEMENT,
                     Helper.getTranslation("dataEditor.position.asFirstChildOfCurrentElement")));
             possiblePositions.add(new SelectItem(InsertionPosition.LAST_CHILD_OF_CURRENT_ELEMENT,
                     Helper.getTranslation("dataEditor.position.asLastChildOfCurrentElement")));
-            List<MediaUnit> parents = MetadataEditor.getAncestorsOfMediaUnit(selectedMediaUnit.get(),
+            List<PhysicalStructure> parents = MetadataEditor.getAncestorsOfPhysicalStructure(selectedPhysicalStructure.get(),
                     dataEditor.getWorkpiece().getPhysicalStructureRoot());
             if (parents.size() > 0) {
                 possiblePositions.add(new SelectItem(InsertionPosition.BEFORE_CURRENT_ELEMENT,
@@ -92,28 +93,28 @@ public class AddMediaUnitDialog {
     }
 
     /**
-     * Update list of available types that can be added to the currently selected media units in the currently selected
-     * position.
+     * Update list of available types that can be added to the currently
+     * selected physical structures in the currently selected position.
      */
     public void preparePossibleTypes() {
         possibleTypes = new ArrayList<>();
 
-        Optional<MediaUnit> selectedMediaUnit = dataEditor.getSelectedMediaUnit();
-        if (selectedMediaUnit.isPresent()) {
+        Optional<PhysicalStructure> selectedPhysicalStructure = dataEditor.getSelectedPhysicalStructure();
+        if (selectedPhysicalStructure.isPresent()) {
             StructuralElementViewInterface divisionView = null;
 
             if (InsertionPosition.FIRST_CHILD_OF_CURRENT_ELEMENT.equals(selectedPosition)
                     || InsertionPosition.LAST_CHILD_OF_CURRENT_ELEMENT.equals(selectedPosition)) {
                 divisionView = dataEditor.getRuleset().getStructuralElementView(
-                    selectedMediaUnit.orElseThrow(IllegalStateException::new).getType(),
+                    selectedPhysicalStructure.orElseThrow(IllegalStateException::new).getType(),
                         dataEditor.getAcquisitionStage(),
                         dataEditor.getPriorityList()
                 );
 
             } else if (InsertionPosition.BEFORE_CURRENT_ELEMENT.equals(selectedPosition)
                     || InsertionPosition.AFTER_CURRENT_ELEMENT.equals(selectedPosition)) {
-                LinkedList<MediaUnit> parents = MetadataEditor.getAncestorsOfMediaUnit(
-                    selectedMediaUnit.get(),
+                LinkedList<PhysicalStructure> parents = MetadataEditor.getAncestorsOfPhysicalStructure(
+                    selectedPhysicalStructure.get(),
                         dataEditor.getWorkpiece().getPhysicalStructureRoot());
                 if (!parents.isEmpty()) {
                     divisionView = dataEditor.getRuleset().getStructuralElementView(

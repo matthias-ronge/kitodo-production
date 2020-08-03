@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.kitodo.api.dataformat.mets.KitodoUUID;
 
-public class MediaUnit extends Division<MediaUnit> {
+public class PhysicalStructure extends Division<PhysicalStructure> {
     /**
      * Each media unit can be available in different variants, for each of which
      * a media file is available. This is in this map.
@@ -40,9 +40,9 @@ public class MediaUnit extends Division<MediaUnit> {
     private List<LogicalStructure> logicalStructures;
 
     /**
-     * Creates a new MediaUnit.
+     * Creates a new PhysicalStructure.
      */
-    public MediaUnit() {
+    public PhysicalStructure() {
         logicalStructures = new LinkedList<>();
     }
 
@@ -109,10 +109,10 @@ public class MediaUnit extends Division<MediaUnit> {
         if (!super.equals(compared)) {
             return false;
         }
-        if (!(compared instanceof MediaUnit)) {
+        if (!(compared instanceof PhysicalStructure)) {
             return false;
         }
-        MediaUnit other = (MediaUnit) compared;
+        PhysicalStructure other = (PhysicalStructure) compared;
         return Objects.equals(mediaFiles, other.mediaFiles);
     }
 

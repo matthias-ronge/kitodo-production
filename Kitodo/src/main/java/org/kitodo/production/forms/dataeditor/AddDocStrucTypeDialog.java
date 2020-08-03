@@ -47,7 +47,7 @@ import org.kitodo.api.dataeditor.rulesetmanagement.MetadataViewInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.SimpleMetadataViewInterface;
 import org.kitodo.api.dataeditor.rulesetmanagement.StructuralElementViewInterface;
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.data.database.beans.Process;
 import org.kitodo.data.database.exceptions.DAOException;
@@ -150,7 +150,7 @@ public class AddDocStrucTypeDialog {
      * submit btn command button.
      */
     private void addMultiDocStruc() {
-        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
         if (selectedStructure.isPresent()) {
             MetadataEditor.addMultipleStructures(elementsToAddSpinnerValue, docStructAddTypeSelectionSelectedItem,
                 dataEditor.getWorkpiece(), selectedStructure.get(),
@@ -165,7 +165,7 @@ public class AddDocStrucTypeDialog {
      * submit btn command button.
      */
     private void addSingleDocStruc(boolean selectViews) {
-        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
         if (selectedStructure.isPresent()) {
             LogicalStructure newStructure = MetadataEditor.addStructure(docStructAddTypeSelectionSelectedItem,
                     dataEditor.getWorkpiece(), selectedStructure.get(),
@@ -173,7 +173,7 @@ public class AddDocStrucTypeDialog {
             dataEditor.getSelectedMedia().clear();
             if (selectViews) {
                 for (View view : getViewsToAdd()) {
-                    dataEditor.getSelectedMedia().add(new ImmutablePair<>(view.getMediaUnit(), newStructure));
+                    dataEditor.getSelectedMedia().add(new ImmutablePair<>(view.getPhysicalStructure(), newStructure));
                 }
             }
             dataEditor.refreshStructurePanel();
@@ -181,9 +181,9 @@ public class AddDocStrucTypeDialog {
                     this.dataEditor.getStructurePanel().getLogicalTree());
             if (Objects.nonNull(selectedLogicalTreeNode)) {
                 this.dataEditor.getStructurePanel().setSelectedLogicalNode(selectedLogicalTreeNode);
-                this.dataEditor.getMetadataPanel().showLogical(this.dataEditor.getSelectedStructure());
+                this.dataEditor.getMetadataPanel().showLogical(this.dataEditor.getSelectedLogicalStructure());
             }
-            List<Pair<MediaUnit, LogicalStructure>> selectedMedia = this.dataEditor.getSelectedMedia().stream()
+            List<Pair<PhysicalStructure, LogicalStructure>> selectedMedia = this.dataEditor.getSelectedMedia().stream()
                     .sorted(Comparator.comparingInt(p -> p.getLeft().getOrder()))
                     .collect(Collectors.toList());
             Collections.reverse(selectedMedia);
@@ -399,7 +399,7 @@ public class AddDocStrucTypeDialog {
      * Prepare popup dialog by retrieving available insertion positions and doc struct types for selected element.
      */
     public void prepare() {
-        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
         if (selectedStructure.isPresent()) {
             this.parents = MetadataEditor.getAncestorsOfStructure(selectedStructure.get(),
                 dataEditor.getWorkpiece().getLogicalStructureRoot());
@@ -418,7 +418,7 @@ public class AddDocStrucTypeDialog {
      * currently selected position.
      */
     public void prepareDocStructTypes() {
-        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
         if (selectedStructure.isPresent()) {
             this.parents = MetadataEditor.getAncestorsOfStructure(selectedStructure.get(),
                     dataEditor.getWorkpiece().getLogicalStructureRoot());
@@ -439,7 +439,7 @@ public class AddDocStrucTypeDialog {
     private void prepareDocStructAddTypeSelectionItemsForChildren() {
         docStructAddTypeSelectionItemsForChildren = new ArrayList<>();
         StructuralElementViewInterface divisionView = dataEditor.getRuleset().getStructuralElementView(
-            dataEditor.getSelectedStructure().orElseThrow(IllegalStateException::new).getType(),
+            dataEditor.getSelectedLogicalStructure().orElseThrow(IllegalStateException::new).getType(),
             dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
         for (Entry<String, String> entry : divisionView.getAllowedSubstructuralElements().entrySet()) {
             docStructAddTypeSelectionItemsForChildren.add(new SelectItem(entry.getKey(), entry.getValue()));
@@ -456,7 +456,7 @@ public class AddDocStrucTypeDialog {
                 StructuralElementViewInterface newParentDivisionView = dataEditor.getRuleset().getStructuralElementView(
                     newParent, dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
                 if (newParentDivisionView.getAllowedSubstructuralElements().containsKey(
-                    dataEditor.getSelectedStructure().orElseThrow(IllegalStateException::new).getType())) {
+                    dataEditor.getSelectedLogicalStructure().orElseThrow(IllegalStateException::new).getType())) {
                     docStructAddTypeSelectionItemsForParent.add(new SelectItem(newParent, entry.getValue()));
                 }
             }
@@ -575,7 +575,7 @@ public class AddDocStrucTypeDialog {
     }
 
     private StructuralElementViewInterface getStructuralElementView() {
-        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedStructure();
+        Optional<LogicalStructure> selectedStructure = dataEditor.getSelectedLogicalStructure();
         if (selectedStructure.isPresent()) {
             return dataEditor.getRuleset()
                     .getStructuralElementView(
@@ -588,8 +588,8 @@ public class AddDocStrucTypeDialog {
                 StructureTreeNode structureTreeNode = (StructureTreeNode) selectedLogicalNode.getData();
                 if (structureTreeNode.getDataObject() instanceof View) {
                     View view = (View) structureTreeNode.getDataObject();
-                    if (Objects.nonNull(view.getMediaUnit())) {
-                        return dataEditor.getRuleset().getStructuralElementView(view.getMediaUnit().getType(),
+                    if (Objects.nonNull(view.getPhysicalStructure())) {
+                        return dataEditor.getRuleset().getStructuralElementView(view.getPhysicalStructure().getType(),
                                 dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
                     }
                 }
@@ -599,12 +599,12 @@ public class AddDocStrucTypeDialog {
     }
 
     private void prepareSelectPageOnAddNodeItems() {
-        List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted();
-        selectPageOnAddNodeItems = new ArrayList<>(mediaUnits.size());
-        for (int i = 0; i < mediaUnits.size(); i++) {
-            MediaUnit mediaUnit = mediaUnits.get(i);
-            String label = Objects.isNull(mediaUnit.getOrderlabel()) ? Integer.toString(mediaUnit.getOrder())
-                    : mediaUnit.getOrder() + " : " + mediaUnit.getOrderlabel();
+        List<PhysicalStructure> physicalStructures = dataEditor.getWorkpiece().getAllPhysicalStructuresSorted();
+        selectPageOnAddNodeItems = new ArrayList<>(physicalStructures.size());
+        for (int i = 0; i < physicalStructures.size(); i++) {
+            PhysicalStructure physicalStructure = physicalStructures.get(i);
+            String label = Objects.isNull(physicalStructure.getOrderlabel()) ? Integer.toString(physicalStructure.getOrder())
+                    : physicalStructure.getOrder() + " : " + physicalStructure.getOrderlabel();
             selectPageOnAddNodeItems.add(new SelectItem(Integer.toString(i), label));
         }
     }
@@ -614,15 +614,15 @@ public class AddDocStrucTypeDialog {
      */
     public void preparePreselectedViews() {
         preselectedViews = new ArrayList<>();
-        List<Pair<MediaUnit, LogicalStructure>> selectedMedia = dataEditor.getSelectedMedia();
-        for (Pair<MediaUnit, LogicalStructure> pair : selectedMedia) {
+        List<Pair<PhysicalStructure, LogicalStructure>> selectedMedia = dataEditor.getSelectedMedia();
+        for (Pair<PhysicalStructure, LogicalStructure> pair : selectedMedia) {
             for (View view : pair.getValue().getViews()) {
-                if (Objects.equals(view.getMediaUnit(), pair.getKey())) {
+                if (Objects.equals(view.getPhysicalStructure(), pair.getKey())) {
                     preselectedViews.add(view);
                 }
             }
         }
-        preselectedViews.sort(Comparator.comparingInt(view -> view.getMediaUnit().getOrder()));
+        preselectedViews.sort(Comparator.comparingInt(view -> view.getPhysicalStructure().getOrder()));
     }
 
     /**
@@ -755,7 +755,7 @@ public class AddDocStrucTypeDialog {
             }
         }
         dataEditor.getCurrentChildren().add(selectedProcess);
-        MetadataEditor.addLink(dataEditor.getSelectedStructure().orElseThrow(IllegalStateException::new),
+        MetadataEditor.addLink(dataEditor.getSelectedLogicalStructure().orElseThrow(IllegalStateException::new),
             selectedProcess.getId());
         dataEditor.getStructurePanel().show(true);
         if (processNumber.trim().equals(Integer.toString(selectedProcess.getId()))) {
@@ -771,9 +771,9 @@ public class AddDocStrucTypeDialog {
      * @return label of the currently selected structure
      */
     public String getCurrentStructureLabel() {
-        if (dataEditor.getSelectedStructure().isPresent()) {
+        if (dataEditor.getSelectedLogicalStructure().isPresent()) {
             StructuralElementViewInterface divisionView = dataEditor.getRuleset().getStructuralElementView(
-                    dataEditor.getSelectedStructure().get().getType(), dataEditor.getAcquisitionStage(),
+                    dataEditor.getSelectedLogicalStructure().get().getType(), dataEditor.getAcquisitionStage(),
                     dataEditor.getPriorityList());
             return divisionView.getLabel();
         } else {

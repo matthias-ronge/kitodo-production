@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 
 /**
  * Connects a legacy file set its corresponding doc struct to a media units
@@ -28,11 +28,11 @@ public class LegacyFileSetDocStructHelper implements LegacyDocStructHelperInterf
     /**
      * The media units list accessed via this soldering class.
      */
-    private List<MediaUnit> mediaUnits;
+    private List<PhysicalStructure> physicalStructures;
 
     @Deprecated
-    public LegacyFileSetDocStructHelper(List<MediaUnit> mediaUnits) {
-        this.mediaUnits = mediaUnits;
+    public LegacyFileSetDocStructHelper(List<PhysicalStructure> physicalStructures) {
+        this.physicalStructures = physicalStructures;
     }
 
     @Override
@@ -47,9 +47,9 @@ public class LegacyFileSetDocStructHelper implements LegacyDocStructHelperInterf
     @Override
     @Deprecated
     public List<LegacyDocStructHelperInterface> getAllChildren() {
-        List<LegacyDocStructHelperInterface> allChildren = new ArrayList<>(mediaUnits.size());
-        for (MediaUnit mediaUnit : mediaUnits) {
-            allChildren.add(new LegacyInnerPhysicalDocStructHelper(mediaUnit));
+        List<LegacyDocStructHelperInterface> allChildren = new ArrayList<>(physicalStructures.size());
+        for (PhysicalStructure physicalStructure : physicalStructures) {
+            allChildren.add(new LegacyInnerPhysicalDocStructHelper(physicalStructure));
         }
         return allChildren;
     }
@@ -57,9 +57,9 @@ public class LegacyFileSetDocStructHelper implements LegacyDocStructHelperInterf
     @Override
     @Deprecated
     public List<LegacyDocStructHelperInterface> getAllChildrenByTypeAndMetadataType(String page, String asterisk) {
-        List<LegacyDocStructHelperInterface> allChildren = new ArrayList<>(mediaUnits.size());
-        for (MediaUnit mediaUnit : mediaUnits) {
-            allChildren.add(new LegacyInnerPhysicalDocStructHelper(mediaUnit));
+        List<LegacyDocStructHelperInterface> allChildren = new ArrayList<>(physicalStructures.size());
+        for (PhysicalStructure physicalStructure : physicalStructures) {
+            allChildren.add(new LegacyInnerPhysicalDocStructHelper(physicalStructure));
         }
         return allChildren;
     }

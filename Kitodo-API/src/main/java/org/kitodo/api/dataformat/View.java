@@ -16,32 +16,32 @@ import java.util.Objects;
 /**
  * A view on a media unit. The individual levels of the
  * {@link LogicalStructure} refer to {@code View}s on
- * {@link MediaUnit}s. At the moment, each {@code View} refers to exactly one
- * {@code MediaUnit} as a whole.
+ * {@link PhysicalStructure}s. At the moment, each {@code View} refers to exactly one
+ * {@code PhysicalStructure} as a whole.
  */
 public class View {
     /**
      * Media unit in view.
      */
-    private MediaUnit mediaUnit;
+    private PhysicalStructure physicalStructure;
 
     /**
      * Returns the media unit in the view.
      *
      * @return the media unit
      */
-    public MediaUnit getMediaUnit() {
-        return mediaUnit;
+    public PhysicalStructure getPhysicalStructure() {
+        return physicalStructure;
     }
 
     /**
      * Inserts a media unit into the view.
      *
-     * @param mediaUnit
+     * @param physicalStructure
      *            media unit to insert
      */
-    public void setMediaUnit(MediaUnit mediaUnit) {
-        this.mediaUnit = mediaUnit;
+    public void setPhysicalStructure(PhysicalStructure physicalStructure) {
+        this.physicalStructure = physicalStructure;
     }
 
     @Override
@@ -53,14 +53,14 @@ public class View {
             return false;
         }
         View view = (View) o;
-        return Objects.equals(mediaUnit, view.mediaUnit);
+        return Objects.equals(physicalStructure, view.physicalStructure);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int hashCode = 1;
-        hashCode = prime * hashCode + ((mediaUnit == null) ? 0 : mediaUnit.hashCode());
+        hashCode = prime * hashCode + ((physicalStructure == null) ? 0 : physicalStructure.hashCode());
         return hashCode;
     }
 }

@@ -40,7 +40,7 @@ import org.kitodo.api.Metadata;
 import org.kitodo.api.MetadataEntry;
 import org.kitodo.api.dataeditor.rulesetmanagement.RulesetManagementInterface;
 import org.kitodo.api.dataformat.LogicalStructure;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.api.dataformat.Workpiece;
 import org.kitodo.api.validation.State;
@@ -79,9 +79,9 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
     private final AddDocStrucTypeDialog addDocStrucTypeDialog;
 
     /**
-     * Backing bean for the add MediaUnit dialog.
+     * Backing bean for the add PhysicalStructure dialog.
      */
-    private final AddMediaUnitDialog addMediaUnitDialog;
+    private final AddPhysicalStructureDialog addPhysicalStructureDialog;
 
     /**
      * Backing bean for the change doc struc type dialog.
@@ -162,7 +162,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
      * This List of Pairs stores all selected physical elements and the logical elements in which the physical element was selected.
      * It is necessary to store the logical elements as well, because a physical element can be assigned to multiple logical elements.
      */
-    private List<Pair<MediaUnit, LogicalStructure>> selectedMedia;
+    private List<Pair<PhysicalStructure, LogicalStructure>> selectedMedia;
 
     private static final String DESKTOP_LINK = "/pages/desktop.jsf";
 
@@ -175,7 +175,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         this.galleryPanel = new GalleryPanel(this);
         this.paginationPanel = new PaginationPanel(this);
         this.addDocStrucTypeDialog = new AddDocStrucTypeDialog(this);
-        this.addMediaUnitDialog = new AddMediaUnitDialog(this);
+        this.addPhysicalStructureDialog = new AddPhysicalStructureDialog(this);
         this.changeDocStrucTypeDialog = new ChangeDocStrucTypeDialog(this);
         this.editPagesDialog = new EditPagesDialog(this);
         acquisitionStage = "edit";
@@ -266,15 +266,15 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
     private void init() {
         final long begin = System.nanoTime();
 
-        List<MediaUnit> severalAssignments = new LinkedList<>();
+        List<PhysicalStructure> severalAssignments = new LinkedList<>();
         initSeveralAssignments(workpiece.getPhysicalStructureRoot(), severalAssignments);
         structurePanel.getSeveralAssignments().addAll(severalAssignments);
 
         structurePanel.show();
         structurePanel.getSelectedLogicalNode().setSelected(true);
         structurePanel.getSelectedPhysicalNode().setSelected(true);
-        metadataPanel.showLogical(getSelectedStructure());
-        metadataPanel.showPhysical(getSelectedMediaUnit());
+        metadataPanel.showLogical(getSelectedLogicalStructure());
+        metadataPanel.showPhysical(getSelectedPhysicalStructure());
         galleryPanel.show();
         paginationPanel.show();
 
@@ -392,11 +392,11 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         return null;
     }
 
-    private void initSeveralAssignments(MediaUnit mediaUnit, List<MediaUnit> severalAssignments) {
-        if (mediaUnit.getLogicalStructures().size() > 1) {
-            severalAssignments.add(mediaUnit);
+    private void initSeveralAssignments(PhysicalStructure physicalStructure, List<PhysicalStructure> severalAssignments) {
+        if (physicalStructure.getLogicalStructures().size() > 1) {
+            severalAssignments.add(physicalStructure);
         }
-        for (MediaUnit child : mediaUnit.getChildren()) {
+        for (PhysicalStructure child : physicalStructure.getChildren()) {
             initSeveralAssignments(child, severalAssignments);
         }
     }
@@ -411,14 +411,15 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
     }
 
     /**
-     * Deletes the selected media unit from the media list. The associated files
-     * on the drive are not deleted. The next time the editor is started, files
-     * that are not yet in the media list will be inserted there again. This
-     * method is called by PrimeFaces to inform the application that the user
-     * clicked on the context menu entry to delete the media unit.
+     * Deletes the selected physical structure from the media list. The
+     * associated files on the drive are not deleted. The next time the editor
+     * is started, files that are not yet in the media list will be inserted
+     * there again. This method is called by PrimeFaces to inform the
+     * application that the user clicked on the context menu entry to delete the
+     * physical structure.
      */
-    public void deleteMediaUnit() {
-        structurePanel.deleteSelectedMediaUnit();
+    public void deletePhysicalStructure() {
+        structurePanel.deleteSelectedPhysicalStructure();
     }
 
     @Override
@@ -443,8 +444,8 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
      *
      * @return the backing bean for the add media dialog
      */
-    public AddMediaUnitDialog getAddMediaUnitDialog() {
-        return addMediaUnitDialog;
+    public AddPhysicalStructureDialog getAddPhysicalStructureDialog() {
+        return addPhysicalStructureDialog;
     }
 
     /**
@@ -530,12 +531,12 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         return ruleset;
     }
 
-    Optional<LogicalStructure> getSelectedStructure() {
+    Optional<LogicalStructure> getSelectedLogicalStructure() {
         return structurePanel.getSelectedStructure();
     }
 
-    Optional<MediaUnit> getSelectedMediaUnit() {
-        return structurePanel.getSelectedMediaUnit();
+    Optional<PhysicalStructure> getSelectedPhysicalStructure() {
+        return structurePanel.getSelectedPhysicalStructure();
     }
 
     /**
@@ -575,30 +576,30 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
      *
      * @return value of selectedMedia
      */
-    List<Pair<MediaUnit, LogicalStructure>> getSelectedMedia() {
+    List<Pair<PhysicalStructure, LogicalStructure>> getSelectedMedia() {
         return selectedMedia;
     }
 
-    void setSelectedMedia(List<Pair<MediaUnit, LogicalStructure>> media) {
+    void setSelectedMedia(List<Pair<PhysicalStructure, LogicalStructure>> media) {
         this.selectedMedia = media;
     }
 
     /**
-     * Check if the passed MediaUnit is selected.
-     * 
-     * @param mediaUnit
-     *            MediaUnit object to check for selection
+     * Check if the passed PhysicalStructure is selected.
+     *
+     * @param physicalStructure
+     *            PhysicalStructure object to check for selection
      * @param logicalStructure
-     *            object to check whether the MediaUnit is selected as a child
-     *            of this LogicalStructure. A MediaUnit can be assigned to
+     *            object to check whether the PhysicalStructure is selected as a child
+     *            of this LogicalStructure. A PhysicalStructure can be assigned to
      *            multiple LogicalStructures but can be selected in one of these
      *            LogicalStructures.
-     * @return boolean whether the MediaUnit is selected at the specified
+     * @return boolean whether the PhysicalStructure is selected at the specified
      *         position
      */
-    public boolean isSelected(MediaUnit mediaUnit, LogicalStructure logicalStructure) {
-        if (Objects.nonNull(mediaUnit) && Objects.nonNull(logicalStructure)) {
-            return selectedMedia.contains(new ImmutablePair<>(mediaUnit, logicalStructure));
+    public boolean isSelected(PhysicalStructure physicalStructure, LogicalStructure logicalStructure) {
+        if (Objects.nonNull(physicalStructure) && Objects.nonNull(logicalStructure)) {
+            return selectedMedia.contains(new ImmutablePair<>(physicalStructure, logicalStructure));
         }
         return false;
     }
@@ -636,7 +637,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
                 } else if (structureTreeNode.getDataObject() instanceof View) {
                     // Page selected in logical tree
                     View view = (View) structureTreeNode.getDataObject();
-                    metadataPanel.showPageInLogical(view.getMediaUnit());
+                    metadataPanel.showPageInLogical(view.getPhysicalStructure());
                     if (updateGalleryAndPhysicalTree) {
                         updateGallery(view);
                     }
@@ -646,23 +647,24 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         }
     }
 
-    void switchMediaUnit() throws NoSuchMetadataFieldException {
+    void switchPhysicalStructure() throws NoSuchMetadataFieldException {
         try {
             metadataPanel.preservePhysical();
         } catch (InvalidMetadataValueException e) {
             logger.info(e.getLocalizedMessage(), e);
         }
 
-        Optional<MediaUnit> selectedMediaUnit = structurePanel.getSelectedMediaUnit();
+        Optional<PhysicalStructure> selectedPhysicalStructure = structurePanel.getSelectedPhysicalStructure();
 
-        metadataPanel.showPhysical(selectedMediaUnit);
-        if (selectedMediaUnit.isPresent()) {
+        metadataPanel.showPhysical(selectedPhysicalStructure);
+        if (selectedPhysicalStructure.isPresent()) {
             // update gallery
-            galleryPanel.updateSelection(selectedMediaUnit.get(), null);
+            galleryPanel.updateSelection(selectedPhysicalStructure.get(), null);
             // update logical tree
             for (GalleryMediaContent galleryMediaContent : galleryPanel.getMedias()) {
                 if (Objects.nonNull(galleryMediaContent.getView())
-                        && Objects.equals(selectedMediaUnit.get(), galleryMediaContent.getView().getMediaUnit())) {
+                        && Objects.equals(selectedPhysicalStructure.get(),
+                            galleryMediaContent.getView().getPhysicalStructure())) {
                     structurePanel.updateLogicalNodeSelection(galleryMediaContent, null);
                     break;
                 }
@@ -676,9 +678,9 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
     }
 
     private void updateGallery(View view) {
-        MediaUnit mediaUnit = view.getMediaUnit();
-        if (Objects.nonNull(mediaUnit)) {
-            galleryPanel.updateSelection(mediaUnit, structurePanel.getPageStructure(view, workpiece.getLogicalStructureRoot()));
+        PhysicalStructure physicalStructure = view.getPhysicalStructure();
+        if (Objects.nonNull(physicalStructure)) {
+            galleryPanel.updateSelection(physicalStructure, structurePanel.getPageStructure(view, workpiece.getLogicalStructureRoot()));
         }
     }
 
@@ -688,7 +690,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         } else {
             logicalStructure.getViews().add(view);
         }
-        view.getMediaUnit().getLogicalStructures().add(logicalStructure);
+        view.getPhysicalStructure().getLogicalStructures().add(logicalStructure);
     }
 
     void unassignView(LogicalStructure logicalStructure, View view, boolean removeLast) {
@@ -698,7 +700,7 @@ public class DataEditorForm implements RulesetSetupInterface, Serializable {
         } else {
             logicalStructure.getViews().removeFirstOccurrence(view);
         }
-        view.getMediaUnit().getLogicalStructures().remove(logicalStructure);
+        view.getPhysicalStructure().getLogicalStructures().remove(logicalStructure);
     }
 
     /**

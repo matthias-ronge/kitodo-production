@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.kitodo.api.MdSec;
-import org.kitodo.api.dataformat.MediaUnit;
+import org.kitodo.api.dataformat.PhysicalStructure;
 import org.kitodo.api.dataformat.MediaVariant;
 import org.kitodo.api.dataformat.mets.KitodoUUID;
 import org.kitodo.dataformat.metskitodo.AmdSecType;
@@ -99,20 +99,20 @@ public class FileXmlElementAccess {
         }
     }
 
-    FileXmlElementAccess(MediaUnit mediaUnit) {
-        if (mediaUnit instanceof MediaUnitMetsReferrerStorage) {
-            this.mediaUnit = (MediaUnitMetsReferrerStorage) mediaUnit;
+    FileXmlElementAccess(PhysicalStructure physicalStructure) {
+        if (physicalStructure instanceof MediaUnitMetsReferrerStorage) {
+            this.mediaUnit = (MediaUnitMetsReferrerStorage) physicalStructure;
         } else {
             this.mediaUnit = new MediaUnitMetsReferrerStorage();
-            this.mediaUnit.getMediaFiles().putAll(mediaUnit.getMediaFiles());
-            this.mediaUnit.getMetadata().addAll(mediaUnit.getMetadata());
-            this.mediaUnit.setOrder(mediaUnit.getOrder());
-            this.mediaUnit.setOrderlabel(mediaUnit.getOrderlabel());
-            this.mediaUnit.setType(mediaUnit.getType());
+            this.mediaUnit.getMediaFiles().putAll(physicalStructure.getMediaFiles());
+            this.mediaUnit.getMetadata().addAll(physicalStructure.getMetadata());
+            this.mediaUnit.setOrder(physicalStructure.getOrder());
+            this.mediaUnit.setOrderlabel(physicalStructure.getOrderlabel());
+            this.mediaUnit.setType(physicalStructure.getType());
         }
     }
 
-    MediaUnit getMediaUnit() {
+    PhysicalStructure getMediaUnit() {
         return mediaUnit;
     }
 
@@ -130,7 +130,7 @@ public class FileXmlElementAccess {
      * @return a new {@code <div>} element for this media unit
      */
     DivType toDiv(Map<URI, FileType> mediaFilesToIDFiles,
-            Map<MediaUnit, String> mediaUnitIDs, MetsType mets) {
+            Map<PhysicalStructure, String> mediaUnitIDs, MetsType mets) {
 
         DivType div = new DivType();
         String divId = mediaUnit.getDivId();
