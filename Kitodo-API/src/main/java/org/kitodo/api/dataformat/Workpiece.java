@@ -12,11 +12,12 @@
 package org.kitodo.api.dataformat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -176,64 +177,45 @@ public class Workpiece {
     }
 
     /**
-     * Recursively search for all logical elements.
+     * Returns all included structural elements of the root element of the
+     * workpiece as a flat list. The list isn’t backed by the included
+     * structural elements, which means that insertions and deletions in the
+     * list would not change the included structural elements. Therefore a list
+     * that cannot be modified is returned.
      *
-     * @return list of all logical elements
+     * @return all included structural elements of the workpiece as an
+     *         unmodifiable list
      */
     public List<IncludedStructuralElement> getAllIncludedStructuralElements() {
-        List<IncludedStructuralElement> includedStructuralElements = new LinkedList<>();
-        includedStructuralElements.add(rootElement);
-        includedStructuralElements.addAll(getAllIncludedStructuralElementsRecursive(rootElement));
-        return includedStructuralElements;
-    }
-
-    private List<IncludedStructuralElement> getAllIncludedStructuralElementsRecursive(IncludedStructuralElement parent) {
-        List<IncludedStructuralElement> includedStructuralElements = new LinkedList<>(parent.getChildren());
-        for (IncludedStructuralElement child : parent.getChildren()) {
-            if (Objects.nonNull(child)) {
-                includedStructuralElements.addAll(getAllIncludedStructuralElementsRecursive(child));
-            }
-        }
-        return includedStructuralElements;
+        return Collections.unmodifiableList(treeStream(rootElement).collect(Collectors.toList()));
     }
 
     /**
-     * Recursively search for all media.
+     * Returns all media units of the media unit of the workpiece sorted by
+     * their {@code order} as a flat list. The list isn’t backed by the media
+     * units, which means that insertions and deletions in the list would not
+     * change the media units. Therefore a list that cannot be modified is
+     * returned.
      *
-     * @return list of all media units sorted by their "ORDER" attribute.
+     * @return all media units of the workpiece sorted by their {@code order} as
+     *         an unmodifiable list
      */
     public List<MediaUnit> getAllMediaUnitsSorted() {
-        List<MediaUnit> mediaUnits = getAllMediaUnits();
+        List<MediaUnit> mediaUnits = treeStream(mediaUnit).collect(Collectors.toList());
         mediaUnits.sort(Comparator.comparing(MediaUnit::getOrder));
-        return mediaUnits;
+        return Collections.unmodifiableList(mediaUnits);
     }
 
     /**
-     * Recursively search for all media units.
+     * Returns all media units of the media unit of the workpiece as a flat
+     * list. The list isn’t backed by the media units, which means that
+     * insertions and deletions in the list would not change the media units.
+     * Therefore a list that cannot be modified is returned.
      *
-     * @return list of all media units.
+     * @return all media units of the workpiece as an unmodifiable list
      */
     public List<MediaUnit> getAllMediaUnits() {
-        List<MediaUnit> mediaUnits = new LinkedList<>(mediaUnit.getChildren());
-        for (MediaUnit mediaUnit : mediaUnit.getChildren()) {
-            if (Objects.nonNull(mediaUnit)) {
-                mediaUnits = getAllMediaUnitsRecursive(mediaUnit, mediaUnits);
-            }
-        }
-        return mediaUnits;
-    }
-
-    private List<MediaUnit> getAllMediaUnitsRecursive(MediaUnit parent, List<MediaUnit> mediaUnits) {
-        List<MediaUnit> allMediaUnits = mediaUnits;
-        for (MediaUnit mediaUnit : parent.getChildren()) {
-            if (Objects.nonNull(mediaUnit)) {
-                allMediaUnits.add(mediaUnit);
-                if (!mediaUnit.getChildren().isEmpty()) {
-                    allMediaUnits = getAllMediaUnitsRecursive(mediaUnit, mediaUnits);
-                }
-            }
-        }
-        return allMediaUnits;
+        return Collections.unmodifiableList(treeStream(mediaUnit).collect(Collectors.toList()));
     }
 
     /**
