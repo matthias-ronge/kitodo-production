@@ -18,6 +18,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -109,7 +110,8 @@ public class ProcessListBaseView extends BaseForm {
                         new Object[] {ObjectType.PROCESS.getTranslationSingular(), selectedProcess.getId() }, logger, e);
                 return;
             }
-            int numberOfProcessImages = workpiece.getAllMediaUnitsSorted().size();
+            int numberOfProcessImages = workpiece.getAllMediaUnitsSorted().stream()
+                    .filter(m -> m.getType().equals("page")).collect(Collectors.toList()).size();
             this.numberOfGlobalImages += numberOfProcessImages;
             int numberOfProcessStructuralElements = workpiece.getAllIncludedStructuralElements().size();
             this.numberOfGlobalStructuralElements += numberOfProcessStructuralElements;

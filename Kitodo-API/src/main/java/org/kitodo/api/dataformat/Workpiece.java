@@ -17,7 +17,6 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -25,10 +24,6 @@ import java.util.stream.Stream;
  * a Production workflow.
  */
 public class Workpiece {
-
-    // TODO: we probably need a way to configure MediaUnit types to be considered for renumbering/pagination!
-    private static final String PAGE = "page";
-
     /**
      * The time this file was first created.
      */
@@ -203,20 +198,20 @@ public class Workpiece {
     }
 
     /**
-     * Recursively search for all media units with type "page".
+     * Recursively search for all media.
      *
-     * @return list of all media units with type "page", sorted by their "ORDER" attribute.
+     * @return list of all media units sorted by their "ORDER" attribute.
      */
     public List<MediaUnit> getAllMediaUnitsSorted() {
         List<MediaUnit> mediaUnits = getAllMediaUnits();
         mediaUnits.sort(Comparator.comparing(MediaUnit::getOrder));
-        return mediaUnits.stream().filter(m -> m.getType().equals(PAGE)).collect(Collectors.toList());
+        return mediaUnits;
     }
 
     /**
-     * Recursively search for all media units with type "page".
+     * Recursively search for all media units.
      *
-     * @return list of all media units with type "page".
+     * @return list of all media units.
      */
     public List<MediaUnit> getAllMediaUnits() {
         List<MediaUnit> mediaUnits = new LinkedList<>(mediaUnit.getChildren());

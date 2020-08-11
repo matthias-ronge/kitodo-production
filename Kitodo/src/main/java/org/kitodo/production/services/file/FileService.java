@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FilenameUtils;
@@ -1017,7 +1018,9 @@ public class FileService {
         }
         List<String> canonicals = getCanonicalFileNamePartsAndSanitizeAbsoluteURIs(workpiece, subfolders,
             process.getProcessBaseUri());
-        addNewURIsToExistingMediaUnits(mediaToAdd, workpiece.getAllMediaUnitsSorted(), canonicals);
+        addNewURIsToExistingMediaUnits(mediaToAdd, workpiece.getAllMediaUnitsSorted().stream()
+                .filter(m -> m.getType().equals("page")).collect(Collectors.toList()),
+            canonicals);
         mediaToAdd.keySet().removeAll(canonicals);
         addNewMediaToWorkpiece(canonicals, mediaToAdd, workpiece);
         renumberMediaUnits(workpiece, true);
@@ -1042,7 +1045,8 @@ public class FileService {
         if (!baseUriString.endsWith("/")) {
             baseUriString = baseUriString.concat("/");
         }
-        for (MediaUnit mediaUnit : workpiece.getAllMediaUnitsSorted()) {
+        for (MediaUnit mediaUnit : workpiece.getAllMediaUnitsSorted().stream().filter(m -> m.getType().equals("page"))
+                .collect(Collectors.toList())) {
             String unitCanonical = "";
             for (Entry<MediaVariant, URI> entry : mediaUnit.getMediaFiles().entrySet()) {
                 Subfolder subfolder = subfolders.get(entry.getKey().getUse());
@@ -1146,7 +1150,8 @@ public class FileService {
      */
     public void renumberMediaUnits(Workpiece workpiece, boolean sortByOrder) {
         int order = 1;
-        for (MediaUnit mediaUnit : sortByOrder ? workpiece.getAllMediaUnitsSorted() : workpiece.getAllMediaUnits()) {
+        for (MediaUnit mediaUnit : sortByOrder ? workpiece.getAllMediaUnitsSorted().stream()
+                .filter(m -> m.getType().equals("page")).collect(Collectors.toList()) : workpiece.getAllMediaUnits()) {
             mediaUnit.setOrder(order++);
         }
     }
@@ -1157,7 +1162,8 @@ public class FileService {
      * intermediate places are marked uncounted.
      */
     private void repaginateMediaUnits(Workpiece workpiece) {
-        List<MediaUnit> mediaUnits = workpiece.getAllMediaUnitsSorted();
+        List<MediaUnit> mediaUnits = workpiece.getAllMediaUnitsSorted().stream().filter(m -> m.getType().equals("page"))
+                .collect(Collectors.toList());
         int first = 0;
         String value;
         switch (ConfigCore.getParameter(ParameterCore.METS_EDITOR_DEFAULT_PAGINATION)) {

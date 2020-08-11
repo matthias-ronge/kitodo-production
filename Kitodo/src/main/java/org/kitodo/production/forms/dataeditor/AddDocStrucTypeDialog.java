@@ -17,7 +17,6 @@ import static org.kitodo.production.metadata.InsertionPosition.FIRST_CHILD_OF_CU
 import static org.kitodo.production.metadata.InsertionPosition.LAST_CHILD_OF_CURRENT_ELEMENT;
 import static org.kitodo.production.metadata.InsertionPosition.PARENT_OF_CURRENT_ELEMENT;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -599,7 +598,8 @@ public class AddDocStrucTypeDialog {
     }
 
     private void prepareSelectPageOnAddNodeItems() {
-        List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted();
+        List<MediaUnit> mediaUnits = dataEditor.getWorkpiece().getAllMediaUnitsSorted().stream()
+                .filter(m -> m.getType().equals("page")).collect(Collectors.toList());
         selectPageOnAddNodeItems = new ArrayList<>(mediaUnits.size());
         for (int i = 0; i < mediaUnits.size(); i++) {
             MediaUnit mediaUnit = mediaUnits.get(i);
