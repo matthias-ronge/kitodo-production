@@ -67,20 +67,22 @@ import org.kitodo.production.services.data.RulesetService;
 import org.kitodo.serviceloader.KitodoServiceLoader;
 
 public class FileService {
-
     private static final Logger logger = LogManager.getLogger(FileService.class);
 
     /**
      * Attachment to filename for the overall anchor file in Production v. 2.
      */
     private static final String APPENDIX_ANCOR = "_anchor";
+
     /**
      * Attachment to filename for the year anchor file in Production v. 2.
      */
     private static final String APPENDIX_YEAR = "_year";
     private static final String TEMPORARY_FILENAME_PREFIX = "temporary_";
+
     private final FileManagementInterface fileManagementModule = new KitodoServiceLoader<FileManagementInterface>(
             FileManagementInterface.class).loadModule();
+    private final MetadataImageComparator metadataImageComparator = new MetadataImageComparator();
 
     /**
      * Adds a slash to a URI to mark it as a directory, if it does not already
@@ -1078,7 +1080,7 @@ public class FileService {
         for (Folder folder : folders) {
             subfolders.put(folder.getFileGroup(), new Subfolder(process, folder));
         }
-        Map<String, Map<Subfolder, URI>> mediaToAdd = new TreeMap<>(new MetadataImageComparator());
+        Map<String, Map<Subfolder, URI>> mediaToAdd = new TreeMap<>(metadataImageComparator);
         for (Subfolder subfolder : subfolders.values()) {
             for (Entry<String, URI> element : subfolder.listContents(false).entrySet()) {
                 mediaToAdd.computeIfAbsent(element.getKey(), any -> new HashMap<>(mapCapacity));
@@ -1186,7 +1188,7 @@ public class FileService {
         for (Entry<String, Map<Subfolder, URI>> entry : mediaToAdd.entrySet()) {
             int insertionPoint = 0;
             for (String canonical : canonicals) {
-                if (new MetadataImageComparator().compare(entry.getKey(), canonical) > 0) {
+                if (metadataImageComparator.compare(entry.getKey(), canonical) > 0) {
                     insertionPoint++;
                 } else {
                     break;
