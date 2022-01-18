@@ -99,7 +99,7 @@ public class ExportDms extends ExportMets {
             processService.save(process);
         }
 
-        if(!exportCompletedChildren(process.getChildren())) {
+        if (!exportCompletedChildren(process.getChildren())) {
             return false;
         }
 
@@ -113,17 +113,6 @@ public class ExportDms extends ExportMets {
             processService.save(process);
         }
         return exportSuccessful;
-    }
-
-    private boolean exportCompletedChildren(List<Process> children) throws DataException {
-        for (Process child:children) {
-            if(processService.getProgress(child.getTasks(), null).equals(COMPLETED) && !child.isExported()) {
-                if(!startExport(child)) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     /**
@@ -212,7 +201,18 @@ public class ExportDms extends ExportMets {
         return prepareExportLocation(process, gdzfile);
     }
 
-    private boolean prepareExportLocation(Process process,
+    private boolean exportCompletedChildren(List<Process> children) throws DataException {
+	    for (Process child:children) {
+	        if (processService.getProgress(child.getTasks(), null).equals(COMPLETED) && !child.isExported()) {
+	            if (!startExport(child)) {
+	                return false;
+	            }
+	        }
+	    }
+	    return true;
+	}
+
+	private boolean prepareExportLocation(Process process,
             LegacyMetsModsDigitalDocumentHelper gdzfile) throws IOException, DAOException {
 
         URI hotfolder = new File(process.getProject().getDmsImportRootPath()).toURI();
