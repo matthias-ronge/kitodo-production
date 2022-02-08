@@ -12,6 +12,7 @@
 package org.kitodo.production.forms.createprocess;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,6 +88,14 @@ public class ProcessMetadata {
             processDetails.preserve();
         } catch (NoSuchMetadataFieldException | InvalidMetadataValueException e) {
             logger.error(e.getLocalizedMessage());
+        }
+    }
+
+    public void update() throws InvalidMetadataValueException, NoSuchMetadataFieldException {
+        LogicalDivision logicalDivision = (LogicalDivision) processDetails.getDivision();
+        if (Objects.nonNull(logicalDivision)) {
+            processDetails.preserve();
+            processDetails = initializeProcessDetails(logicalDivision);
         }
     }
 }
