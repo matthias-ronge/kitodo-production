@@ -58,6 +58,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.faces.context.ExternalContext;
@@ -72,6 +73,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.search.join.ScoreMode;
@@ -167,7 +169,6 @@ import org.primefaces.model.charts.pie.PieChartDataSet;
 import org.primefaces.model.charts.pie.PieChartModel;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 
 public class ProcessService extends ProjectSearchService<Process, ProcessDTO, ProcessDAO> {
     private final FileService fileService = ServiceManager.getFileService();
@@ -919,6 +920,27 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
         processDTO.setProgressInProcessing(getProgressInProcessing(null, processDTO.getTasks()));
         processDTO.setProgressOpen(getProgressOpen(null, processDTO.getTasks()));
         processDTO.setProgressLocked(getProgressLocked(null, processDTO.getTasks()));
+
+        if (processDTO.hasChildren()) {
+            List<Process> children;
+            try {
+                children = ServiceManager.getProcessService().getById(processDTO.getId()).getChildren();
+                processDTO.setProgressClosed(progressOfChildren(children, tasks -> getProgressClosed(tasks, null)));
+                processDTO.setProgressInProcessing(progressOfChildren(children, tasks -> getProgressInProcessing(tasks, null)));
+                processDTO.setProgressOpen(progressOfChildren(children, tasks -> getProgressOpen(tasks, null)));
+                processDTO.setProgressLocked(progressOfChildren(children, tasks -> getProgressLocked(tasks, null)));
+            } catch (DAOException dao) {
+                throw new DataException(dao);
+            }
+        }
+    }
+
+    private static Double progressOfChildren(List<Process> children, Function<List<Task>, Double> calculator) {
+        DescriptiveStatistics statistics = new DescriptiveStatistics();
+        for (Process child : children) {
+            statistics.addValue(calculator.apply(child.getTasks()));
+        }
+        return statistics.getMean();
     }
 
     private List<BatchDTO> getBatchesForProcessDTO(Map<String, Object> jsonObject) throws DataException {
