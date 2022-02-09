@@ -76,18 +76,26 @@ public class Ruleset {
     private transient List<Key> keys;
 
     public void addAll(Ruleset other) {
-        replaceOrAdd(other.declaration.getDivisions(), Division::getId, declaration.getDivisions());
-        replaceOrAdd(other.declaration.getKeys(), Key::getId, declaration.getKeys());
+        if (Objects.nonNull(other.declaration)) {
+            if (Objects.isNull(declaration)) {
+                declaration = other.declaration;
+            } else {
+                replaceOrAdd(other.declaration.getDivisions(), Division::getId, declaration.getDivisions());
+                replaceOrAdd(other.declaration.getKeys(), Key::getId, declaration.getKeys());
+            }
+        }
         if (Objects.nonNull(other.restrictions)) {
             if (Objects.isNull(restrictions)) {
                 restrictions = other.restrictions;
-            } else if (Objects.nonNull(other.restrictions)) {
+            } else {
                 replaceOrAdd(other.restrictions, RestrictivePermit::getKey, restrictions);
                 replaceOrAdd(other.restrictions, RestrictivePermit::getDivision, restrictions);
             }
+        }
+        if (Objects.nonNull(other.editing)) {
             if (Objects.isNull(editing)) {
                 editing = other.editing;
-            } else if (Objects.nonNull(other.editing)) {
+            } else {
                 replaceOrAdd(other.editing.getSettings(), Setting::getKey, editing.getSettings());
                 replaceOrAdd(other.editing.getAcquisitionStages(), AcquisitionStage::getName, editing.getAcquisitionStages());
             }

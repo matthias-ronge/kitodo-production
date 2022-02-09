@@ -270,6 +270,7 @@ public class RulesetManagement implements RulesetManagementInterface {
             Ruleset included = read(Ruleset.class, includedFile);
             result.addAll(included);
         }
+        result.addAll(base);
         return result;
     }
 
