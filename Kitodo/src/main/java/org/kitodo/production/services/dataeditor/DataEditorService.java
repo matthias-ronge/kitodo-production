@@ -40,6 +40,7 @@ import org.kitodo.api.dataformat.LogicalDivision;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.config.ConfigCore;
 import org.kitodo.config.enums.ParameterCore;
+import org.kitodo.data.database.beans.Process;
 import org.kitodo.exceptions.InvalidMetadataValueException;
 import org.kitodo.production.forms.createprocess.ProcessDetail;
 import org.kitodo.production.forms.createprocess.ProcessFieldedMetadata;
@@ -170,6 +171,9 @@ public class DataEditorService {
         try {
             if (currentElement) {
                 structureView = getStructuralElementView(dataEditor);
+                if(Objects.isNull(structureView)) {
+                    return Collections.emptyList();
+                }
                 existingMetadata = getExistingMetadataRows(metadataNodes);
             } else {
                 structureView = dataEditor.getRulesetManagement()
@@ -179,9 +183,9 @@ public class DataEditorService {
             Collection<String> additionalFields = isLogicalStructure ? dataEditor.getMetadataPanel()
                     .getLogicalMetadataTable().getAdditionallySelectedFields() : dataEditor.getMetadataPanel()
                     .getPhysicalMetadataTable().getAdditionallySelectedFields();
-            Collection<MetadataViewInterface> viewInterfaces = structureView
+            Collection<MetadataViewInterface> addableKeyViews = structureView
                     .getAddableMetadata(existingMetadata, additionalFields);
-            for (MetadataViewInterface keyView : viewInterfaces) {
+            for (MetadataViewInterface keyView : addableKeyViews) {
                 addableMetadata.add(
                         new SelectItem(keyView.getId(), keyView.getLabel(),
                                 keyView instanceof SimpleMetadataViewInterface
@@ -227,25 +231,48 @@ public class DataEditorService {
         Optional<LogicalDivision> selectedStructure = dataEditor.getSelectedStructure();
         if (selectedStructure.isPresent()) {
             return dataEditor.getRulesetManagement()
-                    .getStructuralElementView(
-                            selectedStructure.get().getType(),
+                    .getStructuralElementView(selectedStructure.get().getType(),
                             dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
-        } else {
-            TreeNode selectedLogicalNode = dataEditor.getStructurePanel().getSelectedLogicalNode();
-            if (Objects.nonNull(selectedLogicalNode)
-                    && selectedLogicalNode.getData() instanceof StructureTreeNode) {
-                StructureTreeNode structureTreeNode = (StructureTreeNode) selectedLogicalNode.getData();
-                if (structureTreeNode.getDataObject() instanceof View) {
-                    View view = (View) structureTreeNode.getDataObject();
-                    if (Objects.nonNull(view.getPhysicalDivision())) {
-                        return dataEditor.getRulesetManagement().getStructuralElementView(
-                            view.getPhysicalDivision().getType(),
-                                dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
-                    }
-                }
-            }
         }
-        throw new IllegalStateException();
+
+        TreeNode selectedLogicalNode = dataEditor.getStructurePanel().getSelectedLogicalNode();
+        if (Objects.isNull(selectedLogicalNode)) {
+            throw new IllegalStateException("No logical node selected");
+        }
+
+        if (!(selectedLogicalNode.getData() instanceof StructureTreeNode)) {
+            throw new IllegalStateException("Selected logical node data is of bad type: "
+                    + (Objects.isNull(selectedLogicalNode.getData()) ? "null"
+                            : selectedLogicalNode.getData().getClass().getName()));
+        }
+        StructureTreeNode structureTreeNode = (StructureTreeNode) selectedLogicalNode.getData();
+
+        Object dataObject = structureTreeNode.getDataObject();
+        // data object is null for structures inside parent processes
+        if (Objects.isNull(dataObject)) {
+            return null;
+        }
+
+        // default case
+        if (dataObject instanceof View) {
+            View view = (View) dataObject;
+            if (Objects.isNull(view.getPhysicalDivision())) {
+                throw new IllegalStateException("View has no physical division assigned");
+            }
+
+            return dataEditor.getRulesetManagement().getStructuralElementView(
+                    view.getPhysicalDivision().getType(),
+                        dataEditor.getAcquisitionStage(), dataEditor.getPriorityList());
+        }
+
+        // data object is a Process for parent processes
+        if (dataObject instanceof Process) {
+            return null;
+        }
+
+        throw new IllegalStateException("Data object is of bad type: "
+                + (Objects.isNull(dataObject) ? "null"
+                    : dataObject.getClass().getName()));
     }
 
     private static Collection<Metadata> getExistingMetadataRows(List<TreeNode> metadataTreeNodes)
