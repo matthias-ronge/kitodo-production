@@ -126,7 +126,6 @@ import org.kitodo.production.dto.ProjectDTO;
 import org.kitodo.production.dto.PropertyDTO;
 import org.kitodo.production.dto.TaskDTO;
 import org.kitodo.production.enums.ObjectType;
-import org.kitodo.production.exporter.ExportXmlLog;
 import org.kitodo.production.forms.createprocess.ProcessDetail;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.helper.SearchResultGeneration;
@@ -170,7 +169,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 
 public class ProcessService extends ProjectSearchService<Process, ProcessDTO, ProcessDAO> {
-    private final FileService fileService = ServiceManager.getFileService();
+    private static final FileService fileService = ServiceManager.getFileService();
     private static final Logger logger = LogManager.getLogger(ProcessService.class);
     private static volatile ProcessService instance = null;
     private static final String JSON_TITLE = "title";
@@ -1701,7 +1700,7 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
         return table;
     }
 
-    private DocketInterface initialiseDocketModule() {
+    private static DocketInterface initialiseDocketModule() {
         KitodoServiceLoader<DocketInterface> loader = new KitodoServiceLoader<>(DocketInterface.class);
         return loader.loadModule();
     }
@@ -2062,7 +2061,7 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
      *            the process to create the docket data for.
      * @return A List of DocketData objects
      */
-    private List<DocketData> getDocketData(List<Process> processes) {
+    private List<DocketData> getDocketData(List<Process> processes) throws IOException {
         List<DocketData> docketData = new ArrayList<>();
         for (Process process : processes) {
             docketData.add(getDocketData(process));
@@ -2077,10 +2076,15 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
      *            The process to create the docket data for.
      * @return The DocketData for the process.
      */
-    private DocketData getDocketData(Process process) {
+    private static DocketData getDocketData(Process process) throws IOException {
         DocketData docketdata = new DocketData();
 
         docketdata.setCreationDate(process.getCreationDate().toString());
+        URI metadataFilePath = fileService.getMetadataFilePath(process);
+        docketdata.setMetadataFile(fileService.getFile(metadataFilePath).toString());
+        if (Objects.nonNull(process.getParent())) {
+            docketdata.setParent(getDocketData(process.getParent()));
+        }
         docketdata.setProcessId(process.getId().toString());
         docketdata.setProcessName(process.getTitle());
         docketdata.setProjectName(process.getProject().getTitle());
@@ -2098,7 +2102,7 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
         return docketdata;
     }
 
-    private ArrayList<org.kitodo.api.docket.Property> getDocketDataForProperties(List<Property> properties) {
+    private static ArrayList<org.kitodo.api.docket.Property> getDocketDataForProperties(List<Property> properties) {
         ArrayList<org.kitodo.api.docket.Property> propertiesForDocket = new ArrayList<>();
         for (Property property : properties) {
             org.kitodo.api.docket.Property propertyForDocket = new org.kitodo.api.docket.Property();
@@ -2666,10 +2670,10 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
      * Starts generation of xml logfile for current process.
      */
     public static void createXML(Process process, User user) throws IOException {
-        ExportXmlLog xmlExport = new ExportXmlLog();
+        DocketInterface xmlExport = initialiseDocketModule();
         String directory = new File(ServiceManager.getUserService().getHomeDirectory(user)).getPath();
         String destination = directory + "/" + Helper.getNormalizedTitle(process.getTitle()) + "_log.xml";
-        xmlExport.startExport(process, destination);
+        xmlExport.exportXmlLog(getDocketData(process), destination);
     }
 
     /**
