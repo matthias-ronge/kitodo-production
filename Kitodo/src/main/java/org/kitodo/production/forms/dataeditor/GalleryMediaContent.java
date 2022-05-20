@@ -21,8 +21,10 @@ import java.util.Objects;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.kitodo.api.dataformat.MediaVariant;
 import org.kitodo.api.dataformat.View;
 import org.kitodo.production.services.ServiceManager;
 import org.primefaces.model.DefaultStreamedContent;
@@ -44,14 +46,14 @@ public class GalleryMediaContent {
     private final String id;
 
     /**
-     * URI to content for media preview.
+     * Content for media preview.
      */
-    private final URI previewUri;
+    private final Pair<MediaVariant, URI> previewResource;
 
     /**
-     * URI to the content for the media view.
+     * Content for the media view.
      */
-    private final URI mediaViewUri;
+    private final Pair<MediaVariant, URI> mediaViewResource;
     private final View view;
 
     /**
@@ -70,12 +72,14 @@ public class GalleryMediaContent {
      *            URI to the content for the media view. Can be {@code null},
      *            then no media view is offered.
      */
-    GalleryMediaContent(GalleryPanel panel, View view, String canonical, URI previewUri, URI mediaViewUri) {
+    GalleryMediaContent(GalleryPanel panel, View view, String canonical, Pair<MediaVariant, URI> previewResource,
+            Pair<MediaVariant, URI> mediaViewResource) {
+
         this.panel = panel;
         this.view = view;
         this.id = canonical;
-        this.previewUri = previewUri;
-        this.mediaViewUri = mediaViewUri;
+        this.previewResource = previewResource;
+        this.mediaViewResource = mediaViewResource;
     }
 
     /**
@@ -95,7 +99,7 @@ public class GalleryMediaContent {
      * @return a Primefaces object that handles the output of media data
      */
     public StreamedContent getMediaViewData() {
-        return sendData(mediaViewUri, panel.getMediaViewMimeType());
+        return sendData(mediaViewResource);
     }
 
     /**
@@ -123,7 +127,7 @@ public class GalleryMediaContent {
      * @return a Primefaces object that handles the output of media data
      */
     StreamedContent getPreviewData() {
-        return sendData(previewUri, panel.getPreviewMimeType());
+        return sendData(previewResource);
     }
 
     /**
@@ -136,7 +140,7 @@ public class GalleryMediaContent {
      * @return if there is a media view for this media
      */
     public boolean isShowingInMediaView() {
-        return Objects.nonNull(mediaViewUri);
+        return Objects.nonNull(mediaViewResource);
     }
 
     /**
@@ -149,19 +153,17 @@ public class GalleryMediaContent {
      * @return if there is a media preview for this media
      */
     public boolean isShowingInPreview() {
-        return Objects.nonNull(previewUri);
+        return Objects.nonNull(previewResource);
     }
 
     /**
      * Method for output of URL-referenced media content.
      *
-     * @param uri
-     *            internal URI of the media file to be transferred
-     * @param mimeType
-     *            the Internet MIME type of the media file
+     * @param resource
+     *            resource to be transferred
      * @return a Primefaces object that handles the output of media data
      */
-    private StreamedContent sendData(URI uri, String mimeType) {
+    private StreamedContent sendData(Pair<MediaVariant, URI> resource) {
         /*
          * During the construction of the HTML page, only an URL for the media
          * file is generated.
@@ -176,8 +178,8 @@ public class GalleryMediaContent {
          * that after transferring the data.
          */
         try {
-            InputStream previewData = ServiceManager.getFileService().read(uri);
-            return DefaultStreamedContent.builder().stream(() -> previewData).contentType(mimeType).build();
+            InputStream previewData = ServiceManager.getFileService().read(resource.getValue());
+            return DefaultStreamedContent.builder().stream(() -> previewData).contentType(resource.getKey().getMimeType()).build();
         } catch (IOException e) {
             logger.catching(e);
             String errorpage = "<html>" + System.lineSeparator() + "<h1>Error!</h1>" + System.lineSeparator() + "<p>"

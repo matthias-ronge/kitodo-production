@@ -159,10 +159,6 @@ public class GalleryPanel {
         return medias;
     }
 
-    String getMediaViewMimeType() {
-        return mediaViewVariant.getMimeType();
-    }
-
     /**
      * Returns the media content of the preview media. This is the method that
      * is called when the web browser wants to retrieve the media file itself.
@@ -181,10 +177,6 @@ public class GalleryPanel {
             logger.debug("Cannot serve image request, mediaId = {}", id);
         }
         return DefaultStreamedContent.builder().build();
-    }
-
-    String getPreviewMimeType() {
-        return previewVariant.getMimeType();
     }
 
     List<LanguageRange> getPriorityList() {
@@ -478,19 +470,19 @@ public class GalleryPanel {
     private GalleryMediaContent createGalleryMediaContent(View view) {
         PhysicalDivision physicalDivision = view.getPhysicalDivision();
         URI previewUri = physicalDivision.getMediaFiles().get(previewVariant);
-        URI resourcePreviewUri = null;
+        Pair<MediaVariant, URI> previewResource = null;
         if (Objects.nonNull(previewUri)) {
-            resourcePreviewUri = previewUri.isAbsolute() ? previewUri
-                    : fileService.getResourceUriForProcessRelativeUri(dataEditor.getProcess(), previewUri);
+            previewResource = Pair.of(previewVariant, previewUri.isAbsolute() ? previewUri
+                    : fileService.getResourceUriForProcessRelativeUri(dataEditor.getProcess(), previewUri));
         }
         URI mediaViewUri = physicalDivision.getMediaFiles().get(mediaViewVariant);
-        URI resourceMediaViewUri = null;
+        Pair<MediaVariant, URI> mediaViewResource = null;
         if (Objects.nonNull(mediaViewUri)) {
-            resourceMediaViewUri = mediaViewUri.isAbsolute() ? mediaViewUri
-                    : fileService.getResourceUriForProcessRelativeUri(dataEditor.getProcess(), mediaViewUri);
+            mediaViewResource = Pair.of(mediaViewVariant, mediaViewUri.isAbsolute() ? mediaViewUri
+                    : fileService.getResourceUriForProcessRelativeUri(dataEditor.getProcess(), mediaViewUri));
         }
-        String canonical = Objects.nonNull(resourcePreviewUri) ? previewFolder.getCanonical(resourcePreviewUri) : null;
-        return new GalleryMediaContent(this, view, canonical, resourcePreviewUri, resourceMediaViewUri);
+        String canonical = Objects.nonNull(previewResource) ? previewFolder.getCanonical(previewResource.getValue()) : null;
+        return new GalleryMediaContent(this, view, canonical, previewResource, mediaViewResource);
     }
 
     /**
