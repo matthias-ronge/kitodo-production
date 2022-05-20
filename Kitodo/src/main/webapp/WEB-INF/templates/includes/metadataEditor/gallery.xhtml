@@ -25,7 +25,10 @@
         <ui:param name="editImages" value="#{SecurityAccessController.hasAuthorityToEditProcessImages()}"/>
 
         <h:form id="imagePreviewForm" style="height: 100%;" styleClass="focusable">
-            <p:graphicImage id="mediaViewData" value="#{DataEditorForm.galleryPanel.getGalleryMediaContent(DataEditorForm.galleryPanel.lastSelection.key).mediaViewData}" style="display: none;"/>
+            <p:graphicImage id="mediaViewData"
+                            rendered="#{DataEditorForm.galleryPanel.getGalleryMediaContent(DataEditorForm.galleryPanel.lastSelection.key).isShowingInMediaView}"
+                            value="#{DataEditorForm.galleryPanel.getGalleryMediaContent(DataEditorForm.galleryPanel.lastSelection.key).mediaViewData}"
+                            style="display: none;"/>
 
             <p:remoteCommand name="select"
                              action="#{DataEditorForm.galleryPanel.select}"
