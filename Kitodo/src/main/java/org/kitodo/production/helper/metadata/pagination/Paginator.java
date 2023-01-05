@@ -35,7 +35,9 @@ public class Paginator implements Iterator<String> {
      */
     private HalfInteger value;
 
-    private void parse(String initializer) {
+    private void parse(String initializer, PaginatorState override) {
+        assert Objects.isNull(override) || override.equals(PaginatorState.DECIMAL)
+                || override.equals(PaginatorState.UPPERCASE_ROMAN);
 
         StringBuilder stringBuilder = new StringBuilder();
         PaginatorState paginatorState = PaginatorState.EMPTY;
@@ -62,7 +64,7 @@ public class Paginator implements Iterator<String> {
                 if (paginatorState.equals(PaginatorState.EMPTY)) {
                     paginatorState = PaginatorState.TEXT_ESCAPE_TRANSITION;
                 } else {
-                    createFragment(stringBuilder, paginatorState, page);
+                    createFragment(stringBuilder, overridePaginationType(paginatorState, override), page);
                     page = null;
                     paginatorState = paginatorState.equals(PaginatorState.TEXT_ESCAPE_TRANSITION) ? PaginatorState.EMPTY
                             : PaginatorState.TEXT_ESCAPE_TRANSITION;
@@ -78,7 +80,7 @@ public class Paginator implements Iterator<String> {
                  * the page variable and are not written to the stringBuilder by themselves.
                  */
                 if (!paginatorState.equals(PaginatorState.EMPTY)) {
-                    createFragment(stringBuilder, paginatorState, page);
+                    createFragment(stringBuilder, overridePaginationType(paginatorState, override), page);
                     paginatorState = PaginatorState.EMPTY;
                 }
                 page = codePointClass.equals(PaginatorState.HALF_INTEGER);
@@ -112,13 +114,25 @@ public class Paginator implements Iterator<String> {
 
             } else {
                 // In any other case, we have to write out the stringBuilder.
-                createFragment(stringBuilder, paginatorState, page);
+                createFragment(stringBuilder, overridePaginationType(paginatorState, override), page);
                 page = null;
                 stringBuilder.appendCodePoint(codePoint);
                 paginatorState = codePointClass;
             }
             offset += Character.charCount(codePoint);
         }
+    }
+
+    private PaginatorState overridePaginationType(PaginatorState current, PaginatorState override) {
+        if ((PaginatorState.DECIMAL.equals(current) || PaginatorState.LOWERCASE_ROMAN.equals(current))
+                && PaginatorState.UPPERCASE_ROMAN.equals(override)) {
+            return PaginatorState.UPPERCASE_ROMAN;
+        }
+        if ((PaginatorState.UPPERCASE_ROMAN.equals(current) || PaginatorState.LOWERCASE_ROMAN.equals(current))
+                && PaginatorState.DECIMAL.equals(override)) {
+            return PaginatorState.DECIMAL;
+        }
+        return current;
     }
 
     /**
@@ -159,6 +173,18 @@ public class Paginator implements Iterator<String> {
      *            initial value
      */
     public Paginator(String initializer) {
+        this(initializer, null);
+    }
+
+    /**
+     * Creates a new paginator.
+     *
+     * @param initializer
+     *            initial value
+     * @param override
+     *            override paginator type (from config)
+     */
+    public Paginator(String initializer, PaginatorState override) {
 
         /*
          * If the initialisation string starts with a half increment marker this
@@ -167,7 +193,7 @@ public class Paginator implements Iterator<String> {
          */
         boolean halfAboveValue = !initializer.isEmpty() && initializer.codePointAt(0) == '½';
         String paginatorInitializer = halfAboveValue ? initializer.substring(1) : initializer;
-        parse(paginatorInitializer);
+        parse(paginatorInitializer, override);
         initializeIncrements(halfAboveValue);
     }
 

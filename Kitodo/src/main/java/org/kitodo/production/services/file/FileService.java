@@ -59,6 +59,7 @@ import org.kitodo.production.helper.Helper;
 import org.kitodo.production.helper.metadata.ImageHelper;
 import org.kitodo.production.helper.metadata.legacytypeimplementations.LegacyMetsModsDigitalDocumentHelper;
 import org.kitodo.production.helper.metadata.pagination.Paginator;
+import org.kitodo.production.helper.metadata.pagination.PaginatorState;
 import org.kitodo.production.model.Subfolder;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.command.CommandService;
@@ -1265,12 +1266,15 @@ public class FileService {
         List<PhysicalDivision> physicalDivisions = workpiece.getAllPhysicalDivisionChildrenFilteredByTypePageAndSorted();
         int first = 0;
         String value;
+        PaginatorState override = null;
         switch (ConfigCore.getParameter(ParameterCore.METS_EDITOR_DEFAULT_PAGINATION)) {
             case "arabic":
                 value = "1";
+                override = PaginatorState.DECIMAL;
                 break;
             case "roman":
                 value = "I";
+                override = PaginatorState.UPPERCASE_ROMAN;
                 break;
             default:
                 value = " - ";
@@ -1286,7 +1290,7 @@ public class FileService {
                 break;
             }
         }
-        Paginator paginator = new Paginator(value);
+        Paginator paginator = new Paginator(value, override);
         if (first > 0) {
             paginator.next();
             for (int i = first; i < physicalDivisions.size(); i++) {
