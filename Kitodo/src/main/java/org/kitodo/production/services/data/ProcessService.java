@@ -2165,8 +2165,8 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
      * @return property value if process has property with name 'propertyName',
      *         empty String otherwise
      */
-    public static String getPropertyValue(ProcessDTO process, String propertyName) {
-        for (PropertyDTO property : process.getProperties()) {
+    public static String getPropertyValue(Process process, String propertyName) {
+        for (Property property : process.getProperties()) {
             if (property.getTitle().equals(propertyName)) {
                 return property.getValue();
             }
@@ -2181,8 +2181,8 @@ public class ProcessService extends ProjectSearchService<Process, ProcessDTO, Pr
      *            ProcessDTO object for which duration/age is calculated
      * @return process age of given process
      */
-    public static String getProcessDuration(ProcessDTO process) {
-        String creationDateTimeString = process.getCreationDate();
+    public static String getProcessDuration(Process process) {
+        String creationDateTimeString = process.getCreationDate().toString();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime createLocalDate = LocalDateTime.parse(creationDateTimeString, formatter);
         Duration duration = Duration.between(createLocalDate, LocalDateTime.now());

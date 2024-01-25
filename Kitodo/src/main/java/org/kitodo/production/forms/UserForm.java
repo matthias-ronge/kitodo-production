@@ -563,10 +563,10 @@ public class UserForm extends BaseForm {
      *
      * @return list of projects available for assignment to the user
      */
-    public List<ProjectDTO> getProjects() {
+    public List<Project> getProjects() {
         try {
             return ServiceManager.getProjectService().findAllAvailableForAssignToUser(this.userObject)
-                    .stream().sorted(Comparator.comparing(ProjectDTO::getTitle)).collect(Collectors.toList());
+                    .stream().sorted(Comparator.comparing(Project::getTitle)).collect(Collectors.toList());
         } catch (DataException e) {
             Helper.setErrorMessage(ERROR_LOADING_MANY, new Object[] {ObjectType.PROJECT.getTranslationPlural() },
                 logger, e);
