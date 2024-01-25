@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import org.kitodo.data.database.beans.Project;
 import org.kitodo.data.database.beans.User;
+import org.kitodo.data.database.exceptions.*;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.production.security.SecurityUserDetails;
 import org.kitodo.production.services.ServiceManager;
@@ -383,7 +384,7 @@ public class SecurityAccessService extends SecurityAccess {
      * @param taskId the specific taskId
      * @return true if the current user has the authority to edit the task
      */
-    public boolean hasAuthorityToEditTask(int taskId) throws DataException {
+    public boolean hasAuthorityToEditTask(int taskId) throws DAOException, DataException {
         return hasAuthorityForClient("editTask") && hasAuthorityForTask(taskId);
     }
 
@@ -412,7 +413,7 @@ public class SecurityAccessService extends SecurityAccess {
      *            the specific processId
      * @return true if the current user has the authority to edit the process
      */
-    public boolean hasAuthorityToEditProcess(int processId) throws DataException {
+    public boolean hasAuthorityToEditProcess(int processId) throws DAOException, DataException {
         return hasAuthorityForClient("editProcess") && hasAuthorityForProcess(processId);
     }
 
@@ -582,7 +583,7 @@ public class SecurityAccessService extends SecurityAccess {
      *            the specific processId
      * @return true if the current user has the authority to view the process
      */
-    public boolean hasAuthorityToViewProcess(int processId) throws DataException {
+    public boolean hasAuthorityToViewProcess(int processId) throws DAOException, DataException {
         return hasAnyAuthorityForClient("viewProcess, addProcess, editProcess") && hasAuthorityForProcess(processId);
     }
 
@@ -1044,14 +1045,14 @@ public class SecurityAccessService extends SecurityAccess {
     }
 
 
-    private boolean hasAuthorityForTask(int taskId) throws DataException {
-        Integer processId = ServiceManager.getTaskService().findById(taskId).getProcess().getId();
+    private boolean hasAuthorityForTask(int taskId) throws DAOException, DataException {
+        Integer processId = ServiceManager.getTaskService().getById(taskId).getProcess().getId();
         return hasAuthorityForProcess(processId);
     }
 
-    private boolean hasAuthorityForProcess(int processId) throws DataException {
+    private boolean hasAuthorityForProcess(int processId) throws DAOException, DataException {
         Integer projectId = processId == 0 ? 0
-                : ServiceManager.getProcessService().findById(processId).getProject().getId();
+                : ServiceManager.getProcessService().getById(processId).getProject().getId();
         return hasAuthorityForProject(projectId);
     }
 
