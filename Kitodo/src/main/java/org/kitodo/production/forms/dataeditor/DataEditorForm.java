@@ -514,7 +514,7 @@ public class DataEditorForm implements MetadataTreeTableInterface, RulesetSetupI
             ServiceManager.getFileService().createBackupFile(process);
             try (OutputStream out = ServiceManager.getFileService().write(mainFileUri)) {
                 ServiceManager.getMetsService().save(workpiece, out);
-                ServiceManager.getProcessService().saveToIndex(process,false);
+                ServiceManager.getProcessService().save(process,false);
                 unsavedUploadedMedia.clear();
                 deleteUnsavedDeletedMedia();
                 if (close) {
