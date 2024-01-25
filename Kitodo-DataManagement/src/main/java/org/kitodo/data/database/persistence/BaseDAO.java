@@ -95,19 +95,6 @@ public abstract class BaseDAO<T extends BaseBean> implements Serializable {
     }
 
     /**
-     * Saves base bean objects as indexed.
-     *
-     * @param baseBeans
-     *            list of base beans
-     * @throws DAOException
-     *             if the current session can't be retrieved or an exception is
-     *             thrown while performing the rollback
-     */
-    public void saveAsIndexed(List<T> baseBeans) throws DAOException {
-        storeAsIndexed(baseBeans);
-    }
-
-    /**
      * Removes BaseBean object specified by the given id from the database.
      *
      * @param id
@@ -374,7 +361,7 @@ public abstract class BaseDAO<T extends BaseBean> implements Serializable {
         }
     }
 
-    void storeAsIndexed(List<T> baseBeans) throws DAOException {
+    private void storeAsIndexed(List<T> baseBeans) throws DAOException {
         for (BaseBean baseBean : baseBeans) {
             BaseIndexedBean entity = (BaseIndexedBean) getById(baseBean.getId());
             entity.setIndexAction(IndexAction.DONE);

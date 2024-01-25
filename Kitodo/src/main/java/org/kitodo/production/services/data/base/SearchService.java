@@ -177,26 +177,6 @@ public abstract class SearchService<T extends BaseIndexedBean, S extends BaseDTO
         return allIds;
     }
 
-
-    /**
-     * Method saves document to the index of Elastic Search.
-     *
-     * @param baseIndexedBean
-     *            object
-     * @param forceRefresh
-     *            force index refresh - if true, time of execution is longer but
-     *            object is right after that available for display
-     */
-    @SuppressWarnings("unchecked")
-    public void saveToIndex(T baseIndexedBean, boolean forceRefresh)
-            throws CustomResponseException, DataException, IOException {
-
-        indexer.setMethod(HttpMethod.PUT);
-        if (Objects.nonNull(baseIndexedBean)) {
-            indexer.performSingleRequest(baseIndexedBean, type, forceRefresh);
-        }
-    }
-
     /**
      * Method adds all object found in database to Elastic Search index.
      *

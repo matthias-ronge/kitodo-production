@@ -59,19 +59,11 @@ public abstract class SearchDatabaseService<T extends BaseBean, S extends BaseDA
      *
      * @param baseIndexedBean
      *            object
+     * @deprecated use {@code save()} method of the DAO
      */
+    @Deprecated
     public void saveToDatabase(T baseIndexedBean) throws DAOException {
         dao.save(baseIndexedBean);
-    }
-
-    /**
-     * Method saves objects to database.
-     *
-     * @param baseIndexedBeans
-     *            beans object to store as indexed
-     */
-    public void saveAsIndexed(List<T> baseIndexedBeans) throws DAOException {
-        dao.saveAsIndexed(baseIndexedBeans);
     }
 
     /**
