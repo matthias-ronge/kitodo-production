@@ -11,6 +11,8 @@
 
 package org.kitodo.production.filters;
 
+import static org.kitodo.production.enums.FilterString.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +31,7 @@ import org.kitodo.production.forms.ProcessForm;
 import org.kitodo.production.forms.UserForm;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.FilterService;
+import org.kitodo.utils.Choice;
 
 public class FilterMenu {
 
@@ -207,26 +210,19 @@ public class FilterMenu {
             return suggestions;
         }
         FilterService filterService = ServiceManager.getFilterService();
-        switch (category) {
-            case TASK:
-            case TASKINWORK:
-            case TASKLOCKED:
-            case TASKOPEN:
-            case TASKDONE:
-            case TASKDONETITLE:
+        Choice.on(category)
+            .inCase(TASK).inCase(TASKINWORK).inCase(TASKLOCKED).inCase(TASKOPEN).inCase(TASKDONE)
+            .inCase(TASKDONETITLE).execute(filterCategory -> {
                 suggestions.addAll(createStringSuggestionsMatchingInput(input, filterService.initStepTitles(), FilterPart.VALUE));
-                break;
-            case PROJECT:
+            })
+            .inCase(PROJECT).execute(filterCategory -> {
                 suggestions.addAll(createStringSuggestionsMatchingInput(input, filterService.initProjects(), FilterPart.VALUE));
-                break;
-            case PROPERTY:
+            })
+            .inCase(PROPERTY).execute(filterCategory -> {
                 suggestions.addAll(createStringSuggestionsMatchingInput(input,
                     filterService.initProcessPropertyTitles(), FilterPart.VALUE));
-                break;
-            default:
-                // Do nothing
-                break;
-        }
+            })
+        .others();
         return suggestions;
     }
 
@@ -236,23 +232,18 @@ public class FilterMenu {
             return suggestions;
         }
         FilterService filterService = ServiceManager.getFilterService();
-        switch (category) {
-            case TASK:
-            case TASKINWORK:
-            case TASKOPEN:
+        Choice.on(category)
+            .inCase(TASK).inCase(TASKINWORK).inCase(TASKOPEN).execute(filterCategory -> {
                 suggestions.addAll(createStringSuggestionsMatchingInput(input, filterService.initStepTitles(), FilterPart.VALUE));
-                break;
-            case PROJECT:
+            })
+            .inCase(PROJECT).execute(filterCategory -> {
                 suggestions.addAll(createStringSuggestionsMatchingInput(input, filterService.initProjects(), FilterPart.VALUE));
-                break;
-            case PROPERTY:
+            })
+            .inCase(PROPERTY).execute(filterCategory -> {
                 suggestions.addAll(createStringSuggestionsMatchingInput(input,
                     filterService.initProcessPropertyTitles(), FilterPart.VALUE));
-                break;
-            default:
-                // Do nothing
-                break;
-        }
+            })
+        .others();
         return suggestions;
     }
 
