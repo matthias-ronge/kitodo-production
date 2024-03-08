@@ -19,11 +19,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Objects;
 
-import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

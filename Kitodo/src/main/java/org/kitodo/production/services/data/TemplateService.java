@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.kitodo.config.ConfigCore;
 import org.kitodo.data.database.beans.Project;
 import org.kitodo.data.database.beans.Task;

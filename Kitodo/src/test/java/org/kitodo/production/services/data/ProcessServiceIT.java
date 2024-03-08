@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.OptionalInt;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

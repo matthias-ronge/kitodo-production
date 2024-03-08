@@ -17,9 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.kitodo.data.database.beans.Batch;
 import org.kitodo.data.database.beans.Process;
 import org.kitodo.data.database.enums.IndexAction;

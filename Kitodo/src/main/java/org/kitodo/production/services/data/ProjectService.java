@@ -22,10 +22,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.IdsQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.kitodo.config.enums.KitodoConfigFile;
 import org.kitodo.data.database.beans.Client;
 import org.kitodo.data.database.beans.Folder;

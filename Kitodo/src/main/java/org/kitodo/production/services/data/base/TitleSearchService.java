@@ -14,11 +14,6 @@ package org.kitodo.production.services.data.base;
 import java.util.List;
 import java.util.Map;
 
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.kitodo.data.database.beans.BaseIndexedBean;
 import org.kitodo.data.database.persistence.BaseDAO;
 import org.kitodo.data.elasticsearch.index.Indexer;
