@@ -20,7 +20,6 @@ import org.kitodo.data.elasticsearch.index.Indexer;
 import org.kitodo.data.elasticsearch.index.type.BaseType;
 import org.kitodo.data.elasticsearch.search.Searcher;
 import org.kitodo.data.exceptions.DataException;
-import org.kitodo.production.dto.BaseDTO;
 
 /**
  * Class for implementing methods used by service classes which search for title

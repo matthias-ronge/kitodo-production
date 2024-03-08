@@ -19,7 +19,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kitodo.MockDatabase;
 import org.kitodo.SecurityTestUtils;
-import org.kitodo.production.dto.ProcessDTO;
 import org.kitodo.production.services.ServiceManager;
 
 public class SearchResultFormIT {

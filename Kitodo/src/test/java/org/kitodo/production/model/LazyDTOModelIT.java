@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.kitodo.MockDatabase;
 import org.kitodo.SecurityTestUtils;
 import org.kitodo.data.database.beans.Client;
-import org.kitodo.production.dto.DocketDTO;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.ClientService;
 import org.primefaces.model.SortOrder;

@@ -24,8 +24,6 @@ import org.kitodo.data.elasticsearch.index.type.DocketType;
 import org.kitodo.data.elasticsearch.index.type.enums.DocketTypeField;
 import org.kitodo.data.elasticsearch.search.Searcher;
 import org.kitodo.data.exceptions.DataException;
-import org.kitodo.production.dto.ClientDTO;
-import org.kitodo.production.dto.DocketDTO;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.base.ClientSearchService;
 import org.primefaces.model.SortOrder;

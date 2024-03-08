@@ -42,7 +42,6 @@ import org.kitodo.data.elasticsearch.index.type.BaseType;
 import org.kitodo.data.elasticsearch.search.Searcher;
 import org.kitodo.data.elasticsearch.search.enums.SearchCondition;
 import org.kitodo.data.exceptions.DataException;
-import org.kitodo.production.dto.BaseDTO;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.data.ProjectService;
 import org.primefaces.model.SortOrder;

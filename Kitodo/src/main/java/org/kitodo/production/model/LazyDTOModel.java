@@ -31,7 +31,6 @@ import org.kitodo.data.elasticsearch.exceptions.CustomResponseException;
 import org.kitodo.data.elasticsearch.index.IndexRestClient;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.FilterException;
-import org.kitodo.production.dto.BaseDTO;
 import org.kitodo.production.services.data.FilterService;
 import org.kitodo.production.services.data.base.SearchDatabaseService;
 import org.primefaces.PrimeFaces;

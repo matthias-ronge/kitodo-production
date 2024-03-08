@@ -25,7 +25,6 @@ import org.kitodo.data.elasticsearch.index.type.WorkflowType;
 import org.kitodo.data.elasticsearch.index.type.enums.WorkflowTypeField;
 import org.kitodo.data.elasticsearch.search.Searcher;
 import org.kitodo.data.exceptions.DataException;
-import org.kitodo.production.dto.WorkflowDTO;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.base.ClientSearchService;

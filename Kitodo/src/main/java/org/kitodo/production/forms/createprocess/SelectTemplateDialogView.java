@@ -19,8 +19,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 
-import org.kitodo.production.dto.ProjectDTO;
-import org.kitodo.production.dto.TemplateDTO;
 import org.kitodo.production.helper.Helper;
 import org.primefaces.PrimeFaces;
 

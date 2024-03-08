@@ -28,7 +28,6 @@ import org.kitodo.data.elasticsearch.index.type.BatchType;
 import org.kitodo.data.elasticsearch.index.type.enums.BatchTypeField;
 import org.kitodo.data.elasticsearch.search.Searcher;
 import org.kitodo.data.exceptions.DataException;
-import org.kitodo.production.dto.BatchDTO;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.base.TitleSearchService;

@@ -20,7 +20,6 @@ import org.kitodo.MockDatabase;
 import org.kitodo.SecurityTestUtils;
 import org.kitodo.data.database.beans.Template;
 import org.kitodo.exceptions.ProcessGenerationException;
-import org.kitodo.production.dto.TemplateDTO;
 import org.kitodo.production.services.ServiceManager;
 
 import static org.junit.Assert.assertEquals;

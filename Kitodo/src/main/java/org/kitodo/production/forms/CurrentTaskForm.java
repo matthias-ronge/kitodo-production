@@ -40,7 +40,6 @@ import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.export.ExportDms;
 import org.kitodo.export.TiffHeader;
-import org.kitodo.production.dto.TaskDTO;
 import org.kitodo.production.enums.GenerationMode;
 import org.kitodo.production.enums.ObjectType;
 import org.kitodo.production.filters.FilterMenu;

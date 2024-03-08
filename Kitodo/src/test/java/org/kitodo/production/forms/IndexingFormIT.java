@@ -28,7 +28,6 @@ import org.kitodo.data.database.beans.Process;
 import org.kitodo.data.database.beans.Project;
 import org.kitodo.data.database.beans.User;
 import org.kitodo.data.database.enums.IndexAction;
-import org.kitodo.production.dto.ProcessDTO;
 import org.kitodo.production.services.ServiceManager;
 
 public class IndexingFormIT {

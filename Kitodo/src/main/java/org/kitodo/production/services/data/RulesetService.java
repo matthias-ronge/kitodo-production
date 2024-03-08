@@ -37,8 +37,6 @@ import org.kitodo.data.elasticsearch.index.type.enums.RulesetTypeField;
 import org.kitodo.data.elasticsearch.search.Searcher;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.RulesetNotFoundException;
-import org.kitodo.production.dto.ClientDTO;
-import org.kitodo.production.dto.RulesetDTO;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.helper.metadata.legacytypeimplementations.LegacyPrefsHelper;
 import org.kitodo.production.services.ServiceManager;

@@ -48,7 +48,6 @@ import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.InvalidMetadataValueException;
 import org.kitodo.exceptions.NoSuchMetadataFieldException;
 import org.kitodo.exceptions.UnknownTreeNodeDataException;
-import org.kitodo.production.dto.ProcessDTO;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.metadata.InsertionPosition;
 import org.kitodo.production.metadata.MetadataEditor;

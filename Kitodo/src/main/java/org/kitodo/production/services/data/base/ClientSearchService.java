@@ -26,7 +26,6 @@ import org.kitodo.data.elasticsearch.index.type.BaseType;
 import org.kitodo.data.elasticsearch.search.Searcher;
 import org.kitodo.data.elasticsearch.search.enums.SearchCondition;
 import org.kitodo.data.exceptions.DataException;
-import org.kitodo.production.dto.BaseDTO;
 import org.kitodo.production.services.ServiceManager;
 
 public abstract class ClientSearchService<T extends BaseIndexedBean, S extends BaseDTO, V extends BaseDAO<T>>

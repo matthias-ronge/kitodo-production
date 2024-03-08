@@ -56,7 +56,6 @@ import org.kitodo.exceptions.NoSuchMetadataFieldException;
 import org.kitodo.exceptions.ProcessGenerationException;
 import org.kitodo.exceptions.RecordIdentifierMissingDetail;
 import org.kitodo.exceptions.RulesetNotFoundException;
-import org.kitodo.production.dto.ProcessDTO;
 import org.kitodo.production.enums.ObjectType;
 import org.kitodo.production.forms.BaseForm;
 import org.kitodo.production.helper.Helper;

@@ -16,8 +16,6 @@ import java.net.URI;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kitodo.data.database.beans.Process;
-import org.kitodo.production.dto.ProcessDTO;
-import org.kitodo.production.dto.PropertyDTO;
 import org.kitodo.production.services.ServiceManager;
 
 public class ProcessServiceTest {

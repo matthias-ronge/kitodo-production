@@ -51,8 +51,6 @@ import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.InvalidImagesException;
 import org.kitodo.exceptions.MediaNotFoundException;
 import org.kitodo.production.controller.SecurityAccessController;
-import org.kitodo.production.dto.ProcessDTO;
-import org.kitodo.production.dto.TaskDTO;
 import org.kitodo.production.enums.ObjectType;
 import org.kitodo.production.filters.FilterMenu;
 import org.kitodo.production.helper.CustomListColumnInitializer;

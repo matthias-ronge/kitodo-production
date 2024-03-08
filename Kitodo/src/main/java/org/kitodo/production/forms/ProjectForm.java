@@ -49,8 +49,6 @@ import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.ProjectDeletionException;
 import org.kitodo.forms.FolderGenerator;
 import org.kitodo.production.controller.SecurityAccessController;
-import org.kitodo.production.dto.ProjectDTO;
-import org.kitodo.production.dto.TemplateDTO;
 import org.kitodo.production.enums.ObjectType;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.model.LazyDTOModel;

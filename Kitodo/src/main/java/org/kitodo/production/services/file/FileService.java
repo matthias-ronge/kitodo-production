@@ -60,7 +60,6 @@ import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.exceptions.CommandException;
 import org.kitodo.exceptions.InvalidImagesException;
 import org.kitodo.exceptions.MediaNotFoundException;
-import org.kitodo.production.dto.ProcessDTO;
 import org.kitodo.production.file.BackupFileRotation;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.helper.metadata.ImageHelper;

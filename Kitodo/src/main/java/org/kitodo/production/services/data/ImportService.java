@@ -89,7 +89,6 @@ import org.kitodo.exceptions.ParameterNotFoundException;
 import org.kitodo.exceptions.ProcessGenerationException;
 import org.kitodo.exceptions.RecordIdentifierMissingDetail;
 import org.kitodo.exceptions.UnsupportedFormatException;
-import org.kitodo.production.dto.ProcessDTO;
 import org.kitodo.production.forms.createprocess.ProcessBooleanMetadata;
 import org.kitodo.production.forms.createprocess.ProcessDetail;
 import org.kitodo.production.forms.createprocess.ProcessFieldedMetadata;
