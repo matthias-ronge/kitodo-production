@@ -56,7 +56,6 @@ import org.kitodo.data.database.beans.Task;
 import org.kitodo.data.database.beans.User;
 import org.kitodo.data.database.enums.TaskStatus;
 import org.kitodo.data.database.exceptions.DAOException;
-import org.kitodo.data.elasticsearch.index.converter.ProcessConverter;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.production.dto.ProcessDTO;
 import org.kitodo.production.enums.ProcessState;
@@ -451,7 +450,7 @@ public class ProcessServiceIT {
     public void shouldGetProgress() throws Exception {
         Process process = processService.getById(1);
 
-        String progress = ProcessConverter.getCombinedProgressAsString(process, true);
+        String progress = ProcessProgressCombiner.getCombinedProgressAsString(process, true);
         assertEquals("Progress doesn't match given plain text!", "040020020020", progress);
     }
 
@@ -459,7 +458,7 @@ public class ProcessServiceIT {
     public void shouldGetProgressClosed() throws Exception {
         Process process = processService.getById(1);
 
-        double condition = ProcessConverter.getTaskProgressPercentageOfProcess(process, true).get(TaskStatus.DONE);
+        double condition = ProcessProgressCombiner.getTaskProgressPercentageOfProcess(process, true).get(TaskStatus.DONE);
         assertEquals("Progress doesn't match given plain text!", 40, condition, 0);
     }
 
@@ -467,7 +466,7 @@ public class ProcessServiceIT {
     public void shouldGetProgressInProcessing() throws Exception {
         Process process = processService.getById(1);
 
-        double condition = ProcessConverter.getTaskProgressPercentageOfProcess(process, true).get(TaskStatus.INWORK);
+        double condition = ProcessProgressCombiner.getTaskProgressPercentageOfProcess(process, true).get(TaskStatus.INWORK);
         assertEquals("Progress doesn't match given plain text!", 20, condition, 0);
     }
 
@@ -491,7 +490,7 @@ public class ProcessServiceIT {
     public void shouldGetProgressOpen() throws Exception {
         Process process = processService.getById(1);
 
-        double condition = ProcessConverter.getTaskProgressPercentageOfProcess(process, true).get(TaskStatus.OPEN);
+        double condition = ProcessProgressCombiner.getTaskProgressPercentageOfProcess(process, true).get(TaskStatus.OPEN);
         assertEquals("Progress doesn't match given plain text!", 20, condition, 0);
     }
 
@@ -499,7 +498,7 @@ public class ProcessServiceIT {
     public void shouldGetProgressLocked() throws Exception {
         Process process = processService.getById(1);
 
-        double condition = ProcessConverter.getTaskProgressPercentageOfProcess(process, true).get(TaskStatus.LOCKED);
+        double condition = ProcessProgressCombiner.getTaskProgressPercentageOfProcess(process, true).get(TaskStatus.LOCKED);
         assertEquals("Progress doesn't match given plain text!", 20, condition, 0);
     }
 

@@ -41,7 +41,6 @@ import org.kitodo.data.database.enums.TaskEditType;
 import org.kitodo.data.database.enums.TaskStatus;
 import org.kitodo.data.database.enums.WorkflowConditionType;
 import org.kitodo.data.database.exceptions.DAOException;
-import org.kitodo.data.elasticsearch.index.converter.ProcessConverter;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.production.enums.ProcessState;
 import org.kitodo.production.helper.Helper;
@@ -53,6 +52,7 @@ import org.kitodo.production.helper.metadata.legacytypeimplementations.LegacyPre
 import org.kitodo.production.helper.tasks.TaskManager;
 import org.kitodo.production.metadata.MetadataLock;
 import org.kitodo.production.services.ServiceManager;
+import org.kitodo.production.services.data.ProcessProgressCombiner;
 import org.kitodo.production.services.data.TaskService;
 import org.kitodo.production.thread.TaskScriptThread;
 
@@ -687,7 +687,7 @@ public class WorkflowControllerService {
      */
     public static void updateProcessSortHelperStatus(Process process) {
         if (!process.getTasks().isEmpty()) {
-            String value = ProcessConverter.getCombinedProgressAsString(process, false);
+            String value = ProcessProgressCombiner.getCombinedProgressAsString(process, false);
             process.setSortHelperStatus(value);
         }
     }

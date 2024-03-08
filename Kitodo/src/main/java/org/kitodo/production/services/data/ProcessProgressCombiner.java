@@ -9,7 +9,7 @@
  * GPL3-License.txt file that was distributed with this source code.
  */
 
-package org.kitodo.data.elasticsearch.index.converter;
+package org.kitodo.production.services.data;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -39,9 +39,9 @@ import org.kitodo.data.database.persistence.TaskDAO;
  * <p>The derived information is needed as for indexing, such that processes can be 
  * filtered or sorted by these derived attributes.</p>
  */
-public class ProcessConverter {
+public class ProcessProgressCombiner {
 
-    private static final Logger logger = LogManager.getLogger(ProcessConverter.class);
+    private static final Logger logger = LogManager.getLogger(ProcessProgressCombiner.class);
 
     /**
      * Returns tasks of a process that have the "in_work" status.
@@ -177,7 +177,7 @@ public class ProcessConverter {
      * @param process the process
      * @return name of processing user
      */
-    public static String getLastEditingUser(Process process) {
+    private static String getLastEditingUser(Process process) {
         Task lastTask = getLastProcessedTask(process);
         if (Objects.isNull(lastTask)) {
             return null;
@@ -192,7 +192,7 @@ public class ProcessConverter {
      * @param process the process
      * @return processing begin of last processed task
      */
-    public static Date getLastProcessingBegin(Process process) {
+    private static Date getLastProcessingBegin(Process process) {
         Task lastTask = getLastProcessedTask(process);
         if (Objects.isNull(lastTask)) {
             return null;
@@ -207,7 +207,7 @@ public class ProcessConverter {
      * @param process the process
      * @return processing end of last processed task
      */
-    public static Date getLastProcessingEnd(Process process) {
+    private static Date getLastProcessingEnd(Process process) {
         Task lastTask = getLastProcessedTask(process);
         if (Objects.isNull(lastTask) || TaskStatus.INWORK.equals(lastTask.getProcessingStatus())) {
             return null;
@@ -222,7 +222,7 @@ public class ProcessConverter {
      * @param process the process being checked for its correction comment status
      * @return an enum representing the status
      */
-    public static CorrectionComments getCorrectionCommentStatus(Process process) {
+    private static CorrectionComments getCorrectionCommentStatus(Process process) {
         if (Objects.isNull(process)) {
             return CorrectionComments.NO_CORRECTION_COMMENTS;
         }
@@ -244,7 +244,7 @@ public class ProcessConverter {
      * @param considerChildren whether to also count tasks of children processes
      * @return a map providing the percentage of tasks having a certain status (done, open, locked, inwork)
      */
-    public static Map<TaskStatus, Double> getTaskProgressPercentageOfProcess(Process process, boolean considerChildren) {
+    static Map<TaskStatus, Double> getTaskProgressPercentageOfProcess(Process process, boolean considerChildren) {
         Map<TaskStatus, Integer> counts = countTaskStatusOfProcess(process, considerChildren);
         int total = counts.values().stream().mapToInt(Integer::intValue).sum();
         
@@ -272,7 +272,7 @@ public class ProcessConverter {
      * @param percentages the task percentages as calculated with getTaskProgressPercentageOfProcess
      * @return string the string representing the combined progress of the process
      */
-    public static String getCombinedProgressFromTaskPercentages(Map<TaskStatus, Double> percentages) {
+    private static String getCombinedProgressFromTaskPercentages(Map<TaskStatus, Double> percentages) {
         DecimalFormat decimalFormat = new DecimalFormat("#000");
         return decimalFormat.format(percentages.get(TaskStatus.DONE)) 
             + decimalFormat.format(percentages.get(TaskStatus.INWORK)) 
@@ -283,7 +283,7 @@ public class ProcessConverter {
     /**
      * Return a string representing the combined progress of a process. 
      * 
-     * <p>See `ProcessConverter.getCombinedProgressFromTaskPercentages`</p>
+     * <p>See `ProcessProgressCombiner.getCombinedProgressFromTaskPercentages`</p>
      *
      * @param process the process
      * @param considerChildren whether to also count tasks of children processes

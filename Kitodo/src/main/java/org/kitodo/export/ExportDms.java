@@ -31,7 +31,6 @@ import org.kitodo.data.database.beans.Folder;
 import org.kitodo.data.database.beans.Process;
 import org.kitodo.data.database.beans.Task;
 import org.kitodo.data.database.exceptions.DAOException;
-import org.kitodo.data.elasticsearch.index.converter.ProcessConverter;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.ExportException;
 import org.kitodo.exceptions.MetadataException;
@@ -49,6 +48,7 @@ import org.kitodo.production.metadata.copier.CopierData;
 import org.kitodo.production.metadata.copier.DataCopier;
 import org.kitodo.production.model.Subfolder;
 import org.kitodo.production.services.ServiceManager;
+import org.kitodo.production.services.data.ProcessProgressCombiner;
 import org.kitodo.production.services.data.ProcessService;
 import org.kitodo.production.services.file.FileService;
 import org.kitodo.production.services.workflow.WorkflowControllerService;
@@ -209,7 +209,7 @@ public class ExportDms extends ExportMets {
 
     private boolean exportCompletedChildren(List<Process> children) throws DataException {
         for (Process child:children) {
-            if (ProcessConverter.getCombinedProgressAsString(child, false).equals(ProcessState.COMPLETED.getValue())
+            if (ProcessProgressCombiner.getCombinedProgressAsString(child, false).equals(ProcessState.COMPLETED.getValue())
                     && !child.isExported()) {
                 if (!startExport(child)) {
                     return false;
