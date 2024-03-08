@@ -114,7 +114,7 @@ public class ProcessListBaseView extends BaseForm {
 
     /**
      * Returns the list of the processes currently selected in the user interface.
-     * Converts ProcessDTO instances to Process instances in case of displaying search results.
+     * Converts Process instances to Process instances in case of displaying search results.
      *
      * @return value of selectedProcesses
      */
@@ -132,11 +132,11 @@ public class ProcessListBaseView extends BaseForm {
             }
         }
         if (!selectedProcessesOrProcessDTOs.isEmpty()) {
-            if (selectedProcessesOrProcessDTOs.get(0) instanceof ProcessDTO) {
-                // list contains ProcessDTO instances
+            if (selectedProcessesOrProcessDTOs.get(0) instanceof Process) {
+                // list contains Process instances
                 try {
                     selectedProcesses = ServiceManager.getProcessService()
-                            .convertDtosToBeans((List<ProcessDTO>) selectedProcessesOrProcessDTOs);
+                            .convertDtosToBeans((List<Process>) selectedProcessesOrProcessDTOs);
                 } catch (DAOException e) {
                     Helper.setErrorMessage(ERROR_LOADING_MANY,
                             new Object[]{ObjectType.PROCESS.getTranslationPlural()}, logger, e);
@@ -431,13 +431,13 @@ public class ProcessListBaseView extends BaseForm {
     /**
      * If processes are generated with calendar.
      *
-     * @param processDTO
+     * @param process
      *            the process dto to check.
      * @return true if processes are created with calendar, false otherwise
      */
-    public boolean createProcessesWithCalendar(ProcessDTO processDTO) {
+    public boolean createProcessesWithCalendar(Process process) {
         try {
-            return ProcessService.canCreateProcessWithCalendar(processDTO);
+            return ProcessService.canCreateProcessWithCalendar(process);
         } catch (IOException | DAOException e) {
             Helper.setErrorMessage(ERROR_READING, new Object[] {ObjectType.PROCESS.getTranslationSingular() }, logger,
                     e);
@@ -448,13 +448,13 @@ public class ProcessListBaseView extends BaseForm {
     /**
      * If a process can be created as child.
      *
-     * @param processDTO
+     * @param process
      *            the process dto to check.
      * @return true if processes can be created as child, false otherwise
      */
-    public boolean createProcessAsChildPossible(ProcessDTO processDTO) {
+    public boolean createProcessAsChildPossible(Process process) {
         try {
-            return ProcessService.canCreateChildProcess(processDTO);
+            return ProcessService.canCreateChildProcess(process);
         } catch (IOException | DAOException e) {
             Helper.setErrorMessage(ERROR_READING, new Object[] {ObjectType.PROCESS.getTranslationSingular() }, logger,
                     e);
@@ -478,9 +478,9 @@ public class ProcessListBaseView extends BaseForm {
     /**
      * Starts generation of xml logfile for current process.
      */
-    public void createXML(ProcessDTO processDTO) {
+    public void createXML(Process process) {
         try {
-            ProcessService.createXML(ServiceManager.getProcessService().getById(processDTO.getId()), getUser());
+            ProcessService.createXML(ServiceManager.getProcessService().getById(process.getId()), getUser());
         } catch (IOException | DAOException e) {
             Helper.setErrorMessage("Error creating log file in home directory", logger, e);
         }
@@ -528,26 +528,26 @@ public class ProcessListBaseView extends BaseForm {
     /**
      * Upload from home for single process.
      */
-    public void uploadFromHome(ProcessDTO processDTO) {
+    public void uploadFromHome(Process process) {
         try {
             WebDav myDav = new WebDav();
-            myDav.uploadFromHome(ServiceManager.getProcessService().getById(processDTO.getId()));
-            Helper.setMessage("directoryRemoved", processDTO.getTitle());
+            myDav.uploadFromHome(ServiceManager.getProcessService().getById(process.getId()));
+            Helper.setMessage("directoryRemoved", process.getTitle());
         } catch (DAOException e) {
             Helper.setErrorMessage(ERROR_LOADING_ONE,
-                    new Object[] {ObjectType.PROCESS.getTranslationSingular(), processDTO.getId() }, logger, e);
+                    new Object[] {ObjectType.PROCESS.getTranslationSingular(), process.getId() }, logger, e);
         }
     }
 
     /**
      * Delete Process.
      *
-     * @param processDTO
+     * @param process
      *            process to delete.
      */
-    public void delete(ProcessDTO processDTO) {
+    public void delete(Process process) {
         try {
-            Process process = ServiceManager.getProcessService().getById(processDTO.getId());
+            Process process = ServiceManager.getProcessService().getById(process.getId());
             if (process.getChildren().isEmpty()) {
                 try {
                     ProcessService.deleteProcess(process);
@@ -596,9 +596,9 @@ public class ProcessListBaseView extends BaseForm {
     /**
      * Returns the list of currently selected processes. This list is used both when displaying search results 
      * and when displaying the process list, which is why it may contain either instances of Process or 
-     * instances of ProcessDTO.
+     * instances of Process.
      * 
-     * @return list of instances of Process or ProcessDTO
+     * @return list of instances of Process or Process
      */
     public List<? extends Object> getSelectedProcessesOrProcessDTOs() {
         return selectedProcessesOrProcessDTOs;

@@ -55,7 +55,7 @@ import org.primefaces.model.SortOrder;
 /**
  * Service for Filter bean.
  */
-public class FilterService extends SearchService<Filter, FilterDTO, FilterDAO> {
+public class FilterService extends SearchService<Filter, Filter, FilterDAO> {
 
     private static final Logger logger = LogManager.getLogger(FilterService.class);
     private static volatile FilterService instance = null;
@@ -129,11 +129,11 @@ public class FilterService extends SearchService<Filter, FilterDTO, FilterDAO> {
     }
 
     @Override
-    public FilterDTO convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
-        FilterDTO filterDTO = new FilterDTO();
-        filterDTO.setId(getIdFromJSONObject(jsonObject));
-        filterDTO.setValue(FilterTypeField.VALUE.getStringValue(jsonObject));
-        return filterDTO;
+    public Filter convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
+        Filter filter = new Filter();
+        filter.setId(getIdFromJSONObject(jsonObject));
+        filter.setValue(FilterTypeField.VALUE.getStringValue(jsonObject));
+        return filter;
     }
 
     /**
@@ -262,10 +262,10 @@ public class FilterService extends SearchService<Filter, FilterDTO, FilterDAO> {
         return limitToUserAssignedTasks(onlyOpenTasks, onlyUserAssignedTasks);
     }
 
-    Set<Integer> collectIds(List<? extends BaseDTO> dtos) {
+    Set<Integer> collectIds(List<? extends Base> dtos) {
         Set<Integer> ids = new HashSet<>();
-        for (BaseDTO processDTO : dtos) {
-            ids.add(processDTO.getId());
+        for (Base process : dtos) {
+            ids.add(process.getId());
         }
         return ids;
     }
@@ -541,7 +541,7 @@ public class FilterService extends SearchService<Filter, FilterDTO, FilterDAO> {
         if (objectType == ObjectType.PROCESS) {
             return createSetQuery("batches.id", filterValuesAsIntegers(filter, FilterString.BATCH), negate);
         } else if (objectType == ObjectType.TASK) {
-            List<ProcessDTO> processDTOS = ServiceManager.getProcessService().findByQuery(
+            List<Process> processDTOS = ServiceManager.getProcessService().findByQuery(
                 createSetQuery("batches.id", filterValuesAsIntegers(filter, FilterString.BATCH), negate), true);
             return createSetQuery(TaskTypeField.PROCESS_ID.getKey(), collectIds(processDTOS), negate);
         }
@@ -840,12 +840,12 @@ public class FilterService extends SearchService<Filter, FilterDTO, FilterDAO> {
         /*
          * filtering by a certain done step, which the current user finished
          */
-        /*List<TaskDTO> taskDTOS = new ArrayList<>();
+        /*List<Task> taskDTOS = new ArrayList<>();
         String login = getFilterValueFromFilterString(filter, FilterString.TASKDONEUSER);
         try {
             Map<String, Object> user = ServiceManager.getUserService().findByLogin(login);
-            UserDTO userDTO = ServiceManager.getUserService().convertJSONObjectToDTO(user, false);
-            taskDTOS = userDTO.getProcessingTasks();
+            User user = ServiceManager.getUserService().convertJSONObjectToDTO(user, false);
+            taskDTOS = user.getProcessingTasks();
         } catch (DataException e) {
             logger.error(e.getMessage(), e);
         }
@@ -953,7 +953,7 @@ public class FilterService extends SearchService<Filter, FilterDTO, FilterDAO> {
     private QueryBuilder getQueryAccordingToObjectTypeAndSearchInTask(ObjectType objectType, QueryBuilder query)
             throws DataException {
         if (objectType == ObjectType.PROCESS) {
-            List<TaskDTO> taskDTOS = ServiceManager.getTaskService().findByQuery(query, true);
+            List<Task> taskDTOS = ServiceManager.getTaskService().findByQuery(query, true);
             return createSetQuery("tasks.id", collectIds(taskDTOS), true);
         } else if (objectType == ObjectType.TASK) {
             return query;
@@ -966,7 +966,7 @@ public class FilterService extends SearchService<Filter, FilterDTO, FilterDAO> {
         if (objectType == ObjectType.PROCESS) {
             return query;
         } else if (objectType == ObjectType.TASK) {
-            List<ProcessDTO> processDTOS = ServiceManager.getProcessService().findByQuery(query, true);
+            List<Process> processDTOS = ServiceManager.getProcessService().findByQuery(query, true);
             return createSetQuery(TaskTypeField.PROCESS_ID.getKey(), collectIds(processDTOS), true);
         }
         return new BoolQueryBuilder();
@@ -1087,14 +1087,14 @@ public class FilterService extends SearchService<Filter, FilterDTO, FilterDAO> {
      * @return List of String objects containing the project
      */
     public List<String> initProjects() {
-        List<ProjectDTO> projectsSortedByTitle = Collections.emptyList();
+        List<Project> projectsSortedByTitle = Collections.emptyList();
         try {
             projectsSortedByTitle = ServiceManager.getProjectService().findAllProjectsForCurrentUser();
         } catch (DataException e) {
             Helper.setErrorMessage("errorInitializingProjects", logger, e);
         }
 
-        return projectsSortedByTitle.stream().map(ProjectDTO::getTitle).sorted().collect(Collectors.toList());
+        return projectsSortedByTitle.stream().map(Project::getTitle).sorted().collect(Collectors.toList());
     }
 
     /**

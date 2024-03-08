@@ -955,8 +955,8 @@ public class ImportService {
                 HashMap<String, String> parentIDMetadata = new HashMap<>();
                 parentIDMetadata.put(identifierMetadata, parentId);
                 try {
-                    for (ProcessDTO processDTO : ServiceManager.getProcessService().findByMetadata(parentIDMetadata, true)) {
-                        Process process = ServiceManager.getProcessService().getById(processDTO.getId());
+                    for (Process process : ServiceManager.getProcessService().findByMetadata(parentIDMetadata, true)) {
+                        Process process = ServiceManager.getProcessService().getById(process.getId());
                         if (Objects.isNull(process.getRuleset()) || Objects.isNull(process.getRuleset().getId())) {
                             throw new ProcessGenerationException("Ruleset or ruleset ID of potential parent process "
                                     + process.getId() + " is null!");

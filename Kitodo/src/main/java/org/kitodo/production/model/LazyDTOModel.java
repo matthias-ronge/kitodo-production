@@ -79,8 +79,8 @@ public class LazyDTOModel extends LazyDataModel<Object> {
 
     @Override
     public Object getRowKey(Object inObject) {
-        if (inObject instanceof BaseDTO) {
-            BaseDTO dto = (BaseDTO) inObject;
+        if (inObject instanceof Base) {
+            Base dto = (Base) inObject;
             return dto.getId();
         } else if (inObject instanceof BaseBean) {
             BaseBean bean = (BaseBean) inObject;

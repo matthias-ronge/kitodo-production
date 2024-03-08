@@ -74,7 +74,7 @@ import org.primefaces.model.SortOrder;
  * functions on the task because the task itself is a database bean and
  * therefore may not include functionality.
  */
-public class TaskService extends ProjectSearchService<Task, TaskDTO, TaskDAO> {
+public class TaskService extends ProjectSearchService<Task, Task, TaskDAO> {
 
     private static final Logger logger = LogManager.getLogger(TaskService.class);
     private static volatile TaskService instance = null;
@@ -184,7 +184,7 @@ public class TaskService extends ProjectSearchService<Task, TaskDTO, TaskDAO> {
     }
 
     @Override
-    public List<TaskDTO> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
+    public List<Task> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
             throws DataException {
         return loadData(first, pageSize, sortField, sortOrder, filters, false, false, false,
                 Arrays.asList(TaskStatus.OPEN, TaskStatus.INWORK));
@@ -204,7 +204,7 @@ public class TaskService extends ProjectSearchService<Task, TaskDTO, TaskDAO> {
      * @return List of loaded tasks
      * @throws DataException if tasks cannot be loaded from search index
      */
-    public List<TaskDTO> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters,
+    public List<Task> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters,
                                   boolean onlyOwnTasks, boolean hideCorrectionTasks, boolean showAutomaticTasks,
                                   List<TaskStatus> taskStatus)
             throws DataException {
@@ -293,31 +293,31 @@ public class TaskService extends ProjectSearchService<Task, TaskDTO, TaskDAO> {
     }
 
     @Override
-    public TaskDTO convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
-        TaskDTO taskDTO = new TaskDTO();
-        taskDTO.setId(getIdFromJSONObject(jsonObject));
-        taskDTO.setTitle(TaskTypeField.TITLE.getStringValue(jsonObject));
-        taskDTO.setLocalizedTitle(getLocalizedTitle(taskDTO.getTitle()));
-        taskDTO.setOrdering(TaskTypeField.ORDERING.getIntValue(jsonObject));
+    public Task convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
+        Task task = new Task();
+        task.setId(getIdFromJSONObject(jsonObject));
+        task.setTitle(TaskTypeField.TITLE.getStringValue(jsonObject));
+        task.setLocalizedTitle(getLocalizedTitle(task.getTitle()));
+        task.setOrdering(TaskTypeField.ORDERING.getIntValue(jsonObject));
         int taskStatus = TaskTypeField.PROCESSING_STATUS.getIntValue(jsonObject);
-        taskDTO.setProcessingStatus(TaskStatus.getStatusFromValue(taskStatus));
-        taskDTO.setProcessingStatusTitle(Helper.getTranslation(taskDTO.getProcessingStatus().getTitle()));
+        task.setProcessingStatus(TaskStatus.getStatusFromValue(taskStatus));
+        task.setProcessingStatusTitle(Helper.getTranslation(task.getProcessingStatus().getTitle()));
         int editType = TaskTypeField.EDIT_TYPE.getIntValue(jsonObject);
-        taskDTO.setEditType(TaskEditType.getTypeFromValue(editType));
-        taskDTO.setEditTypeTitle(Helper.getTranslation(taskDTO.getEditType().getTitle()));
-        taskDTO.setProcessingTime(TaskTypeField.PROCESSING_TIME.getStringValue(jsonObject));
-        taskDTO.setProcessingBegin(TaskTypeField.PROCESSING_BEGIN.getStringValue(jsonObject));
-        taskDTO.setProcessingEnd(TaskTypeField.PROCESSING_END.getStringValue(jsonObject));
-        taskDTO.setCorrection(TaskTypeField.CORRECTION.getBooleanValue(jsonObject));
-        taskDTO.setTypeAutomatic(TaskTypeField.TYPE_AUTOMATIC.getBooleanValue(jsonObject));
-        taskDTO.setTypeMetadata(TaskTypeField.TYPE_METADATA.getBooleanValue(jsonObject));
-        taskDTO.setTypeImagesWrite(TaskTypeField.TYPE_IMAGES_WRITE.getBooleanValue(jsonObject));
-        taskDTO.setTypeImagesRead(TaskTypeField.TYPE_IMAGES_READ.getBooleanValue(jsonObject));
-        taskDTO.setBatchStep(TaskTypeField.BATCH_STEP.getBooleanValue(jsonObject));
-        taskDTO.setRoleIds(convertJSONValuesToList(TaskTypeField.ROLES.getJsonArray(jsonObject)));
-        taskDTO.setRolesSize(TaskTypeField.ROLES.getSizeOfProperty(jsonObject));
-        taskDTO.setCorrectionCommentStatus(TaskTypeField.CORRECTION_COMMENT_STATUS.getIntValue(jsonObject));
-        convertTaskProjectFromJsonObjectToDTO(jsonObject, taskDTO);
+        task.setEditType(TaskEditType.getTypeFromValue(editType));
+        task.setEditTypeTitle(Helper.getTranslation(task.getEditType().getTitle()));
+        task.setProcessingTime(TaskTypeField.PROCESSING_TIME.getStringValue(jsonObject));
+        task.setProcessingBegin(TaskTypeField.PROCESSING_BEGIN.getStringValue(jsonObject));
+        task.setProcessingEnd(TaskTypeField.PROCESSING_END.getStringValue(jsonObject));
+        task.setCorrection(TaskTypeField.CORRECTION.getBooleanValue(jsonObject));
+        task.setTypeAutomatic(TaskTypeField.TYPE_AUTOMATIC.getBooleanValue(jsonObject));
+        task.setTypeMetadata(TaskTypeField.TYPE_METADATA.getBooleanValue(jsonObject));
+        task.setTypeImagesWrite(TaskTypeField.TYPE_IMAGES_WRITE.getBooleanValue(jsonObject));
+        task.setTypeImagesRead(TaskTypeField.TYPE_IMAGES_READ.getBooleanValue(jsonObject));
+        task.setBatchStep(TaskTypeField.BATCH_STEP.getBooleanValue(jsonObject));
+        task.setRoleIds(convertJSONValuesToList(TaskTypeField.ROLES.getJsonArray(jsonObject)));
+        task.setRolesSize(TaskTypeField.ROLES.getSizeOfProperty(jsonObject));
+        task.setCorrectionCommentStatus(TaskTypeField.CORRECTION_COMMENT_STATUS.getIntValue(jsonObject));
+        convertTaskProjectFromJsonObjectToDTO(jsonObject, task);
 
         /*
          * We read the list of the process but not the list of templates, because only process tasks
@@ -326,35 +326,35 @@ public class TaskService extends ProjectSearchService<Task, TaskDTO, TaskDAO> {
          */
         int process = TaskTypeField.PROCESS_ID.getIntValue(jsonObject);
         if (process > 0 && !related) {
-            taskDTO.setProcess(ServiceManager.getProcessService().findById(process, true));
-            taskDTO.setBatchAvailable(ServiceManager.getProcessService()
-                    .isProcessAssignedToOnlyOneBatch(taskDTO.getProcess().getBatches()));
+            task.setProcess(ServiceManager.getProcessService().findById(process, true));
+            task.setBatchAvailable(ServiceManager.getProcessService()
+                    .isProcessAssignedToOnlyOneBatch(task.getProcess().getBatches()));
         }
 
         int processingUser = TaskTypeField.PROCESSING_USER_ID.getIntValue(jsonObject);
         if (processingUser > 0) {
-            UserDTO userDTO = new UserDTO();
-            userDTO.setId(processingUser);
-            userDTO.setLogin(TaskTypeField.PROCESSING_USER_LOGIN.getStringValue(jsonObject));
-            userDTO.setName(TaskTypeField.PROCESSING_USER_NAME.getStringValue(jsonObject));
-            userDTO.setSurname(TaskTypeField.PROCESSING_USER_SURNAME.getStringValue(jsonObject));
-            userDTO.setFullName(TaskTypeField.PROCESSING_USER_FULLNAME.getStringValue(jsonObject));
-            taskDTO.setProcessingUser(userDTO);
+            User user = new User();
+            user.setId(processingUser);
+            user.setLogin(TaskTypeField.PROCESSING_USER_LOGIN.getStringValue(jsonObject));
+            user.setName(TaskTypeField.PROCESSING_USER_NAME.getStringValue(jsonObject));
+            user.setSurname(TaskTypeField.PROCESSING_USER_SURNAME.getStringValue(jsonObject));
+            user.setFullName(TaskTypeField.PROCESSING_USER_FULLNAME.getStringValue(jsonObject));
+            task.setProcessingUser(user);
         }
-        return taskDTO;
+        return task;
     }
 
     /**
-     * Parses and adds properties related to the project of a task to the taskDTO.
+     * Parses and adds properties related to the project of a task to the task.
      * 
      * @param jsonObject the jsonObject retrieved from the ElasticSearch index for a task
-     * @param taskDTO the taskDTO
+     * @param task the task
      */
-    private void convertTaskProjectFromJsonObjectToDTO(Map<String, Object> jsonObject, TaskDTO taskDTO) throws DataException {
-        ProjectDTO projectDTO = new ProjectDTO();
-        projectDTO.setId(TaskTypeField.PROJECT_ID.getIntValue(jsonObject));
-        projectDTO.setTitle(TaskTypeField.PROJECT_TITLE.getStringValue(jsonObject));
-        taskDTO.setProject(projectDTO);
+    private void convertTaskProjectFromJsonObjectToDTO(Map<String, Object> jsonObject, Task task) throws DataException {
+        Project project = new Project();
+        project.setId(TaskTypeField.PROJECT_ID.getIntValue(jsonObject));
+        project.setTitle(TaskTypeField.PROJECT_TITLE.getStringValue(jsonObject));
+        task.setProject(project);
     }
 
     private List<Integer> convertJSONValuesToList(List<Map<String, Object>> jsonObject) {

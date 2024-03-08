@@ -104,7 +104,7 @@ public class BatchForm extends BaseForm {
      * Filter processes.
      */
     public void filterProcesses() {
-        List<ProcessDTO> processDTOS = new ArrayList<>();
+        List<Process> processDTOS = new ArrayList<>();
         QueryBuilder query = new BoolQueryBuilder();
 
         if (Objects.nonNull(this.processfilter)) {

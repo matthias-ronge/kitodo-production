@@ -27,7 +27,7 @@ import org.primefaces.PrimeFaces;
 public class SelectTemplateDialogView implements Serializable {
 
     private int selectedTemplateId = 0;
-    private ProjectDTO project;
+    private Project project;
     protected static final String ERROR_LOADING_ONE = "errorLoadingOne";
     private static final String CREATE_PROCESS_PATH = "/pages/processFromTemplate.jsf?faces-redirect=true";
     private static final String MASSIMPORT_PATH = "/pages/massImport.jsf?faces-redirect=true";
@@ -38,16 +38,16 @@ public class SelectTemplateDialogView implements Serializable {
      *
      * @return value of project
      */
-    public ProjectDTO getProject() {
+    public Project getProject() {
         return project;
     }
 
     /**
      * Set project.
      *
-     * @param project as org.kitodo.production.dto.ProjectDTO
+     * @param project as org.kitodo.production.dto.Project
      */
-    public void setProject(ProjectDTO project) {
+    public void setProject(Project project) {
         this.project = project;
     }
 
@@ -63,7 +63,7 @@ public class SelectTemplateDialogView implements Serializable {
     /**
      * Set selectedTemplateId.
      *
-     * @param selectedTemplateId as org.kitodo.production.dto.TemplateDTO
+     * @param selectedTemplateId as org.kitodo.production.dto.Template
      */
     public void setSelectedTemplateId(int selectedTemplateId) {
         this.selectedTemplateId = selectedTemplateId;
@@ -92,7 +92,7 @@ public class SelectTemplateDialogView implements Serializable {
      * Display error message if no template is configured for current project.
      */
     public void checkForTemplates() {
-        List<TemplateDTO> availableTemplates = this.project.getTemplates();
+        List<Template> availableTemplates = this.project.getTemplates();
         if (availableTemplates.size() == 1) {
             this.selectedTemplateId = availableTemplates.get(0).getId();
         }

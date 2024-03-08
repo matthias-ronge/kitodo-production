@@ -25,7 +25,7 @@ import org.kitodo.data.exceptions.DataException;
  * Class for implementing methods used by service classes which search for title
  * in ElasticSearch index.
  */
-public abstract class TitleSearchService<T extends BaseIndexedBean, S extends BaseDTO, V extends BaseDAO<T>>
+public abstract class TitleSearchService<T extends BaseIndexedBean, S extends Base, V extends BaseDAO<T>>
         extends SearchService<T, S, V> {
 
     private static final String TITLE = "title";

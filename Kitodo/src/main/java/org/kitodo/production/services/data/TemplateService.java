@@ -47,7 +47,7 @@ import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.base.ClientSearchService;
 import org.primefaces.model.SortOrder;
 
-public class TemplateService extends ClientSearchService<Template, TemplateDTO, TemplateDAO> {
+public class TemplateService extends ClientSearchService<Template, Template, TemplateDAO> {
 
     private static final Logger logger = LogManager.getLogger(TemplateService.class);
     private static volatile TemplateService instance = null;
@@ -106,7 +106,7 @@ public class TemplateService extends ClientSearchService<Template, TemplateDTO, 
     }
 
     @Override
-    public List<TemplateDTO> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
+    public List<Template> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
             throws DataException {
         return findByQuery(createUserTemplatesQuery(filters), getSortBuilder(sortField, sortOrder), first, pageSize,
             false);
@@ -134,11 +134,11 @@ public class TemplateService extends ClientSearchService<Template, TemplateDTO, 
      *            id of project which is going to be edited
      * @return list of all matching templates
      */
-    public List<TemplateDTO> findAllAvailableForAssignToProject(Integer projectId) throws DataException {
+    public List<Template> findAllAvailableForAssignToProject(Integer projectId) throws DataException {
         return findAvailableForAssignToUser(projectId);
     }
 
-    private List<TemplateDTO> findAvailableForAssignToUser(Integer projectId) throws DataException {
+    private List<Template> findAvailableForAssignToUser(Integer projectId) throws DataException {
         BoolQueryBuilder query = new BoolQueryBuilder();
         if (Objects.nonNull(projectId)) {
             query.must(createSimpleQuery(TemplateTypeField.PROJECTS + ".id", projectId, false));
@@ -174,34 +174,34 @@ public class TemplateService extends ClientSearchService<Template, TemplateDTO, 
     }
 
     @Override
-    public TemplateDTO convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
-        TemplateDTO templateDTO = new TemplateDTO();
-        templateDTO.setId(getIdFromJSONObject(jsonObject));
-        templateDTO.setTitle(TemplateTypeField.TITLE.getStringValue(jsonObject));
-        templateDTO.setActive(TemplateTypeField.ACTIVE.getBooleanValue(jsonObject));
-        templateDTO.setCreationDate(TemplateTypeField.CREATION_DATE.getStringValue(jsonObject));
-        templateDTO.setDocket(
+    public Template convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
+        Template template = new Template();
+        template.setId(getIdFromJSONObject(jsonObject));
+        template.setTitle(TemplateTypeField.TITLE.getStringValue(jsonObject));
+        template.setActive(TemplateTypeField.ACTIVE.getBooleanValue(jsonObject));
+        template.setCreationDate(TemplateTypeField.CREATION_DATE.getStringValue(jsonObject));
+        template.setDocket(
             ServiceManager.getDocketService().findById(TemplateTypeField.DOCKET.getIntValue(jsonObject)));
-        templateDTO.setRuleset(
+        template.setRuleset(
             ServiceManager.getRulesetService().findById(TemplateTypeField.RULESET_ID.getIntValue(jsonObject)));
-        WorkflowDTO workflowDTO = new WorkflowDTO();
-        workflowDTO.setTitle(TemplateTypeField.WORKFLOW_TITLE.getStringValue(jsonObject));
-        templateDTO.setWorkflow(workflowDTO);
-        templateDTO.setTasks(convertRelatedJSONObjectToDTO(jsonObject, TemplateTypeField.TASKS.getKey(),
+        Workflow workflow = new Workflow();
+        workflow.setTitle(TemplateTypeField.WORKFLOW_TITLE.getStringValue(jsonObject));
+        template.setWorkflow(workflow);
+        template.setTasks(convertRelatedJSONObjectToDTO(jsonObject, TemplateTypeField.TASKS.getKey(),
             ServiceManager.getTaskService()));
-        templateDTO.setCanBeUsedForProcess(hasCompleteTasks(templateDTO.getTasks()));
+        template.setCanBeUsedForProcess(hasCompleteTasks(template.getTasks()));
 
         if (!related) {
-            convertRelatedJSONObjects(jsonObject, templateDTO);
+            convertRelatedJSONObjects(jsonObject, template);
         }
 
-        return templateDTO;
+        return template;
     }
 
-    private void convertRelatedJSONObjects(Map<String, Object> jsonObject, TemplateDTO templateDTO)
+    private void convertRelatedJSONObjects(Map<String, Object> jsonObject, Template template)
             throws DataException {
-        templateDTO.setProjects(convertRelatedJSONObjectToDTO(jsonObject, TemplateTypeField.PROJECTS.getKey(),
-            ServiceManager.getProjectService()).stream().sorted(Comparator.comparing(ProjectDTO::getTitle))
+        template.setProjects(convertRelatedJSONObjectToDTO(jsonObject, TemplateTypeField.PROJECTS.getKey(),
+            ServiceManager.getProjectService()).stream().sorted(Comparator.comparing(Project::getTitle))
                 .collect(Collectors.toList()));
     }
 
@@ -284,11 +284,11 @@ public class TemplateService extends ClientSearchService<Template, TemplateDTO, 
      *            list of tasks for testing
      * @return true or false
      */
-    boolean hasCompleteTasks(List<TaskDTO> tasks) {
+    boolean hasCompleteTasks(List<Task> tasks) {
         if (tasks.isEmpty()) {
             return false;
         }
-        for (TaskDTO task : tasks) {
+        for (Task task : tasks) {
             if (task.getRolesSize() == 0) {
                 return false;
             }

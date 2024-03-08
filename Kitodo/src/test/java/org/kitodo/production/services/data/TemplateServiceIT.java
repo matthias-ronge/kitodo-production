@@ -51,7 +51,7 @@ public class TemplateServiceIT {
 
     @Test
     public void shouldFindAll() throws Exception {
-        List<TemplateDTO> templates = templateService.findAll();
+        List<Template> templates = templateService.findAll();
         assertEquals("Found incorrect amount of templates!", 4, templates.size());
     }
 
@@ -91,12 +91,12 @@ public class TemplateServiceIT {
 
     @Test
     public void shouldHasCompleteTasks() throws Exception {
-        TemplateDTO templateDTO = templateService.findById(1);
-        boolean condition = templateService.hasCompleteTasks(templateDTO.getTasks());
+        Template template = templateService.findById(1);
+        boolean condition = templateService.hasCompleteTasks(template.getTasks());
         assertTrue("Process DTO doesn't have complete tasks!", condition);
 
-        templateDTO = templateService.findById(3);
-        condition = templateService.hasCompleteTasks(templateDTO.getTasks());
+        template = templateService.findById(3);
+        condition = templateService.hasCompleteTasks(template.getTasks());
         assertFalse("Process DTO has complete tasks!", condition);
     }
 }

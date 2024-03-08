@@ -30,7 +30,7 @@ import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.base.ClientSearchService;
 import org.primefaces.model.SortOrder;
 
-public class WorkflowService extends ClientSearchService<Workflow, WorkflowDTO, WorkflowDAO> {
+public class WorkflowService extends ClientSearchService<Workflow, Workflow, WorkflowDAO> {
 
     private static volatile WorkflowService instance = null;
 
@@ -77,7 +77,7 @@ public class WorkflowService extends ClientSearchService<Workflow, WorkflowDTO, 
     }
 
     @Override
-    public List<WorkflowDTO> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
+    public List<Workflow> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
             throws DataException {
         return findByQuery(getWorkflowsForCurrentUserQuery(), getSortBuilder(sortField, sortOrder), first, pageSize,
             false);
@@ -95,12 +95,12 @@ public class WorkflowService extends ClientSearchService<Workflow, WorkflowDTO, 
     }
 
     @Override
-    public WorkflowDTO convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
-        WorkflowDTO workflowDTO = new WorkflowDTO();
-        workflowDTO.setId(getIdFromJSONObject(jsonObject));
-        workflowDTO.setTitle(WorkflowTypeField.TITLE.getStringValue(jsonObject));
-        workflowDTO.setStatus(WorkflowTypeField.STATUS.getStringValue(jsonObject));
-        return workflowDTO;
+    public Workflow convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
+        Workflow workflow = new Workflow();
+        workflow.setId(getIdFromJSONObject(jsonObject));
+        workflow.setTitle(WorkflowTypeField.TITLE.getStringValue(jsonObject));
+        workflow.setStatus(WorkflowTypeField.STATUS.getStringValue(jsonObject));
+        return workflow;
     }
 
     private QueryBuilder getWorkflowsForCurrentUserQuery() {

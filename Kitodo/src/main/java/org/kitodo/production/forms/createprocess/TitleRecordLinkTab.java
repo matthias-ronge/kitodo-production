@@ -306,14 +306,14 @@ public class TitleRecordLinkTab {
             return;
         }
         try {
-            List<ProcessDTO> processes = ServiceManager.getProcessService().findLinkableParentProcesses(searchQuery,
+            List<Process> processes = ServiceManager.getProcessService().findLinkableParentProcesses(searchQuery,
                 createProcessForm.getProject().getId(), createProcessForm.getTemplate().getRuleset().getId());
             if (processes.isEmpty()) {
                 Helper.setMessage("createProcessForm.titleRecordLinkTab.searchButtonClick.noHits");
             }
             indicationOfMoreHitsVisible = processes.size() > MAXIMUM_NUMBER_OF_HITS;
             possibleParentProcesses = new ArrayList<>();
-            for (ProcessDTO process : processes.subList(0, Math.min(processes.size(), MAXIMUM_NUMBER_OF_HITS))) {
+            for (Process process : processes.subList(0, Math.min(processes.size(), MAXIMUM_NUMBER_OF_HITS))) {
                 possibleParentProcesses.add(new SelectItem(process.getId().toString(), process.getTitle()));
             }
         } catch (DataException e) {

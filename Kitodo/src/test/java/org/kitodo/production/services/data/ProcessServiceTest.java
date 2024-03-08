@@ -22,43 +22,43 @@ public class ProcessServiceTest {
 
     @Test
     public void shouldGetSortedCorrectionSolutionMessages() {
-        final ProcessDTO processDTO = new ProcessDTO();
+        final Process process = new Process();
 
-        PropertyDTO firstPropertyDTO = new PropertyDTO();
-        firstPropertyDTO.setId(1);
-        firstPropertyDTO.setTitle("Korrektur notwendig");
-        firstPropertyDTO.setValue("Fix it");
-        firstPropertyDTO.setCreationDate(null);
+        Property firstProperty = new Property();
+        firstProperty.setId(1);
+        firstProperty.setTitle("Korrektur notwendig");
+        firstProperty.setValue("Fix it");
+        firstProperty.setCreationDate(null);
 
-        PropertyDTO secondPropertyDTO = new PropertyDTO();
-        secondPropertyDTO.setId(2);
-        secondPropertyDTO.setTitle("Korrektur notwendig");
-        secondPropertyDTO.setValue("Fix it also");
-        secondPropertyDTO.setCreationDate(null);
+        Property secondProperty = new Property();
+        secondProperty.setId(2);
+        secondProperty.setTitle("Korrektur notwendig");
+        secondProperty.setValue("Fix it also");
+        secondProperty.setCreationDate(null);
 
-        PropertyDTO thirdPropertyDTO = new PropertyDTO();
-        thirdPropertyDTO.setId(3);
-        thirdPropertyDTO.setTitle("Other title");
-        thirdPropertyDTO.setValue("Other value");
-        thirdPropertyDTO.setCreationDate("2017-12-01");
+        Property thirdProperty = new Property();
+        thirdProperty.setId(3);
+        thirdProperty.setTitle("Other title");
+        thirdProperty.setValue("Other value");
+        thirdProperty.setCreationDate("2017-12-01");
 
-        PropertyDTO fourthPropertyDTO = new PropertyDTO();
-        fourthPropertyDTO.setId(4);
-        fourthPropertyDTO.setTitle("Korrektur durchgef\u00FChrt");
-        fourthPropertyDTO.setValue("Fixed second");
-        fourthPropertyDTO.setCreationDate("2017-12-05");
+        Property fourthProperty = new Property();
+        fourthProperty.setId(4);
+        fourthProperty.setTitle("Korrektur durchgef\u00FChrt");
+        fourthProperty.setValue("Fixed second");
+        fourthProperty.setCreationDate("2017-12-05");
 
-        PropertyDTO fifthPropertyDTO = new PropertyDTO();
-        fifthPropertyDTO.setId(5);
-        fifthPropertyDTO.setTitle("Korrektur durchgef\u00FChrt");
-        fifthPropertyDTO.setValue("Fixed first");
-        fifthPropertyDTO.setCreationDate("2017-12-03");
+        Property fifthProperty = new Property();
+        fifthProperty.setId(5);
+        fifthProperty.setTitle("Korrektur durchgef\u00FChrt");
+        fifthProperty.setValue("Fixed first");
+        fifthProperty.setCreationDate("2017-12-03");
 
-        processDTO.getProperties().add(firstPropertyDTO);
-        processDTO.getProperties().add(secondPropertyDTO);
-        processDTO.getProperties().add(thirdPropertyDTO);
-        processDTO.getProperties().add(fourthPropertyDTO);
-        processDTO.getProperties().add(fifthPropertyDTO);
+        process.getProperties().add(firstProperty);
+        process.getProperties().add(secondProperty);
+        process.getProperties().add(thirdProperty);
+        process.getProperties().add(fourthProperty);
+        process.getProperties().add(fifthProperty);
 
     }
 

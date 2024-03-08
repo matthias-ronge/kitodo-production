@@ -45,7 +45,7 @@ import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.base.ClientSearchService;
 import org.primefaces.model.SortOrder;
 
-public class ProjectService extends ClientSearchService<Project, ProjectDTO, ProjectDAO> {
+public class ProjectService extends ClientSearchService<Project, Project, ProjectDAO> {
 
     private static volatile ProjectService instance = null;
 
@@ -151,7 +151,7 @@ public class ProjectService extends ClientSearchService<Project, ProjectDTO, Pro
     }
 
     @Override
-    public List<ProjectDTO> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
+    public List<Project> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
             throws DataException {
         return findByQuery(getProjectsForCurrentUserQuery(), getSortBuilder(sortField, sortOrder), first, pageSize,
             false);
@@ -165,21 +165,21 @@ public class ProjectService extends ClientSearchService<Project, ProjectDTO, Pro
      *            user which is going to be edited
      * @return list of all matching projects
      */
-    public List<ProjectDTO> findAllAvailableForAssignToUser(User user) throws DataException {
+    public List<Project> findAllAvailableForAssignToUser(User user) throws DataException {
         return findAvailableForAssignToUser(user);
     }
 
-    private List<ProjectDTO> findAvailableForAssignToUser(User user) throws DataException {
+    private List<Project> findAvailableForAssignToUser(User user) throws DataException {
 
         BoolQueryBuilder query = new BoolQueryBuilder();
         for (Client client : user.getClients()) {
             query.should(createSimpleQuery(ProjectTypeField.CLIENT_ID.getKey(), client.getId(), true));
         }
 
-        List<ProjectDTO> projectDTOS = findByQuery(query, true);
-        List<ProjectDTO> alreadyAssigned = new ArrayList<>();
+        List<Project> projectDTOS = findByQuery(query, true);
+        List<Project> alreadyAssigned = new ArrayList<>();
         for (Project project : user.getProjects()) {
-            alreadyAssigned.addAll(projectDTOS.stream().filter(projectDTO -> projectDTO.getId().equals(project.getId()))
+            alreadyAssigned.addAll(projectDTOS.stream().filter(project -> project.getId().equals(project.getId()))
                     .collect(Collectors.toList()));
         }
         projectDTOS.removeAll(alreadyAssigned);
@@ -187,47 +187,47 @@ public class ProjectService extends ClientSearchService<Project, ProjectDTO, Pro
     }
 
     @Override
-    public ProjectDTO convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
-        ProjectDTO projectDTO = new ProjectDTO();
-        projectDTO.setId(getIdFromJSONObject(jsonObject));
-        projectDTO.setTitle(ProjectTypeField.TITLE.getStringValue(jsonObject));
-        projectDTO.setStartDate(ProjectTypeField.START_DATE.getStringValue(jsonObject));
-        projectDTO.setEndDate(ProjectTypeField.END_DATE.getStringValue(jsonObject));
-        projectDTO.setMetsRightsOwner(ProjectTypeField.METS_RIGTS_OWNER.getStringValue(jsonObject));
-        projectDTO.setNumberOfPages(ProjectTypeField.NUMBER_OF_PAGES.getIntValue(jsonObject));
-        projectDTO.setNumberOfVolumes(ProjectTypeField.NUMBER_OF_VOLUMES.getIntValue(jsonObject));
-        projectDTO.setActive(ProjectTypeField.ACTIVE.getBooleanValue(jsonObject));
-        ClientDTO clientDTO = new ClientDTO();
-        clientDTO.setId(ProjectTypeField.CLIENT_ID.getIntValue(jsonObject));
-        clientDTO.setName(ProjectTypeField.CLIENT_NAME.getStringValue(jsonObject));
-        projectDTO.setClient(clientDTO);
-        projectDTO.setHasProcesses(ProjectTypeField.HAS_PROCESSES.getBooleanValue(jsonObject));
+    public Project convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
+        Project project = new Project();
+        project.setId(getIdFromJSONObject(jsonObject));
+        project.setTitle(ProjectTypeField.TITLE.getStringValue(jsonObject));
+        project.setStartDate(ProjectTypeField.START_DATE.getStringValue(jsonObject));
+        project.setEndDate(ProjectTypeField.END_DATE.getStringValue(jsonObject));
+        project.setMetsRightsOwner(ProjectTypeField.METS_RIGTS_OWNER.getStringValue(jsonObject));
+        project.setNumberOfPages(ProjectTypeField.NUMBER_OF_PAGES.getIntValue(jsonObject));
+        project.setNumberOfVolumes(ProjectTypeField.NUMBER_OF_VOLUMES.getIntValue(jsonObject));
+        project.setActive(ProjectTypeField.ACTIVE.getBooleanValue(jsonObject));
+        Client client = new Client();
+        client.setId(ProjectTypeField.CLIENT_ID.getIntValue(jsonObject));
+        client.setName(ProjectTypeField.CLIENT_NAME.getStringValue(jsonObject));
+        project.setClient(client);
+        project.setHasProcesses(ProjectTypeField.HAS_PROCESSES.getBooleanValue(jsonObject));
         if (!related) {
-            convertRelatedJSONObjects(jsonObject, projectDTO);
+            convertRelatedJSONObjects(jsonObject, project);
         } else {
-            projectDTO.setTemplates(getTemplatesForProjectDTO(jsonObject));
+            project.setTemplates(getTemplatesForProject(jsonObject));
         }
-        return projectDTO;
+        return project;
     }
 
-    private List<TemplateDTO> getTemplatesForProjectDTO(Map<String, Object> jsonObject) throws DataException {
-        List<TemplateDTO> templateDTOS = new ArrayList<>();
+    private List<Template> getTemplatesForProject(Map<String, Object> jsonObject) throws DataException {
+        List<Template> templateDTOS = new ArrayList<>();
         List<Map<String, Object>> jsonArray = ProjectTypeField.TEMPLATES.getJsonArray(jsonObject);
 
         for (Map<String, Object> singleObject : jsonArray) {
-            TemplateDTO templateDTO = new TemplateDTO();
-            templateDTO.setId(TemplateTypeField.ID.getIntValue(singleObject));
-            templateDTO.setTitle(TemplateTypeField.TITLE.getStringValue(singleObject));
-            templateDTOS.add(templateDTO);
+            Template template = new Template();
+            template.setId(TemplateTypeField.ID.getIntValue(singleObject));
+            template.setTitle(TemplateTypeField.TITLE.getStringValue(singleObject));
+            templateDTOS.add(template);
         }
-        return templateDTOS.stream().filter(TemplateDTO::isActive).collect(Collectors.toList());
+        return templateDTOS.stream().filter(Template::isActive).collect(Collectors.toList());
     }
 
-    private void convertRelatedJSONObjects(Map<String, Object> jsonObject, ProjectDTO projectDTO) throws DataException {
+    private void convertRelatedJSONObjects(Map<String, Object> jsonObject, Project project) throws DataException {
         // TODO: not clear if project lists will need it
-        projectDTO.setUsers(new ArrayList<>());
-        projectDTO.setTemplates(convertRelatedJSONObjectToDTO(jsonObject, ProjectTypeField.TEMPLATES.getKey(),
-            ServiceManager.getTemplateService()).stream().filter(TemplateDTO::isActive).collect(Collectors.toList()));
+        project.setUsers(new ArrayList<>());
+        project.setTemplates(convertRelatedJSONObjectToDTO(jsonObject, ProjectTypeField.TEMPLATES.getKey(),
+            ServiceManager.getTemplateService()).stream().filter(Template::isActive).collect(Collectors.toList()));
     }
 
     /**
@@ -320,7 +320,7 @@ public class ProjectService extends ClientSearchService<Project, ProjectDTO, Pro
      * @return A list of all Projects assigned tot he current user
      * @throws DataException when elasticsearch query is failing
      */
-    public List<ProjectDTO> findAllProjectsForCurrentUser() throws DataException {
+    public List<Project> findAllProjectsForCurrentUser() throws DataException {
         return findByQuery(getProjectsForCurrentUserQuery(), false);
     }
 
@@ -351,7 +351,7 @@ public class ProjectService extends ClientSearchService<Project, ProjectDTO, Pro
                 && ServiceManager.getSecurityAccessService().hasAuthorityToViewClientList()) {
             return projects.stream().map(Project::getTitle).collect(Collectors.joining(COMMA_DELIMITER));
         } else {
-            List<Integer> userProjectIds = findAllProjectsForCurrentUser().stream().map(ProjectDTO::getId)
+            List<Integer> userProjectIds = findAllProjectsForCurrentUser().stream().map(Project::getId)
                     .collect(Collectors.toList());
             return projects.stream().filter(project -> userProjectIds.contains(project.getId())).map(Project::getTitle)
                     .collect(Collectors.joining(COMMA_DELIMITER));

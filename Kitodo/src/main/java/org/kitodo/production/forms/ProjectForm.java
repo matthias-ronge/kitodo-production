@@ -371,7 +371,7 @@ public class ProjectForm extends BaseForm {
      *
      * @return list of assignable templates
      */
-    public List<TemplateDTO> getTemplates() {
+    public List<Template> getTemplates() {
         try {
             return ServiceManager.getTemplateService().findAllAvailableForAssignToProject(this.project.getId());
         } catch (DataException e) {
@@ -825,7 +825,7 @@ public class ProjectForm extends BaseForm {
      *
      * @return list of projects
      */
-    public List<ProjectDTO> getProjects() {
+    public List<Project> getProjects() {
         try {
             return ServiceManager.getProjectService().findAll();
         } catch (DataException e) {

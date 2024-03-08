@@ -342,7 +342,7 @@ public class FilterServiceIT {
 
         // TODO: why "step" creates something called historical filter?
         QueryBuilder query = filterService.queryBuilder("\"step:Finished\"", ObjectType.TASK, false, false);
-        List<TaskDTO> taskDTOS = taskService.findByQuery(query, true);
+        List<Task> taskDTOS = taskService.findByQuery(query, true);
         // assertEquals("Incorrect amount of tasks with title containing
         // 'Testing'!", 1, taskDTOS.size());
 
@@ -547,7 +547,7 @@ public class FilterServiceIT {
 
         // empty condition is not allowed and returns no results
         QueryBuilder query = filterService.queryBuilder("\"steplocked:\"", ObjectType.TASK, false, false);
-        List<TaskDTO> taskDTOS = taskService.findByQuery(query, true);
+        List<Task> taskDTOS = taskService.findByQuery(query, true);
         assertEquals("Incorrect amount of closed tasks with no ordering!", 0, taskDTOS.size());
 
         // empty condition is not allowed and throws Exception in ElasticSearch 7

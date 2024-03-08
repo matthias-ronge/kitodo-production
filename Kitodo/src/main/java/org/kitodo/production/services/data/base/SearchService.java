@@ -50,7 +50,7 @@ import org.primefaces.model.SortOrder;
  * Class for implementing methods used by all service classes which search in
  * ElasticSearch index.
  */
-public abstract class SearchService<T extends BaseIndexedBean, S extends BaseDTO, V extends BaseDAO<T>>
+public abstract class SearchService<T extends BaseIndexedBean, S extends Base, V extends BaseDAO<T>>
         extends SearchDatabaseService<T, V> {
 
     private static final Logger logger = LogManager.getLogger(SearchService.class);
@@ -540,7 +540,7 @@ public abstract class SearchService<T extends BaseIndexedBean, S extends BaseDTO
      *            name of related property
      * @return bean object
      */
-    protected <O extends BaseDTO> List<O> convertRelatedJSONObjectToDTO(Map<String, Object> jsonObject, String key,
+    protected <O extends Base> List<O> convertRelatedJSONObjectToDTO(Map<String, Object> jsonObject, String key,
             SearchService<?, O, ?> service) throws DataException {
         List<Integer> ids = getRelatedPropertyForDTO(jsonObject, key);
         if (ids.isEmpty()) {

@@ -56,8 +56,8 @@ public class SearchResultGeneration {
         return getWorkbook();
     }
 
-    private List<ProcessDTO> getResultsWithFilter() {
-        List<ProcessDTO> processDTOS = new ArrayList<>();
+    private List<Process> getResultsWithFilter() {
+        List<Process> processDTOS = new ArrayList<>();
         try {
             processDTOS = ServiceManager.getProcessService().findByQuery(getQueryForFilter(ObjectType.PROCESS),
                 ServiceManager.getProcessService().sortById(SortOrder.ASC), true);
@@ -117,7 +117,7 @@ public class SearchResultGeneration {
             Long numberOfExpectedProcesses = ServiceManager.getProcessService()
                     .count(getQueryForFilter(ObjectType.PROCESS));
             if (numberOfExpectedProcesses > elasticsearchLimit) {
-                List<ProcessDTO> processDTOS;
+                List<Process> processDTOS;
                 int queriedIds = 0;
                 while (numberOfProcessedProcesses < numberOfExpectedProcesses) {
                     RangeQueryBuilder rangeQueryBuilder = new RangeQueryBuilder(ProcessTypeField.ID.toString());
@@ -127,16 +127,16 @@ public class SearchResultGeneration {
                     processDTOS = ServiceManager.getProcessService().findByQuery(queryForFilter,
                         ServiceManager.getProcessService().sortById(SortOrder.ASC), true);
                     queriedIds += elasticsearchLimit;
-                    for (ProcessDTO processDTO : processDTOS) {
-                        prepareRow(rowCounter, sheet, processDTO);
+                    for (Process process : processDTOS) {
+                        prepareRow(rowCounter, sheet, process);
                         rowCounter++;
                     }
                     numberOfProcessedProcesses += processDTOS.size();
                 }
             } else {
-                List<ProcessDTO> resultsWithFilter = getResultsWithFilter();
-                for (ProcessDTO processDTO : resultsWithFilter) {
-                    prepareRow(rowCounter, sheet, processDTO);
+                List<Process> resultsWithFilter = getResultsWithFilter();
+                for (Process process : resultsWithFilter) {
+                    prepareRow(rowCounter, sheet, process);
                     rowCounter++;
                 }
             }
@@ -157,15 +157,15 @@ public class SearchResultGeneration {
         rowHeader.createCell(7).setCellValue(Helper.getTranslation("Status"));
     }
 
-    private void prepareRow(int rowCounter, HSSFSheet sheet, ProcessDTO processDTO) {
+    private void prepareRow(int rowCounter, HSSFSheet sheet, Process process) {
         HSSFRow row = sheet.createRow(rowCounter);
-        row.createCell(0).setCellValue(processDTO.getTitle());
-        row.createCell(1).setCellValue(processDTO.getId());
-        row.createCell(2).setCellValue(processDTO.getCreationDate());
-        row.createCell(3).setCellValue(processDTO.getNumberOfImages());
-        row.createCell(4).setCellValue(processDTO.getNumberOfStructures());
-        row.createCell(5).setCellValue(processDTO.getNumberOfMetadata());
-        row.createCell(6).setCellValue(processDTO.getProject().getTitle());
-        row.createCell(7).setCellValue(processDTO.getSortHelperStatus());
+        row.createCell(0).setCellValue(process.getTitle());
+        row.createCell(1).setCellValue(process.getId());
+        row.createCell(2).setCellValue(process.getCreationDate());
+        row.createCell(3).setCellValue(process.getNumberOfImages());
+        row.createCell(4).setCellValue(process.getNumberOfStructures());
+        row.createCell(5).setCellValue(process.getNumberOfMetadata());
+        row.createCell(6).setCellValue(process.getProject().getTitle());
+        row.createCell(7).setCellValue(process.getSortHelperStatus());
     }
 }

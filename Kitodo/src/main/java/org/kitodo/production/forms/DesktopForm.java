@@ -39,9 +39,9 @@ public class DesktopForm extends BaseForm {
     private static final Logger logger = LogManager.getLogger(DesktopForm.class);
     private static final String SORT_TITLE = "title";
     private static final String SORT_ID = "id";
-    private List<TaskDTO> taskList = new ArrayList<>();
-    private List<ProcessDTO> processList = new ArrayList<>();
-    private List<ProjectDTO> projectList = new ArrayList<>();
+    private List<Task> taskList = new ArrayList<>();
+    private List<Process> processList = new ArrayList<>();
+    private List<Project> projectList = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -74,7 +74,7 @@ public class DesktopForm extends BaseForm {
      *
      * @return task list
      */
-    public List<TaskDTO> getTasks() {
+    public List<Task> getTasks() {
         try {
             if (ServiceManager.getSecurityAccessService().hasAuthorityToViewTaskList() && taskList.isEmpty()) {
                 taskList = ServiceManager.getTaskService().loadData(0, 10, SORT_TITLE, SortOrder.ASCENDING, new HashMap<>());
@@ -91,7 +91,7 @@ public class DesktopForm extends BaseForm {
      *
      * @return process list
      */
-    public List<ProcessDTO> getProcesses() {
+    public List<Process> getProcesses() {
         try {
             if (ServiceManager.getSecurityAccessService().hasAuthorityToViewProcessList() && processList.isEmpty()) {
                 processList = ServiceManager.getProcessService().loadData(0, 10, SORT_ID, SortOrder.DESCENDING, null);
@@ -108,7 +108,7 @@ public class DesktopForm extends BaseForm {
      *
      * @return project list
      */
-    public List<ProjectDTO> getProjects() {
+    public List<Project> getProjects() {
         try {
             if (ServiceManager.getSecurityAccessService().hasAuthorityToViewProjectList() && projectList.isEmpty()) {
                 projectList = ServiceManager.getProjectService().loadData(0, 10, SORT_TITLE, SortOrder.ASCENDING, null);

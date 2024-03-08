@@ -28,7 +28,7 @@ import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.base.ClientSearchService;
 import org.primefaces.model.SortOrder;
 
-public class DocketService extends ClientSearchService<Docket, DocketDTO, DocketDAO> {
+public class DocketService extends ClientSearchService<Docket, Docket, DocketDAO> {
 
     private static volatile DocketService instance = null;
 
@@ -75,7 +75,7 @@ public class DocketService extends ClientSearchService<Docket, DocketDTO, Docket
     }
 
     @Override
-    public List<DocketDTO> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
+    public List<Docket> loadData(int first, int pageSize, String sortField, SortOrder sortOrder, Map filters)
             throws DataException {
         return findByQuery(getDocketsForCurrentUserQuery(), getSortBuilder(sortField, sortOrder), first, pageSize,
             false);
@@ -93,18 +93,18 @@ public class DocketService extends ClientSearchService<Docket, DocketDTO, Docket
     }
 
     @Override
-    public DocketDTO convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
-        DocketDTO docketDTO = new DocketDTO();
-        docketDTO.setId(getIdFromJSONObject(jsonObject));
-        docketDTO.setTitle(DocketTypeField.TITLE.getStringValue(jsonObject));
-        docketDTO.setFile(DocketTypeField.FILE.getStringValue(jsonObject));
+    public Docket convertJSONObjectToDTO(Map<String, Object> jsonObject, boolean related) throws DataException {
+        Docket docket = new Docket();
+        docket.setId(getIdFromJSONObject(jsonObject));
+        docket.setTitle(DocketTypeField.TITLE.getStringValue(jsonObject));
+        docket.setFile(DocketTypeField.FILE.getStringValue(jsonObject));
 
-        ClientDTO clientDTO = new ClientDTO();
-        clientDTO.setId(DocketTypeField.CLIENT_ID.getIntValue(jsonObject));
-        clientDTO.setName(DocketTypeField.CLIENT_NAME.getStringValue(jsonObject));
+        Client client = new Client();
+        client.setId(DocketTypeField.CLIENT_ID.getIntValue(jsonObject));
+        client.setName(DocketTypeField.CLIENT_NAME.getStringValue(jsonObject));
 
-        docketDTO.setClientDTO(clientDTO);
-        return docketDTO;
+        docket.setClient(client);
+        return docket;
     }
 
     /**

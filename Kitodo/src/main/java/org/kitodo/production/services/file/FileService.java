@@ -723,14 +723,14 @@ public class FileService {
     }
 
     /**
-     * Gets the URI of the metadata.xml of a given processDTO.
+     * Gets the URI of the metadata.xml of a given process.
      *
-     * @param processDTO
+     * @param process
      *            the process to get the metadata.xml for.
      * @return The URI to the metadata.xml
      */
-    public URI getMetadataFilePath(ProcessDTO processDTO) throws IOException {
-        return getMetadataFilePath(processDTO, true);
+    public URI getMetadataFilePath(Process process) throws IOException {
+        return getMetadataFilePath(process, true);
     }
 
     /**
@@ -751,16 +751,16 @@ public class FileService {
     }
 
     /**
-     * Gets the URI of the metadata.xml of a given processDTO.
+     * Gets the URI of the metadata.xml of a given process.
      *
-     * @param processDTO
+     * @param process
      *            the process to get the metadata.xml for.
      * @param mustExist
      *            whether the file must exist
      * @return The URI to the metadata.xml
      */
-    public URI getMetadataFilePath(ProcessDTO processDTO, boolean mustExist) throws IOException {
-        URI metadataFilePath = getProcessSubTypeURI(processDTO, ProcessSubType.META_XML, null);
+    public URI getMetadataFilePath(Process process, boolean mustExist) throws IOException {
+        URI metadataFilePath = getProcessSubTypeURI(process, ProcessSubType.META_XML, null);
         if (mustExist && !fileExist(metadataFilePath)) {
             throw new IOException(Helper.getTranslation("metadataFileNotFound", metadataFilePath.getPath()));
         }
@@ -900,16 +900,16 @@ public class FileService {
      * to the correct URI. File.separator doesn't work because on Windows it
      * appends backslash to URI.
      *
-     * @param processDTO
+     * @param process
      *            the process, the uri is needed for.
      * @return the URI.
      */
-    public String getProcessBaseUriForExistingProcess(ProcessDTO processDTO) {
-        String processBaseUri = processDTO.getProcessBaseUri();
-        if (Objects.isNull(processBaseUri) && Objects.nonNull(processDTO.getId())) {
-            processDTO.setProcessBaseUri(fileManagementModule.createUriForExistingProcess(processDTO.getId().toString()).toString());
+    public String getProcessBaseUriForExistingProcess(Process process) {
+        String processBaseUri = process.getProcessBaseUri();
+        if (Objects.isNull(processBaseUri) && Objects.nonNull(process.getId())) {
+            process.setProcessBaseUri(fileManagementModule.createUriForExistingProcess(process.getId().toString()).toString());
         }
-        return processDTO.getProcessBaseUri();
+        return process.getProcessBaseUri();
     }
 
     /**
@@ -994,7 +994,7 @@ public class FileService {
      * Gets the URI for a Process Sub-location. Possible Locations are listed
      * in ProcessSubType
      *
-     * @param processDTO
+     * @param process
      *            the process to get the sublocation for.
      * @param processSubType
      *            The subType.
@@ -1003,15 +1003,15 @@ public class FileService {
      *            folder of the sublocation is returned
      * @return The URI of the requested location
      */
-    private URI getProcessSubTypeURI(ProcessDTO processDTO, ProcessSubType processSubType, String resourceName) {
+    private URI getProcessSubTypeURI(Process process, ProcessSubType processSubType, String resourceName) {
 
-        String processDataDirectory = ServiceManager.getProcessService().getProcessDataDirectory(processDTO);
+        String processDataDirectory = ServiceManager.getProcessService().getProcessDataDirectory(process);
 
         if (Objects.isNull(resourceName)) {
             resourceName = "";
         }
         return fileManagementModule.getProcessSubTypeUri(URI.create(processDataDirectory),
-                Helper.getNormalizedTitle(processDTO.getTitle()), processSubType, resourceName);
+                Helper.getNormalizedTitle(process.getTitle()), processSubType, resourceName);
     }
 
     /**

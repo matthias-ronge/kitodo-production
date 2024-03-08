@@ -28,7 +28,7 @@ import org.kitodo.data.elasticsearch.search.enums.SearchCondition;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.production.services.ServiceManager;
 
-public abstract class ClientSearchService<T extends BaseIndexedBean, S extends BaseDTO, V extends BaseDAO<T>>
+public abstract class ClientSearchService<T extends BaseIndexedBean, S extends Base, V extends BaseDAO<T>>
         extends TitleSearchService<T, S, V> {
 
     private final String clientKey;

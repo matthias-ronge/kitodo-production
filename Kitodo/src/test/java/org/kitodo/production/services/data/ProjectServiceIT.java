@@ -175,7 +175,7 @@ public class ProjectServiceIT {
     public void findByIds() throws DataException {
         ProjectService projectService = ServiceManager.getProjectService();
         QueryBuilder projectsForCurrentUserQuery = projectService.getProjectsForCurrentUserQuery();
-        List<ProjectDTO> byQuery = projectService.findByQuery(projectsForCurrentUserQuery, true);
+        List<Project> byQuery = projectService.findByQuery(projectsForCurrentUserQuery, true);
         assertEquals("Wrong amount of projects found",2,byQuery.size());
     }
 }

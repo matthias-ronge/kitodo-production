@@ -434,7 +434,7 @@ public class CreateProcessForm extends BaseForm implements MetadataTreeTableInte
                     defaultConfigurationType = null;
                 }
                 if (Objects.nonNull(parentId) && parentId != 0) {
-                    ProcessDTO parentProcess = ServiceManager.getProcessService().findById(parentId);
+                    Process parentProcess = ServiceManager.getProcessService().findById(parentId);
                     RulesetManagementInterface rulesetManagement = ServiceManager.getRulesetService()
                             .openRuleset(ServiceManager.getRulesetService().getById(parentProcess.getRuleset().getId()));
                     Map<String, String> allowedSubstructuralElements = rulesetManagement
