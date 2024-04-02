@@ -12,7 +12,6 @@
 package org.kitodo.production.services.data.search;
 
 import java.util.List;
-import java.util.Map;
 
 import org.kitodo.api.data.*;
 import org.kitodo.data.database.beans.BaseBean;
@@ -40,13 +39,10 @@ public class DataService {
      * @param beanClass
      *            class of the database object. Technically, this always has to
      *            be a child class of BaseBean.
-     * @param query
-     *            for counting objects. Must start with {@code FROM} keyword,
-     *            followed by the class name of the base bean.
      * @return amount of rows in database according to given query
      */
-    public <T extends BaseBean> int count(Class<T> beanClass, String query) throws DAOException {
-        return find(beanClass, "SELECT id ".concat(query), null).size();
+    public <T extends BaseBean> int count(Class<T> beanClass) throws DAOException {
+        return find(new BeanQuery<>(beanClass)).size();
     }
 
     /**
@@ -54,19 +50,12 @@ public class DataService {
      *
      * @param <T>
      *            class type of the database object
-     * @param beanClass
-     *            class of the database object. Technically, this always has to
-     *            be a child class of BaseBean.
      * @param query
-     *            for counting objects. Must start with {@code FROM} keyword,
-     *            followed by the class name of the base bean.
-     * @param parameters
-     *            for query
+     *            for counting objects
      * @return amount of rows in database according to given query
      */
-    public <T extends BaseBean> int count(Class<T> beanClass, String query, Map<String, Object> parameters)
-            throws DAOException {
-        return find(beanClass, "SELECT id ".concat(query), parameters).size();
+    public <T extends BaseBean> int count(BeanQuery<T> query) throws DAOException {
+        return find(query).size();
     }
 
     /**
@@ -74,22 +63,14 @@ public class DataService {
      *
      * @param <T>
      *            class type of the database object
-     * @param beanClass
-     *            class of the database object. Technically, this always has to
-     *            be a child class of BaseBean.
      * @param query
-     *            as String. Must start with {@code SELECT id FROM}, followed by
-     *            the case-sensitive class name of the base bean.
-     * @param parameters
-     *            for query. May be {@code null} if the query doesn’t need
-     *            parameters.
+     *            as BeanQuery
      * @return list of bean object IDs in result object
      * @throws DAOException
      *             if a HibernateException is thrown
      */
-    public <T extends BaseBean> LazyResult<T> find(Class<T> beanClass, String query, Map<String, Object> parameters)
-            throws DAOException {
-        return dataManagementModule.find(beanClass, query, parameters);
+    public <T extends BaseBean> LazyResult<T> find(BeanQuery<T> query) throws DAOException {
+        return dataManagementModule.find(query.getBeanClass(), query.formIdQuery(), query.getQueryParameters());
     }
 
     /**
@@ -103,7 +84,7 @@ public class DataService {
      * @return all persisted beans
      */
     public <T extends BaseBean> List<T> getAll(Class<T> beanClass) throws DAOException {
-        return find(beanClass, "SELECT id FROM ".concat(beanClass.getName()), null).getAll();
+        return find(new BeanQuery<>(beanClass)).getAll();
     }
 
     /**
@@ -114,14 +95,14 @@ public class DataService {
      * @param beanClass
      *            class of the database object. Technically, this always has to
      *            be a child class of BaseBean.
-     * @param offset
+     * @param first
      *            result
-     * @param limit
+     * @param max
      *            amount of results
      * @return constrained list of persisted beans
      */
-    public <T extends BaseBean> List<T> getAll(Class<T> beanClass, int offset, int limit) throws DAOException {
-        return find(beanClass, "SELECT id FROM ".concat(beanClass.getName()), null).get(offset, limit);
+    public <T extends BaseBean> List<T> getAll(Class<T> beanClass, int first, int max) throws DAOException {
+        return find(new BeanQuery<>(beanClass)).get(first, max);
     }
 
     /**
@@ -157,30 +138,8 @@ public class DataService {
      * @throws DAOException
      *             if a HibernateException is thrown
      */
-    public <T extends BaseBean> List<T> getByQuery(Class<T> beanClass, String query) throws DAOException {
-        return find(beanClass, "SELECT id ".concat(query), null).getAll();
-    }
-
-    /**
-     * Retrieves BaseBean objects from database by given query.
-     *
-     * @param <T>
-     *            class type of the database object
-     * @param beanClass
-     *            class of the database object. Technically, this always has to
-     *            be a child class of BaseBean.
-     * @param query
-     *            as String. Must start with {@code FROM} keyword, followed by
-     *            the class name of the base bean.
-     * @param parameters
-     *            for query
-     * @return list of beans objects
-     * @throws DAOException
-     *             if a HibernateException is thrown
-     */
-    public <T extends BaseBean> List<T> getByQuery(Class<T> beanClass, String query, Map<String, Object> parameters)
-            throws DAOException {
-        return find(beanClass, "SELECT id ".concat(query), parameters).getAll();
+    public <T extends BaseBean> List<T> getByQuery(BeanQuery<T> query) throws DAOException {
+        return find(query).getAll();
     }
 
     /**
@@ -204,9 +163,8 @@ public class DataService {
      * @throws DAOException
      *             if a HibernateException is thrown
      */
-    public <T extends BaseBean> List<T> getByQuery(Class<T> beanClass, String query, Map<String, Object> parameters,
-            int first, int max) throws DAOException {
-        return find(beanClass, "SELECT id ".concat(query), parameters).get(first, max);
+    public <T extends BaseBean> List<T> getByQuery(BeanQuery<T> query, int first, int max) throws DAOException {
+        return find(query).get(first, max);
     }
 
     /**
