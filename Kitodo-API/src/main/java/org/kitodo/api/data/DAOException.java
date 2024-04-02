@@ -11,7 +11,9 @@
 
 package org.kitodo.api.data;
 
-public class DAOException extends Exception {
+import java.io.IOException;
+
+public class DAOException extends IOException {
 
     public DAOException(Exception e) {
         super(e);

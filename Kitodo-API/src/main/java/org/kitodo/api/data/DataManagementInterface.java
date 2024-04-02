@@ -11,232 +11,84 @@
 
 package org.kitodo.api.data;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public interface DataManagementInterface {
 
     /**
-     * Retrieves a BaseBean identified by the given id from the database.
-     * @param <T>
+     * Lazily retrieves BaseBean objects from database by given query.
      *
+     * @param <T>
+     *            class type of the database object
+     * @param beanClass
+     *            class of the database object. Technically, this always has to
+     *            be a child class of BaseBean.
+     * @param query
+     *            as String. Must start with {@code SELECT id FROM}, followed by
+     *            the case-sensitive class name of the base bean.
+     * @param parameters
+     *            for query. May be {@code null} if the query doesn’t need
+     *            parameters.
+     * @return list of bean object IDs in result object
+     * @throws DAOException
+     *             if a HibernateException is thrown
+     */
+    abstract <T> LazyResult<T> find(Class<T> beanClass, String query, Map<String, Object> parameters)
+            throws DAOException;
+
+    /**
+     * Retrieves a BaseBean identified by the given id from the database.
+     *
+     * @param <T>
+     *            class type of the database object
+     * @param beanClass
+     *            class of the database object. Technically, this always has to
+     *            be a child class of BaseBean.
      * @param id
      *            of bean to load
      * @return persisted bean
      * @throws DAOException
      *             if a HibernateException is thrown
      */
-    public abstract <T> T getById(Integer id) throws DAOException;
+    abstract <T> T getById(Class<T> beanClass, int id) throws DAOException;
 
     /**
-     * Retrieves all BaseBean objects from the database.
+     * Refresh given bean object.
      *
-     * @return all persisted beans
-     */
-    public abstract List<T> getAll() throws DAOException;
-
-    /**
-     * Retrieves all BaseBean objects in given range.
-     *
-     * @param offset
-     *            result
-     * @param size
-     *            amount of results
-     * @return constrained list of persisted beans
-     */
-    public abstract List<T> getAll(int offset, int size) throws DAOException;
-
-    /**
-     * Retrieves all not indexed BaseBean objects in given range.
-     *
-     * @param offset
-     *            result
-     * @param size
-     *            amount of results
-     * @return constrained list of persisted beans
-     */
-    public abstract List<T> getAllNotIndexed(int offset, int size) throws DAOException;
-
-    /**
-     * Saves a BaseBean object to the database.
-     *
+     * @param <T>
+     *            class type of the database object
      * @param baseBean
-     *            object to persist
-     * @throws DAOException
-     *             if the current session can't be retrieved or an exception is
-     *             thrown while performing the rollback
+     *            bean to refresh
      */
-    public void save(T baseBean) throws DAOException {
-        storeObject(baseBean);
-    }
-
-    /**
-     * Saves base bean objects as indexed.
-     *
-     * @param baseBeans
-     *            list of base beans
-     * @throws DAOException
-     *             if the current session can't be retrieved or an exception is
-     *             thrown while performing the rollback
-     */
-    public void saveAsIndexed(List<T> baseBeans) throws DAOException {
-        storeAsIndexed(baseBeans);
-    }
+    <T> void refresh(T baseBean);
 
     /**
      * Removes BaseBean object specified by the given id from the database.
      *
+     * @param <T>
+     *            class type of the database object
+     * @param beanClass
+     *            class of the database object. Technically, this always has to
+     *            be a child class of BaseBean.
      * @param id
      *            of bean to delete
      * @throws DAOException
      *             if the current session can't be retrieved or an exception is
      *             thrown while performing the rollback
      */
-    public abstract void remove(Integer id) throws DAOException;
+    abstract <T> void remove(Class<T> beanClass, int id) throws DAOException;
 
     /**
-     * Removes given BaseBean object from the database.
-     *
+     * Saves a BaseBean object to the database.
+     * 
+     * @param <T>
+     *            class type of the database object
      * @param baseBean
-     *            bean to delete
+     *            object to persist
      * @throws DAOException
      *             if the current session can't be retrieved or an exception is
      *             thrown while performing the rollback
      */
-    public void remove(T baseBean) throws DAOException {
-        if (baseBean.getId() != null) {
-            try (Session session = HibernateUtil.getSession()) {
-                Transaction transaction = session.beginTransaction();
-                synchronized (lockObject) {
-                    Object merged = session.merge(baseBean);
-                    session.delete(merged);
-                    session.flush();
-                    transaction.commit();
-                }
-            } catch (PersistenceException e) {
-                throw new DAOException(e);
-            }
-        }
-    }
-
-    /**
-     * Refresh given bean object.
-     *
-     * @param baseBean
-     *            bean to refresh
-     */
-    public void refresh(T baseBean) {
-        refreshObject(baseBean);
-    }
-
-    /**
-     * Evict given bean object.
-     *
-     * @param baseBean
-     *            bean to evict
-     */
-    public void evict(T baseBean) {
-        evictObject(baseBean);
-    }
-
-    /**
-     * Retrieves BaseBean objects from database by given query.
-     *
-     * @param query
-     *            as String
-     * @param parameters
-     *            for query
-     * @param first
-     *            result
-     * @param max
-     *            amount of results
-     * @return list of beans objects
-     */
-    @SuppressWarnings("unchecked")
-    public List<T> getByQuery(String query, Map<String, Object> parameters, int first, int max) {
-        try (Session session = HibernateUtil.getSession()) {
-            Query<T> q = session.createQuery(query);
-            q.setFirstResult(first);
-            q.setMaxResults(max);
-            addParameters(q, parameters);
-            return q.list();
-        } catch (SQLGrammarException e) {
-            return Collections.emptyList();
-        }
-    }
-
-    /**
-     * Retrieves BaseBean objects from database by given query.
-     *
-     * @param query
-     *            as String
-     * @param parameters
-     *            for query
-     * @return list of beans objects
-     */
-    @SuppressWarnings("unchecked")
-    public List<T> getByQuery(String query, Map<String, Object> parameters) {
-        try (Session session = HibernateUtil.getSession()) {
-            Query<T> q = session.createQuery(query);
-            addParameters(q, parameters);
-            return q.list();
-        }
-    }
-
-    /**
-     * Retrieves BaseBean objects from database by given query.
-     *
-     * @param query
-     *            as String
-     * @return list of beans objects
-     */
-    @SuppressWarnings("unchecked")
-    public List<T> getByQuery(String query) {
-        try (Session session = HibernateUtil.getSession()) {
-            List<T> baseBeanObjects = session.createQuery(query).list();
-            if (Objects.isNull(baseBeanObjects)) {
-                baseBeanObjects = new ArrayList<>();
-            }
-            return baseBeanObjects;
-        }
-    }
-
-    /**
-     * Count all rows in database.
-     *
-     * @param query
-     *            for counting objects
-     * @param parameters
-     *            for query
-     * @return amount of rows in database according to given query
-     */
-    public Long count(String query, Map<String, Object> parameters) throws DAOException {
-        try (Session session = HibernateUtil.getSession()) {
-            Query<?> q = session.createQuery(query);
-            addParameters(q, parameters);
-            return (Long) q.uniqueResult();
-        } catch (PersistenceException e) {
-            throw new DAOException(e);
-        }
-    }
-
-    /**
-     * Count all rows in database.
-     *
-     * @param query
-     *            for counting objects
-     * @return amount of rows in database according to given query
-     */
-    public Long count(String query) throws DAOException {
-        try (Session session = HibernateUtil.getSession()) {
-            return (Long) session.createQuery(query).uniqueResult();
-        } catch (PersistenceException e) {
-            throw new DAOException(e);
-        }
-    }
-
-    
+    <T> void save(T baseBean) throws DAOException;
 }
