@@ -41,6 +41,7 @@ import org.kitodo.production.services.data.TemplateService;
 import org.kitodo.production.services.data.UserService;
 import org.kitodo.production.services.data.WorkflowConditionService;
 import org.kitodo.production.services.data.WorkflowService;
+import org.kitodo.production.services.data.search.DataService;
 import org.kitodo.production.services.dataeditor.DataEditorService;
 import org.kitodo.production.services.dataeditor.RulesetManagementService;
 import org.kitodo.production.services.dataformat.MetsService;
@@ -63,6 +64,7 @@ public class ServiceManager {
     private static ClientService clientService;
     private static CommandService commandService;
     private static CommentService commentService;
+    private static DataService dataService;
     private static DataEditorService dataEditorService;
     private static DataEditorSettingService dataEditorSettingService;
     private static DocketService docketService;
@@ -122,6 +124,12 @@ public class ServiceManager {
     private static void initializeClientService() {
         if (Objects.isNull(clientService)) {
             clientService = ClientService.getInstance();
+        }
+    }
+
+    private static void initializeDataService() {
+        if (Objects.isNull(dataService)) {
+            dataService = new DataService();
         }
     }
 
@@ -388,6 +396,16 @@ public class ServiceManager {
     public static ClientService getClientService() {
         initializeClientService();
         return clientService;
+    }
+
+    /**
+     * Initialize DataService if it is not yet initialized and next return it.
+     *
+     * @return ClientService object
+     */
+    public static DataService getDataService() {
+        initializeDataService();
+        return dataService;
     }
 
     /**
