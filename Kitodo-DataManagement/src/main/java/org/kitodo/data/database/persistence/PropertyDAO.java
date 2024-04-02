@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 import javax.persistence.PersistenceException;
 
 import org.hibernate.Session;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Property;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class PropertyDAO extends BaseDAO<Property> {
 

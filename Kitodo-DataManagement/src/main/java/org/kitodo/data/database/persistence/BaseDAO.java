@@ -28,11 +28,11 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.SQLGrammarException;
 import org.hibernate.query.Query;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.config.ConfigMain;
 import org.kitodo.data.database.beans.BaseBean;
 import org.kitodo.data.database.beans.BaseIndexedBean;
 import org.kitodo.data.database.enums.IndexAction;
-import org.kitodo.data.database.exceptions.DAOException;
 
 /**
  * Base class for DAOs.

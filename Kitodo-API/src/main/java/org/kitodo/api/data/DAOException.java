@@ -9,7 +9,7 @@
  * GPL3-License.txt file that was distributed with this source code.
  */
 
-package org.kitodo.data.database.exceptions;
+package org.kitodo.api.data;
 
 public class DAOException extends Exception {
 

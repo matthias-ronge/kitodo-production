@@ -11,8 +11,8 @@
 
 package org.kitodo.selenium.testframework.pages;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.User;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.production.security.password.SecurityPasswordEncoder;
 import org.kitodo.selenium.testframework.Browser;
 import org.kitodo.production.services.ServiceManager;

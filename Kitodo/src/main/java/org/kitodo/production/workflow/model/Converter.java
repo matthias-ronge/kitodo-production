@@ -20,11 +20,11 @@ import java.util.Objects;
 
 import org.camunda.bpm.model.bpmn.instance.ScriptTask;
 import org.camunda.bpm.model.bpmn.instance.Task;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Template;
 import org.kitodo.data.database.beans.WorkflowCondition;
 import org.kitodo.data.database.enums.TaskEditType;
 import org.kitodo.data.database.enums.TaskStatus;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.exceptions.WorkflowException;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.ServiceManager;

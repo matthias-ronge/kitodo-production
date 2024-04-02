@@ -30,13 +30,13 @@ import java.util.stream.Stream;
 // open source code
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.api.dataeditor.rulesetmanagement.RulesetManagementInterface;
 import org.kitodo.config.ConfigCore;
 import org.kitodo.config.KitodoConfig;
 import org.kitodo.config.enums.ParameterCore;
 import org.kitodo.data.database.beans.Project;
 import org.kitodo.data.database.beans.Template;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.InvalidImagesException;
 import org.kitodo.exceptions.MediaNotFoundException;

@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Client;
 import org.kitodo.data.database.beans.Role;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class RoleDAO extends BaseDAO<Role> {
 

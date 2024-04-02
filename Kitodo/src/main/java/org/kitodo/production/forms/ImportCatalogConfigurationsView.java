@@ -24,10 +24,10 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.api.schemaconverter.MetadataFormat;
 import org.kitodo.config.OPACConfig;
 import org.kitodo.data.database.beans.MappingFile;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.production.helper.CatalogConfigurationImporter;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.ServiceManager;

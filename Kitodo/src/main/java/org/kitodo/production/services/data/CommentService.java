@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Comment;
 import org.kitodo.data.database.beans.Process;
 import org.kitodo.data.database.beans.Task;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.CommentDAO;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.base.SearchDatabaseService;

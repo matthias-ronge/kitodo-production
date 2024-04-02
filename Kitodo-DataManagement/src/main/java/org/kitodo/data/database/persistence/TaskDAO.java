@@ -21,10 +21,10 @@ import javax.persistence.PersistenceException;
 import org.hibernate.Session;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.type.StandardBasicTypes;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Process;
 import org.kitodo.data.database.beans.Task;
 import org.kitodo.data.database.enums.TaskStatus;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class TaskDAO extends BaseDAO<Task> {
 

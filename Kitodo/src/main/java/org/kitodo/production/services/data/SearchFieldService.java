@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.SearchField;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.SearchFieldDAO;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.production.services.data.base.SearchDatabaseService;

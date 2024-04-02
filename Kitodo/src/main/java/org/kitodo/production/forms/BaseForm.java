@@ -21,12 +21,12 @@ import java.util.Objects;
 
 import javax.faces.model.SelectItem;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Client;
 import org.kitodo.data.database.beans.ListColumn;
 import org.kitodo.data.database.beans.Project;
 import org.kitodo.data.database.beans.Role;
 import org.kitodo.data.database.beans.User;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.production.enums.ObjectType;
 import org.kitodo.production.helper.Helper;

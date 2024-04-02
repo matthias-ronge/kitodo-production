@@ -20,8 +20,8 @@ import javax.servlet.http.Cookie;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.User;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.production.enums.ObjectType;
 import org.kitodo.production.helper.cache.RequestScopeCacheHelper;
 import org.kitodo.production.security.SecurityUserDetails;

@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Process;
 import org.kitodo.data.database.beans.Project;
 import org.kitodo.data.database.beans.Property;
 import org.kitodo.data.database.beans.Task;
 import org.kitodo.data.database.beans.Template;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.exceptions.ProcessGenerationException;
 import org.kitodo.production.services.ServiceManager;
 

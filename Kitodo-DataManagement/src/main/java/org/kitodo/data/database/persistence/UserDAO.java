@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.User;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class UserDAO extends BaseDAO<User> {
 

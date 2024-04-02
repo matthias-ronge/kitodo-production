@@ -13,8 +13,8 @@ package org.kitodo.data.database.persistence;
 
 import java.util.List;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Batch;
-import org.kitodo.data.database.exceptions.DAOException;
 
 /**
  * The class BatchDAO provides for to create, restore, update and delete

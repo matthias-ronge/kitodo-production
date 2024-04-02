@@ -18,11 +18,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.api.dataformat.MediaVariant;
 import org.kitodo.api.dataformat.PhysicalDivision;
 import org.kitodo.data.database.beans.Folder;
 import org.kitodo.data.database.beans.Process;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.FolderDAO;
 import org.kitodo.production.model.Subfolder;
 import org.kitodo.production.services.data.base.SearchDatabaseService;

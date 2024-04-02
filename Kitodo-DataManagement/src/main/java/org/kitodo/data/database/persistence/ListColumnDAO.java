@@ -14,8 +14,8 @@ package org.kitodo.data.database.persistence;
 import java.util.List;
 import java.util.Objects;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.ListColumn;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class ListColumnDAO extends BaseDAO<ListColumn> {
     @Override

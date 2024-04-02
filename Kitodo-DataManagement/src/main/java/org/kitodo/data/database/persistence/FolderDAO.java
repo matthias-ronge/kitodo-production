@@ -13,8 +13,8 @@ package org.kitodo.data.database.persistence;
 
 import java.util.List;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Folder;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class FolderDAO extends BaseDAO<Folder> {
 

@@ -19,8 +19,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kitodo.MockDatabase;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Project;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.production.services.ServiceManager;
 
 public class MigrationFormIT {

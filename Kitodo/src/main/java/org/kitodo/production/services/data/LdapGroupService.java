@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.LdapGroup;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.LdapGroupDAO;
 import org.kitodo.production.services.data.base.SearchDatabaseService;
 import org.primefaces.model.SortOrder;

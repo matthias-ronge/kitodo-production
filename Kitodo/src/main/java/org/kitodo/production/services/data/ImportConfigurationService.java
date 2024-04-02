@@ -17,10 +17,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.api.externaldatamanagement.ImportConfigurationType;
 import org.kitodo.data.database.beans.ImportConfiguration;
 import org.kitodo.data.database.beans.Project;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.ImportConfigurationDAO;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.ImportConfigurationInUseException;

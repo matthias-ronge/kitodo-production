@@ -22,11 +22,11 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.config.ConfigCore;
 import org.kitodo.config.enums.ParameterCore;
 import org.kitodo.data.database.beans.Client;
 import org.kitodo.data.database.beans.User;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.exceptions.ProcessorException;
 import org.kitodo.production.enums.ReportLevel;
 import org.kitodo.production.helper.Helper;

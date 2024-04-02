@@ -19,8 +19,8 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.LdapServer;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class LdapServerDaoIT {
 

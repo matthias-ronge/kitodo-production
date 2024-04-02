@@ -15,8 +15,8 @@ import java.io.IOException;
 
 import javax.naming.ConfigurationException;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Batch;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.exceptions.CommandException;
 import org.kitodo.exceptions.ProcessGenerationException;

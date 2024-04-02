@@ -11,8 +11,8 @@
 
 package org.kitodo;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.User;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.production.security.SecurityUserDetails;
 import org.kitodo.production.services.ServiceManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Client;
 import org.kitodo.data.database.beans.ListColumn;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.ListColumnDAO;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.ServiceManager;

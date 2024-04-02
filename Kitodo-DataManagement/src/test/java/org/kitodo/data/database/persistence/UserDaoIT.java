@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.User;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class UserDaoIT {
 

@@ -19,9 +19,9 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Folder;
 import org.kitodo.data.database.beans.Project;
-import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.ProjectDAO;
 import org.kitodo.data.elasticsearch.index.type.enums.ProjectTypeField;
 

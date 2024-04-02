@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Template;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class TemplateDAO extends BaseDAO<Template> {
 

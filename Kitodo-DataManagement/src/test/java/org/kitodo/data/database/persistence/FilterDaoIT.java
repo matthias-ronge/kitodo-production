@@ -19,9 +19,9 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.kitodo.api.data.DAOException;
 import org.kitodo.data.database.beans.Filter;
 import org.kitodo.data.database.enums.IndexAction;
-import org.kitodo.data.database.exceptions.DAOException;
 
 public class FilterDaoIT {
 
