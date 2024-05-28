@@ -116,9 +116,9 @@ public class FilterService extends SearchDatabaseService<Filter, FilterDAO>
     }
 
     private String replaceLegacyFilters(String filter) {
-        filter.replace("processproperty","property");
-        filter.replace("workpiece","property");
-        filter.replace("template","property");
+        filter = filter.replace("processproperty","property");
+        filter = filter.replace("workpiece","property");
+        filter = filter.replace("template","property");
         return filter;
     }
 
