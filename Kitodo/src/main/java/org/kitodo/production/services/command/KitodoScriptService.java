@@ -242,6 +242,11 @@ public class KitodoScriptService {
                     Helper.setErrorMessage(e.getMessage());
                 }
                 break;
+            case "expolode":
+                for(Process process: processes) {
+                    new ExplodeService(process).run();
+                }
+                break;
             default:
                 Helper.setErrorMessage("Unknown action",
                     " - use: 'action:addRole, action:setTaskProperty, action:setStepStatus, "
