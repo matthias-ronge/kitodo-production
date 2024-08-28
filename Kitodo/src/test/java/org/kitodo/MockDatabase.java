@@ -103,6 +103,7 @@ import org.kitodo.production.helper.Helper;
 import org.kitodo.production.process.ProcessGenerator;
 import org.kitodo.production.security.password.SecurityPasswordEncoder;
 import org.kitodo.production.services.ServiceManager;
+import org.kitodo.production.services.workflow.WorkflowControllerService;
 import org.kitodo.production.workflow.model.Converter;
 import org.kitodo.test.utils.ProcessTestUtils;
 import org.kitodo.test.utils.TestConstants;
@@ -1273,6 +1274,9 @@ public class MockDatabase {
         ServiceManager.getUserService().saveToDatabase(secondUser);
         ServiceManager.getUserService().saveToDatabase(blockedUser);
 
+        WorkflowControllerService.updateProcessSortHelperStatus(firstProcess);
+        ServiceManager.getProcessService().save(firstProcess);
+
         Process secondProcess = ServiceManager.getProcessService().getById(2);
 
         Task eleventhTask = new Task();
@@ -1321,6 +1325,9 @@ public class MockDatabase {
         ServiceManager.getTaskService().save(thirteenTask, true);
 
         ServiceManager.getRoleService().saveToDatabase(role);
+
+        WorkflowControllerService.updateProcessSortHelperStatus(secondProcess);
+        ServiceManager.getProcessService().save(secondProcess);
     }
 
     private static List<Task> getTasks() {
