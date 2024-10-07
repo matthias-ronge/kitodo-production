@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.kitodo.data.database.beans.BaseBean;
 import org.kitodo.data.database.beans.Role;
+import org.kitodo.data.database.enums.TaskStatus;
 import org.kitodo.production.enums.ProcessState;
 import org.primefaces.model.SortOrder;
 
@@ -41,6 +43,14 @@ import org.primefaces.model.SortOrder;
  */
 public class BeanQuery {
     private static final Pattern EXPLICIT_ID_SEARCH = Pattern.compile("id:(\\d+)");
+    private static final Map<String, TaskStatus> TASK_STATUS_FOR_FILTER = new HashMap<>() {
+        {
+            put("steplocked", TaskStatus.LOCKED);
+            put("stepopen", TaskStatus.OPEN);
+            put("stepinwork", TaskStatus.INWORK);
+            put("stepdone", TaskStatus.DONE);
+        }
+    };
     private final Class<? extends BaseBean> beanClass;
     private final String className;
     private final String varName;
@@ -296,19 +306,118 @@ public class BeanQuery {
         restrictions.add(restriction.toString());
     }
 
-    public void restrictWithUserFilterString(String s) {
-        List<SearchFilter> searchFilters = parseFilterString(s);
+    /**
+     * This sets a restriction to which the user defined filters.
+     * 
+     * @param userDefinedFilters
+     *            which user-defined filters
+     */
+    public void restrictWithUserFilterString(String userDefinedFilters) {
+        List<SearchFilter> searchFilters = parseFilterString(userDefinedFilters);
         for (int i = 0; i < searchFilters.size(); i++) {
-            String pname = "userFilter".concat(Integer.toString(i + 1));
+            String parameterName = "userFilter".concat(Integer.toString(i + 1));
             SearchFilter searchFilter = searchFilters.get(i);
             if (searchFilter.isDatabase()) {
-                restrictions.add(varName + '.' + searchFilter.getWhere() + " = :" + pname);
-                parameters.put(pname, searchFilter.getWhat());
+                addDatabaseFilter(searchFilter, parameterName);
             } else {
-                restrictions.add(varName + ".id IN (:" + pname + ')');
-                indexQueries.put(pname, searchFilter);
+                restrictions.add(varName + ".id IN (:" + parameterName + ')');
+                indexQueries.put(parameterName, searchFilter);
             }
         }
+    }
+
+    /**
+     * Adds a database specific user filter.
+     * 
+     * @param searchFilter
+     *            What to search for. Where you can search:<br>
+     *            <ul>
+     *            <li>"id": the process ID. Also for tasks, "id" searches for
+     *            the process ID, not the task ID.</li>
+     *            <li>"project": the label of the process</li>
+     *            <li>"projekt": the label of the process. The German is
+     *            supported for a historical reason.</li>
+     *            <li>"step": the label of the step. For the process, this finds
+     *            every process with this step, for the step all of the
+     *            name.</li>
+     *            <li>"stepdone": the label of the step, and the step must have
+     *            been done.</li>
+     *            <li>"stepinwork": the label of the step, and the step must
+     *            currently be performed.</li>
+     *            <li>"steplocked": the label of the step, and the step must be
+     *            locked.</li>
+     *            <li>"stepopen": the label of the step, and the step must be
+     *            open.</li>
+     *            <li>"vorlage": the label of the production template. The
+     *            German is supported for a historical reason.</li>
+     *            </ul>
+     * @param parameterName
+     *            name of the generic search field
+     */
+    private void addDatabaseFilter(SearchFilter searchFilter, String parameterName) {
+        final String databaseFilter = searchFilter.getWhere();
+        switch (databaseFilter) {
+            case "id":
+                switch (className) {
+                    case "Process":
+                        restrictions.add(varName + ".id = :" + parameterName);
+                        break;
+                    case "Task":
+                        restrictions.add(varName + ".process.id = :" + parameterName);
+                        break;
+                    default:
+                        throw new IllegalStateException("BeanQuery.addDatabaseFilter(id) not yet implemented for "
+                                .concat(className));
+                }
+                break;
+
+            case "project":
+            case "projekt":
+                switch (className) {
+                    case "Process":
+                        restrictions.add(varName + ".project.title = :" + parameterName);
+                        break;
+                    case "Task":
+                        restrictions.add(varName + ".process.project.title = :" + parameterName);
+                        break;
+                    default:
+                        throw new IllegalStateException("BeanQuery.addDatabaseFilter(\"" + databaseFilter
+                                + "\") not yet implemented for ".concat(className));
+                }
+                break;
+
+            case "step":
+                extensions.add(varName + ".tasks AS task WITH task.title = :" + parameterName);
+                break;
+
+            case "steplocked":
+            case "stepopen":
+            case "stepinwork":
+            case "stepdone":
+                extensions.add(varName + ".tasks AS task WITH task.title = :" + parameterName
+                        + " AND task.processingStatus = :processingStatus");
+                parameters.put("processingStatus", TASK_STATUS_FOR_FILTER.get(databaseFilter));
+                break;
+
+            case "vorlage":
+                switch (className) {
+                    case "Process":
+                        restrictions.add(varName + ".template.title = :" + parameterName);
+                        break;
+                    case "Task":
+                        restrictions.add(varName + ".process.template.title = :" + parameterName);
+                        break;
+                    default:
+                        throw new IllegalStateException("BeanQuery.addDatabaseFilter(\"" + databaseFilter
+                                + "\") not yet implemented for ".concat(className));
+                }
+                break;
+            default:
+                restrictions.add(varName + '.' + databaseFilter + " = :" + parameterName);
+                break;
+        }
+        parameters.put(parameterName, Objects.equals(databaseFilter, "id") ? Integer.valueOf(searchFilter.getWhat())
+                : searchFilter.getWhat());
     }
 
     /**
