@@ -11,18 +11,26 @@
 
 package org.kitodo.production.services.data;
 
+import static java.lang.Character.charCount;
+
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.Session;
+import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.kitodo.data.database.beans.BaseBean;
 import org.kitodo.data.database.beans.Role;
 import org.kitodo.production.enums.ProcessState;
@@ -33,11 +41,13 @@ import org.primefaces.model.SortOrder;
  */
 public class BeanQuery {
     private static final Pattern EXPLICIT_ID_SEARCH = Pattern.compile("id:(\\d+)");
-    private final String objectClass;
+    private final Class<? extends BaseBean> beanClass;
+    private final String className;
     private final String varName;
     private final Collection<String> extensions = new ArrayList<>();
     private final Collection<String> restrictions = new ArrayList<>();
     private Pair<String, String> sorting = Pair.of("id", "ASC");
+    private final Map<String, SearchFilter> indexQueries = new HashMap<>();
     private final Map<String, Object> parameters = new HashMap<>();
 
     /**
@@ -47,8 +57,9 @@ public class BeanQuery {
      *            class of beans to search for
      */
     public BeanQuery(Class<? extends BaseBean> beanClass) {
-        objectClass = beanClass.getSimpleName();
-        varName = objectClass.toLowerCase();
+        this.beanClass = beanClass;
+        this.className = beanClass.getSimpleName();
+        this.varName = className.toLowerCase();
     }
 
     /**
@@ -153,7 +164,7 @@ public class BeanQuery {
             Matcher idSearchInput = EXPLICIT_ID_SEARCH.matcher(searchInput);
             if (idSearchInput.matches()) {
                 Integer expectedId = Integer.valueOf(idSearchInput.group(1));
-                if (objectClass.equals("Task")) {
+                if (className.equals("Task")) {
                     restrictions.add(varName + ".process.id = :id");
                 } else {
                     restrictions.add(varName + ".id = :id");
@@ -172,13 +183,32 @@ public class BeanQuery {
     }
 
     /**
+     * Performs index searches.
+     * 
+     * @param session
+     *            session of hibernate
+     */
+    public void performIndexSearches(Session session) {
+        SearchSession searchSession = Search.session(session);
+        for (var iterator = indexQueries.entrySet().iterator(); iterator.hasNext();) {
+            Entry<String, SearchFilter> entry = iterator.next();
+            SearchFilter searchFilter = entry.getValue();
+            List<Integer> ids = searchSession.search(beanClass).select(searchSession.scope(beanClass).projection()
+                    .field("id", Integer.class).toProjection()).where(function -> function.match().field(searchFilter
+                            .getWhere()).matching(searchFilter.getWhat())).fetchAll().hits();
+            parameters.put(entry.getKey(), ids);
+            iterator.remove();
+        }
+    }
+
+    /**
      * Requires that the query only find objects owned by the specified client.
      * 
      * @param sessionClientId
      *            client record number
      */
     public void restrictToClient(int sessionClientId) {
-        switch (objectClass) {
+        switch (className) {
             case "Docket":
             case "Project":
             case "Ruleset":
@@ -194,7 +224,7 @@ public class BeanQuery {
                 break;
             default:
                 throw new IllegalStateException("BeanQuery.restrictToClient() not yet implemented for "
-                    .concat(objectClass));
+                        .concat(className));
         }
         parameters.put("sessionClientId", sessionClientId);
     }
@@ -216,7 +246,7 @@ public class BeanQuery {
      *            record numbers of the projects to which the hits may belong
      */
     public void restrictToProjects(Collection<Integer> projectIDs) {
-        switch (objectClass) {
+        switch (className) {
             case "Process":
                 restrictions.add(varName + ".project.id IN (:projectIDs)");
                 break;
@@ -225,7 +255,7 @@ public class BeanQuery {
                 break;
             default:
                 throw new IllegalStateException("BeanQuery.restrictToProjects() not yet implemented for "
-                    .concat(objectClass));
+                        .concat(className));
         }
         parameters.put("projectIDs", projectIDs);
     }
@@ -267,10 +297,99 @@ public class BeanQuery {
     }
 
     public void restrictWithUserFilterString(String s) {
-        // full user filters not yet implemented -- TODO
-        forIdOrInTitle(s);
+        List<SearchFilter> searchFilters = parseFilterString(s);
+        for (int i = 0; i < searchFilters.size(); i++) {
+            String pname = "userFilter".concat(Integer.toString(i + 1));
+            SearchFilter searchFilter = searchFilters.get(i);
+            if (searchFilter.isDatabase()) {
+                restrictions.add(varName + '.' + searchFilter.getWhere() + " = :" + pname);
+                parameters.put(pname, searchFilter.getWhat());
+            } else {
+                restrictions.add(varName + ".id IN (:" + pname + ')');
+                indexQueries.put(pname, searchFilter);
+            }
+        }
     }
 
+    /**
+     * The filter string entered by the user is decomposed.
+     * 
+     * @param filterString
+     *            filter string
+     * @return filter that the user wants
+     */
+    private static List<SearchFilter> parseFilterString(String filterString) {
+        List<SearchFilter> searchFilters = new ArrayList<>();
+        StringBuilder tokenCollector = new StringBuilder();
+        boolean inQuote = false;
+        for (int offset = 0; offset < filterString.length(); offset += charCount(filterString.codePointAt(offset))) {
+            int codePoint = filterString.codePointAt(offset);
+            if (codePoint == '"') {
+                inQuote = !inQuote;
+            } else if (!inQuote && codePoint <= ' ') {
+                if (tokenCollector.length() > 0) {
+                    searchFilters.addAll(convertToUserSpecifiedFilter(tokenCollector));
+                    tokenCollector = new StringBuilder();
+                }
+            } else {
+                tokenCollector.appendCodePoint(codePoint);
+            }
+        }
+        if (tokenCollector.length() > 0) {
+            searchFilters.addAll(convertToUserSpecifiedFilter(tokenCollector));
+        }
+        return searchFilters;
+    }
+
+    /**
+     * Returns the search filters from the terminated substring buffer.
+     * 
+     * @param tokenSequence
+     * @return
+     */
+    private static Collection<SearchFilter> convertToUserSpecifiedFilter(StringBuilder tokenSequence) {
+        int colon = tokenSequence.indexOf(":");
+        if (colon < 0) {
+            return splitSearchFilters(SearchFilter.DEFAULT_SEARCH_FIELD, tokenSequence.toString());
+        } else {
+            String column = tokenSequence.substring(0, colon);
+            String value = tokenSequence.substring(colon + 1);
+            int anotherColon = value.indexOf(":");
+            if (anotherColon < 0) {
+                return Collections.singleton(new SearchFilter(column, value));
+            } else {
+                String metadataKey = value.substring(0, anotherColon);
+                String metadataValue = value.substring(anotherColon + 1);
+                return splitSearchFilters(metadataKey, metadataValue);
+            }
+        }
+    }
+
+    /**
+     * Here the filters are split. If there is more than one word in the string,
+     * individual filters are found for the words, since the index searches for
+     * words.
+     * 
+     * @param metadataKey
+     *            search field that is searched in the metadata
+     * @param tokens
+     *            input string leads to multiple index searches
+     * @return the user-specified filters
+     */
+    private static Collection<SearchFilter> splitSearchFilters(String metadataKey, String tokens) {
+        return Arrays.stream(tokens.split(" +")).map(metadataValue -> new SearchFilter(true, metadataKey,
+                metadataValue))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Sets the sort order for the search results.
+     * 
+     * @param sortField
+     *            the database field to sort on
+     * @param sortOrder
+     *            the sorting direction
+     */
     public void defineSorting(String sortField, SortOrder sortOrder) {
         sorting = Pair.of(varName + '.' + sortField, SortOrder.DESCENDING.equals(sortOrder) ? "DESC" : "ASC");
     }
@@ -319,7 +438,7 @@ public class BeanQuery {
     }
 
     private void innerFormQuery(StringBuilder query) {
-        query.append("FROM ").append(objectClass).append(" AS ").append(varName);
+        query.append("FROM ").append(className).append(" AS ").append(varName);
         for (String extension : extensions) {
             query.append(" INNER JOIN ").append(extension);
         }
@@ -333,6 +452,9 @@ public class BeanQuery {
     }
 
     public Map<String, Object> getQueryParameters() {
+        if (!indexQueries.isEmpty()) {
+            throw new IllegalStateException("index searches not yet performed");
+        }
         return parameters;
     }
 
