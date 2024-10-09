@@ -25,7 +25,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.kitodo.data.database.beans.BaseTemplateBean;
 import org.kitodo.data.database.beans.Process;
 import org.kitodo.production.services.ServiceManager;
-import org.kitodo.production.services.data.BeanQuery;
+import org.kitodo.production.services.data.lookup.BeanQuery;
 
 public class SearchResultGeneration {
 

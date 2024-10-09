@@ -9,7 +9,7 @@
  * GPL3-License.txt file that was distributed with this source code.
  */
 
-package org.kitodo.production.services.data;
+package org.kitodo.production.services.data.lookup;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -266,9 +266,12 @@ public class BeanQuery {
         restrictions.add(restriction.toString());
     }
 
-    public void restrictWithUserFilterString(String s) {
-        // full user filters not yet implemented -- TODO
-        forIdOrInTitle(s);
+    public void restrictWithUserFilterString(String filterString) {
+        for (var groupFilter : UserSpecifiedFilterParser.parse(filterString).entrySet()) {
+            for (UserSpecifiedFilter filter : groupFilter.getValue()) {
+
+            }
+        }
     }
 
     public void defineSorting(String sortField, SortOrder sortOrder) {

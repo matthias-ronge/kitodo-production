@@ -24,6 +24,7 @@ import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.WorkflowDAO;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.ServiceManager;
+import org.kitodo.production.services.data.lookup.BeanQuery;
 import org.primefaces.model.SortOrder;
 
 public class WorkflowService extends BaseBeanService<Workflow, WorkflowDAO> {

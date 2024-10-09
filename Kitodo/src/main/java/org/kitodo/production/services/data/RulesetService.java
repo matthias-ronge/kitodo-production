@@ -36,6 +36,7 @@ import org.kitodo.exceptions.RulesetNotFoundException;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.helper.metadata.legacytypeimplementations.LegacyPrefsHelper;
 import org.kitodo.production.services.ServiceManager;
+import org.kitodo.production.services.data.lookup.BeanQuery;
 import org.primefaces.model.SortOrder;
 
 public class RulesetService extends BaseBeanService<Ruleset, RulesetDAO> {

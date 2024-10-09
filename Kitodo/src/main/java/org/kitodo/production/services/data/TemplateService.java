@@ -35,6 +35,7 @@ import org.kitodo.data.database.persistence.TemplateDAO;
 import org.kitodo.exceptions.ProcessGenerationException;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.ServiceManager;
+import org.kitodo.production.services.data.lookup.BeanQuery;
 import org.primefaces.model.SortOrder;
 
 public class TemplateService extends BaseBeanService<Template, TemplateDAO> {

@@ -38,8 +38,8 @@ import org.kitodo.production.helper.Helper;
 import org.kitodo.production.helper.batch.BatchProcessHelper;
 import org.kitodo.production.model.LazyBeanModel;
 import org.kitodo.production.services.ServiceManager;
-import org.kitodo.production.services.data.BeanQuery;
 import org.kitodo.production.services.data.ProcessService;
+import org.kitodo.production.services.data.lookup.BeanQuery;
 import org.primefaces.model.SortOrder;
 
 @Named("BatchForm")

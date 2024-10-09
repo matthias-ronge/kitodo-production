@@ -58,6 +58,7 @@ import org.kitodo.production.model.Subfolder;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.command.CommandService;
 import org.kitodo.production.services.command.KitodoScriptService;
+import org.kitodo.production.services.data.lookup.BeanQuery;
 import org.kitodo.production.services.file.SubfolderFactoryService;
 import org.kitodo.production.services.image.ImageGenerator;
 import org.kitodo.production.services.workflow.WorkflowControllerService;

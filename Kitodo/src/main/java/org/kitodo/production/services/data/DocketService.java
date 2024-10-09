@@ -22,6 +22,7 @@ import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.data.database.persistence.DocketDAO;
 import org.kitodo.data.exceptions.DataException;
 import org.kitodo.production.services.ServiceManager;
+import org.kitodo.production.services.data.lookup.BeanQuery;
 import org.primefaces.model.SortOrder;
 
 public class DocketService extends BaseBeanService<Docket, DocketDAO> {

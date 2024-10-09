@@ -129,6 +129,7 @@ import org.kitodo.production.metadata.MetadataEditor;
 import org.kitodo.production.metadata.copier.CopierData;
 import org.kitodo.production.metadata.copier.DataCopier;
 import org.kitodo.production.services.ServiceManager;
+import org.kitodo.production.services.data.lookup.BeanQuery;
 import org.kitodo.production.services.dataformat.MetsService;
 import org.kitodo.production.services.file.FileService;
 import org.kitodo.production.services.workflow.WorkflowControllerService;
