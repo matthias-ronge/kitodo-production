@@ -19,10 +19,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -32,6 +35,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -41,10 +45,7 @@ import org.hibernate.LazyInitializationException;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
 import org.kitodo.data.database.converter.ProcessConverter;
 import org.kitodo.data.database.enums.CorrectionComments;
 import org.kitodo.data.database.enums.TaskStatus;
@@ -159,8 +160,29 @@ public class Process extends BaseTemplateBean {
     @Transient
     private String baseType;
 
-    @Transient
-    private transient ProcessKeywords processKeywords;
+    @ElementCollection
+    @CollectionTable(
+        name = "process_x_tag",
+        joinColumns = @JoinColumn(name = "process_id")
+    )
+    @Column(name = "tag")
+    private Set<String> tags;
+
+    @ElementCollection
+    @CollectionTable(
+        name = "process_x_titletag",
+        joinColumns = @JoinColumn(name = "process_id")
+    )
+    @Column(name = "titletag")
+    private Set<String> titleTags;
+
+    @ElementCollection
+    @CollectionTable(
+        name = "process_x_batchtag",
+        joinColumns = @JoinColumn(name = "process_id")
+    )
+    @Column(name = "batchtag")
+    private Set<String> batchTags;
 
     @ManyToOne
     @JoinColumn(name = "import_configuration_id", foreignKey = @ForeignKey(name = "FK_process_import_configuration_id"))
@@ -960,58 +982,36 @@ public class Process extends BaseTemplateBean {
         return title + " [" + id + "]";
     }
 
-    /**
-     * When indexing, outputs the index keywords for free search.
-     * 
-     * @return the index keywords for free search
-     */
-    @Transient
-    @FullTextField(name = "search")
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
-    public String getKeywordsForFreeSearch() {
-        return initializeKeywords().getSearch();
-    }
+	/*
+	 * Before saving, the fields for keyword search are populated from the METS
+	 * metadata.
+	 */
+    @PrePersist
+    private void initializeKeywords() {
+        ProcessKeywords processKeywords = new ProcessKeywords(this);
 
-    /**
-     * When indexing, outputs the index keywords for searching in title.
-     * 
-     * @return the index keywords for searching in title
-     */
-    @Transient
-    @FullTextField(name = "searchTitle")
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
-    public String getKeywordsForSearchingInTitle() {
-        return initializeKeywords().getSearchTitle();
-    }
-
-    /**
-     * When indexing, outputs the index keywords for searching for assignment to
-     * batches.
-     * 
-     * @return the index keywords for searching for assignment to batches
-     */
-    @Transient
-    @FullTextField(name = "searchBatch")
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
-    public String getKeywordsForAssignmentToBatches() {
-        return initializeKeywords().getSearchBatch();
-    }
-
-    private ProcessKeywords initializeKeywords() {
-        if (this.processKeywords == null) {
-            ProcessKeywords indexingKeyworder = new ProcessKeywords(this);
-            this.processKeywords = indexingKeyworder;
-            return indexingKeyworder;
+        Set<String> searchKeywords = processKeywords.getSearch();
+        if (tags == null) {
+            tags = searchKeywords;
         } else {
-            return processKeywords;
+            tags.retainAll(searchKeywords);
+            tags.addAll(searchKeywords);
         }
-    }
 
-    /**
-     * Resets the process metadata keywords. This function is called from the
-     * DAO before saving to ensure the keywords are updated reliably.
-     */
-    public void dropKeywords() {
-        this.processKeywords = null;
+        Set<String> titleKeywords = processKeywords.getSearchTitle();
+        if (titleTags == null) {
+            titleTags = titleKeywords;
+        } else {
+            titleTags.retainAll(titleKeywords);
+            titleTags.addAll(titleKeywords);
+        }
+
+        Set<String> batchKeywords = processKeywords.getSearchBatch();
+        if (batchTags == null) {
+            batchTags = batchKeywords;
+        } else {
+            batchTags.retainAll(batchKeywords);
+            batchTags.addAll(batchKeywords);
+        }
     }
 }

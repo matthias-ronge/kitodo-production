@@ -387,7 +387,7 @@ public class ProcessKeywords {
      * 
      * @return search keywords for the free search
      */
-    public String getSearch() {
+    public Set<String> getSearch() {
         Set<String> freeKeywords = new HashSet<>(initialHashMapSize(defaultKeywords, titleKeywords, projectKeywords,
             batchKeywords, taskKeywords));
         freeKeywords.addAll(defaultKeywords);
@@ -395,7 +395,7 @@ public class ProcessKeywords {
         freeKeywords.addAll(projectKeywords);
         freeKeywords.addAll(batchKeywords);
         freeKeywords.addAll(taskKeywords);
-        return String.join(" ", freeKeywords);
+        return freeKeywords;
     }
 
     /**
@@ -411,8 +411,8 @@ public class ProcessKeywords {
      * 
      * @return search keywords for the title
      */
-    public String getSearchTitle() {
-        return String.join(" ", titleKeywords);
+    public Set<String> getSearchTitle() {
+        return titleKeywords;
     }
 
     /**
@@ -421,8 +421,8 @@ public class ProcessKeywords {
      * 
      * @return search keywords for batches
      */
-    public String getSearchBatch() {
-        return String.join(" ", batchKeywords);
+    public Set<String> getSearchBatch() {
+        return batchKeywords;
     }
 
     private static int initialHashMapSize(Collection<?>... collections) {
