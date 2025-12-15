@@ -22,17 +22,18 @@ import org.kitodo.data.database.enums.TaskStatus;
  * Constants for known search field names in filters.
  */
 enum FilterField {
-    SEARCH(null, null, null, null, null, null, "search", ProcessKeywords.LENGTH_MIN_REASONABLE),
+    SEARCH(null, null, null, null, null, null, "tag", ProcessKeywords.LENGTH_MIN_REASONABLE),
     PROCESS_ID(null, null, null, "id", "process.id", null, null, -1),
     PARENT_PROCESS_ID(null, null, null, "parent.id", "process.parent.id", null, null, -1),
-    PROCESS_TITLE("title", "process.title", LikeSearch.NO, null, null, null, "searchTitle",
+    PROCESS_TITLE("title", "process.title", LikeSearch.NO, null, null, null, "titletag",
             ProcessKeywords.LENGTH_MIN_DEFAULT),
     PROJECT("project.title", "process.project.title", LikeSearch.ALLOWED, "project.id", "process.project.id", null,
             null, -1),
     PROJECT_LOOSE("project.title", "process.project.title", LikeSearch.ALWAYS_RIGHT, "project.id", "process.project.id",
             null, null, -1),
-    BATCH("process.batches AS batch WITH batch.title", "process.batches AS batch WITH batch.title",
-            LikeSearch.NO, "batches AS batch WITH batch.id", "process.batches AS batch WITH batch.id", null, null, -1),
+    BATCH("process.batches AS batch WITH batch.title", "process.batches AS batch WITH batch.title", LikeSearch.NO,
+            "batches AS batch WITH batch.id", "process.batches AS batch WITH batch.id", null, "batchtag",
+            ProcessKeywords.LENGTH_MIN_DEFAULT),
     TASK("tasks AS task WITH task.title", "title", LikeSearch.NO, "tasks AS task WITH task.id", "id", null, null, -1),
     TASK_AUTOMATIC("tasks AS task WITH task.typeAutomatic = :queryObject AND task.title",
             "~.typeAutomatic = :queryObject AND ~.title", LikeSearch.NO,

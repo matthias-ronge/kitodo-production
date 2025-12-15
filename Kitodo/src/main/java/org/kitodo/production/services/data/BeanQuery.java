@@ -15,12 +15,12 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,7 +33,6 @@ import org.kitodo.data.database.beans.Role;
 import org.kitodo.data.database.beans.Task;
 import org.kitodo.production.enums.ProcessState;
 import org.kitodo.production.services.ServiceManager;
-import org.kitodo.production.services.index.IndexingService;
 import org.primefaces.model.SortOrder;
 
 /**
@@ -41,7 +40,6 @@ import org.primefaces.model.SortOrder;
  */
 public class BeanQuery {
     private static final Pattern EXPLICIT_ID_SEARCH = Pattern.compile("id:(\\d+)");
-    private static final Collection<Integer> NO_HIT = Collections.singletonList(0);
     private static final String JOIN_LAST_TASK = "process.tasks lastTask WITH "
             + "(lastTask.processingBegin IS NOT NULL OR lastTask.processingEnd IS NOT NULL) "
             + "AND (CASE WHEN lastTask.processingBegin IS NOT NULL AND lastTask.processingEnd IS NOT NULL "
@@ -54,17 +52,16 @@ public class BeanQuery {
             + "ELSE task.processingEnd END) FROM Task task WHERE task.process = process "
             + "AND (task.processingBegin IS NOT NULL OR task.processingEnd IS NOT NULL))";
     private final FilterService filterService = ServiceManager.getFilterService();
-    private final IndexingService indexingService = ServiceManager.getIndexingService();
     private final Class<? extends BaseBean> beanClass;
     private final String className;
     private final String varName;
-    private final Collection<String> innerJoins = new ArrayList<>();
-    private final Collection<String> leftJoins = new ArrayList<>();
+    private final Set<String> innerJoins = new HashSet<>();
+    private final Set<String> leftJoins = new HashSet<>();
     private final Collection<String> restrictions = new ArrayList<>();
     private final List<String> restrictionAlternatives = new ArrayList<>();
     private boolean indexFiltersAsAlternatives = false;
     private Pair<String, String> sorting = Pair.of("id", "ASC");
-    private final Map<String, Pair<FilterField, String>> indexQueries = new HashMap<>();
+    // private final Map<String, Pair<FilterField, String>> indexQueries = new HashMap<>();
     private final Map<String, Object> parameters = new HashMap<>();
 
     /**
@@ -225,13 +222,6 @@ public class BeanQuery {
      * Searches the index and inserts the IDs into the HQL query parameters.
      */
     public void performIndexSearches() {
-        for (var iterator = indexQueries.entrySet().iterator(); iterator.hasNext();) {
-            Entry<String, Pair<FilterField, String>> entry = iterator.next();
-            Collection<Integer> ids = indexingService.searchIds(Process.class, entry.getValue().getLeft()
-                    .getSearchField(), entry.getValue().getRight());
-            parameters.put(entry.getKey(), ids.isEmpty() ? NO_HIT : ids);
-            iterator.remove();
-        }
     }
 
     /**
@@ -334,9 +324,9 @@ public class BeanQuery {
                     }
                 } else {
                     IndexQueryPart indexQueryPart = (IndexQueryPart) searchFilter;
-                    indexQueryPart.putQueryParameters(varName, parameterName, (className.equals("Process") ? "id"
-                            : "process.id"), indexQueries, indexFiltersAsAlternatives ? restrictionAlternatives
-                                    : restrictions);
+                    indexQueryPart.putQueryParameters(varName, parameterName,
+                            indexFiltersAsAlternatives ? restrictionAlternatives : restrictions, parameters,
+                            innerJoins);
                 }
             }
             if (groupFilters.size() == 1) {
@@ -473,9 +463,6 @@ public class BeanQuery {
      *             if index queries still need to be made for parameterization
      */
     public Map<String, Object> getQueryParameters() {
-        if (!indexQueries.isEmpty()) {
-            throw new IllegalStateException("index searches not yet performed");
-        }
         return parameters;
     }
 

@@ -16,8 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.Set;
 
 /**
  * A portion of the filter entered by the user that is resolved through the
@@ -93,28 +92,31 @@ class IndexQueryPart implements UserSpecifiedFilter {
      *            variable name of the HQL search
      * @param parameterName
      *            name of the search parameter for the results
-     * @param idField
-     *            field name of the process ID
-     * @param indexQueries
-     *            puts the prepared tokens for the search queries here
      * @param restrictions
      *            puts the HQL restrictions here
+     * @param parameters
+     *            puts query parameters here
+     * @param innerJoins 
+     *            puts join requirements here
      */
-    void putQueryParameters(String varName, String parameterName, String idField,
-            Map<String, Pair<FilterField, String>> indexQueries,
-            Collection<String> restrictions) {
+    void putQueryParameters(String varName, String parameterName,
+            Collection<String> restrictions, Map<String, Object> parameters,
+            Set<String> innerJoins) {
         if (lookfor.size() == 1) {
-            restrictions.add(varName + "." + idField + (operand ? " IN (:" : " NOT IN (:") + parameterName + ')');
-            indexQueries.put(parameterName, Pair.of(filterField, lookfor.get(0)));
+            restrictions.add(
+                    "WHERE " + filterField.getSearchField() + " " + (operand ? "=" : "!=") + " :" + parameterName);
+            parameters.put(parameterName, lookfor.get(0));
         } else if (lookfor.size() >= 1) {
             int queryCount = 0;
             for (String lookingFor : lookfor) {
                 queryCount++;
                 String uniqueParameterName = parameterName + UNIQUE_PARAMETER_EXTENSION + queryCount;
-                restrictions.add(varName + "." + idField + (operand ? " IN (:" : " NOT IN (:") + uniqueParameterName + ')');
-                indexQueries.put(uniqueParameterName, Pair.of(filterField, lookingFor));
+                restrictions.add("WHERE " + filterField.getSearchField() + " " + (operand ? "=" : "!=") + " :"
+                          + uniqueParameterName);
+                parameters.put(uniqueParameterName, lookingFor);
             }
         }
+        innerJoins.add(varName + "." + filterField.getSearchField() + " " + filterField.getSearchField());
     }
 
     @Override
