@@ -32,10 +32,13 @@ import org.kitodo.data.database.persistence.HibernateUtil;
 import org.kitodo.production.helper.Helper;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.data.BeanQuery;
+import org.kitodo.production.services.data.ProcessService;
 
 public class IndexingService {
 
     private static final Logger logger = LogManager.getLogger(IndexingService.class);
+
+    private final ProcessService processService = ServiceManager.getProcessService();
 
     private static volatile IndexingService instance = null;
 
@@ -104,24 +107,11 @@ public class IndexingService {
     }
 
     /**
-     * Starts indexing for a bean type.
-     * 
-     * @param type
-     *            class of beans to be indexed
-     * @param monitor
-     *            object to be notified of progress changes
-     * @return a CompletionStage that can react asynchronously when the indexing
-     *         ends (including to exceptions)
+     * Starts indexing.
      */
-    public CompletionStage<?> startIndexing(Class<? extends BaseBean> type, MassIndexingMonitor monitor) {
-        try (Session ormSession = HibernateUtil.getSession()) {
-            MassIndexer massIndexer = Search.session(ormSession).massIndexer(type);
-            massIndexer.dropAndCreateSchemaOnStart(true);
-            if (Objects.nonNull(monitor)) {
-                massIndexer.monitor(monitor);
-            }
-            massIndexer.idFetchSize(Integer.MIN_VALUE).batchSizeToLoadObjects(1000);
-            return massIndexer.start();
+    public void startIndexing() throws DAOException {
+        for (Process process : processService.getAll()) {
+            processService.save(process);
         }
     }
 

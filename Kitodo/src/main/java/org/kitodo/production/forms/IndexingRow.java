@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.search.mapper.pojo.massindexing.MassIndexingMonitor;
 import org.kitodo.data.database.beans.BaseBean;
+import org.kitodo.data.database.exceptions.DAOException;
 import org.kitodo.production.enums.IndexStates;
 import org.kitodo.production.services.ServiceManager;
 import org.kitodo.production.services.index.IndexingService;
@@ -61,15 +62,13 @@ public class IndexingRow implements MassIndexingMonitor {
         documentsBuilt.set(0);
         documentsAdded.set(0);
         totalCount.set(0);
-        indexingService.startIndexing(type, this).whenComplete((unused, throwable) -> {
-            if (Objects.isNull(throwable)) {
-                objectIndexState = IndexStates.INDEXING_SUCCESSFUL;
-                logger.info("Indexing complete for {}", type.getSimpleName());
-            } else {
-                logger.error(throwable);
-                objectIndexState = IndexStates.INDEXING_FAILED;
-            }
-        });
+        try {
+            indexingService.startIndexing();
+            objectIndexState = IndexStates.INDEXING_SUCCESSFUL;
+        }catch(DAOException | RuntimeException throwable) {
+            logger.error(throwable);
+            objectIndexState = IndexStates.INDEXING_FAILED;
+        }
     }
 
     /**

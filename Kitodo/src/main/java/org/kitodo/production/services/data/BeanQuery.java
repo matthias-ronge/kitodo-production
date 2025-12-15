@@ -61,7 +61,6 @@ public class BeanQuery {
     private final List<String> restrictionAlternatives = new ArrayList<>();
     private boolean indexFiltersAsAlternatives = false;
     private Pair<String, String> sorting = Pair.of("id", "ASC");
-    // private final Map<String, Pair<FilterField, String>> indexQueries = new HashMap<>();
     private final Map<String, Object> parameters = new HashMap<>();
 
     /**
