@@ -49,7 +49,7 @@ public class ProcessKeywords {
     public static final int LENGTH_MIN_DEFAULT = 3;
 
     private static final String ANY_METADATA_MARKER = "mdWrap";
-    private static final char VALUE_SEPARATOR = 'q';
+    private static final char VALUE_SEPARATOR = ':';
 
     private static final Pattern TITLE_GROUPS_PATTERN = Pattern.compile("[\\p{IsLetter}\\p{Digit}]+");
     private static final Pattern METADATA_PATTERN = Pattern.compile("name=\"([^\"]+)\">([^<]*)<", Pattern.DOTALL);
