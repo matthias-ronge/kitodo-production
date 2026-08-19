@@ -21,7 +21,7 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/acp">
         <label>Art copyist</label>
-        <label lang="de">Plagiarist/in</label>
+        <label lang="de">Kunstkopist/in</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/act">
         <label>Actor</label>
@@ -205,6 +205,7 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/col">
         <label>Collector</label>
+        <label lang="de">Sammler/in</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/com">
         <label>Compiler</label>
@@ -237,6 +238,7 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/cph">
         <label>Copyright holder</label>
+        <label lang="de">Urheberrechtsinhaber/in</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/cpl">
         <label>Complainant</label>
@@ -246,7 +248,7 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/cre">
         <label>Creator</label>
-        <label lang="de">Geistige/r Schöpfer/in</label>
+        <label lang="de">Ersteller/in</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/crp">
         <label>Correspondent</label>
@@ -329,9 +331,11 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/dnr">
         <label>Donor</label>
+        <label lang="de">Schenkende/r</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/dpc">
         <label>Depicted</label>
+        <label lang="de">Abgebildete/r</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/dpt">
         <label>Depositor</label>
@@ -684,7 +688,7 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/prf">
         <label>Performer</label>
-        <label lang="de">Ausführende/r</label>
+        <label lang="de">Darsteller/in</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/prg">
         <label>Programmer</label>
@@ -756,6 +760,7 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/red">
         <label>Redaktor</label>
+        <label lang="de">Redaktion</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/ren">
         <label>Renderer</label>
@@ -857,13 +862,14 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/std">
         <label>Set designer</label>
+        <label lang="de">Bühnenbildner/in</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/stg">
         <label>Setting</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/stl">
         <label>Storyteller</label>
-        <label lang="de">Geschichtenerzähler/in</label>
+        <label lang="de">Erzähler/in</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/stm">
         <label>Stage manager</label>
@@ -879,7 +885,7 @@
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/tch">
         <label>Teacher</label>
-        <label lang="de">Lehrer/in</label>
+        <label lang="de">Einstudierung</label>
     </option>
     <option value="http://id.loc.gov/vocabulary/relators/ths">
         <label>Thesis advisor</label>
